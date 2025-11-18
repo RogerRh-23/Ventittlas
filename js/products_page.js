@@ -66,14 +66,21 @@
     }
 
     function applyFilters(products) {
-        const dept = document.getElementById('filter-department').value;
-        const cat = document.getElementById('filter-category').value;
-        const minRaw = document.getElementById('filter-price-min').value;
-        const maxRaw = document.getElementById('filter-price-max').value;
+        const deptEl = document.getElementById('filter-department');
+        const catEl = document.getElementById('filter-category');
+        const minEl = document.getElementById('filter-price-min');
+        const maxEl = document.getElementById('filter-price-max');
+        const bestEl = document.getElementById('filter-best');
+        const availEl = document.getElementById('filter-available');
+
+        const dept = deptEl ? deptEl.value : '';
+        const cat = catEl ? catEl.value : '';
+        const minRaw = minEl ? minEl.value : '';
+        const maxRaw = maxEl ? maxEl.value : '';
         const min = (minRaw === '' || minRaw === undefined) ? null : parseFloat(minRaw);
         const max = (maxRaw === '' || maxRaw === undefined) ? null : parseFloat(maxRaw);
-        const onlyBest = document.getElementById('filter-best').checked;
-        const onlyAvail = document.getElementById('filter-available').checked;
+        const onlyBest = bestEl ? bestEl.checked : false;
+        const onlyAvail = availEl ? availEl.checked : false;
 
         return products.filter(p => {
             if (dept && p.department !== dept) return false;
@@ -111,12 +118,16 @@
         const cats = uniqueValues(products, 'category');
         const depSel = document.getElementById('filter-department');
         const catSel = document.getElementById('filter-category');
-        deps.forEach(d => {
-            const opt = document.createElement('option'); opt.value = d; opt.textContent = d; depSel.appendChild(opt);
-        });
-        cats.forEach(c => {
-            const opt = document.createElement('option'); opt.value = c; opt.textContent = c; catSel.appendChild(opt);
-        });
+        if (depSel) {
+            deps.forEach(d => {
+                const opt = document.createElement('option'); opt.value = d; opt.textContent = d; depSel.appendChild(opt);
+            });
+        }
+        if (catSel) {
+            cats.forEach(c => {
+                const opt = document.createElement('option'); opt.value = c; opt.textContent = c; catSel.appendChild(opt);
+            });
+        }
     }
 
     function init(products) {

@@ -125,42 +125,47 @@
         }
 
         const containers = document.querySelectorAll('[data-products]');
+        if (!containers || containers.length === 0) return;
         containers.forEach(container => {
-            const attrs = gatherAttrs(container);
-            let list = products.filter(p => matchesFilter(p, attrs));
-            if (attrs.limit) list = list.slice(0, attrs.limit);
-            // clear container
-            container.innerHTML = '';
-            // normalize fields coming from DB before rendering
-            list.forEach(p => {
-                const np = normalizeProduct(p);
-                renderProduct(container, np, template);
-            });
-            // add a "Ver todo" CTA under the section (link to products listing with query params)
             try {
-                const section = container.closest('section') || container.parentElement;
-                if (section) {
-                    // remove existing CTA if any
-                    const existing = section.querySelector('.section-cta');
-                    if (existing) existing.remove();
+                const attrs = gatherAttrs(container);
+                let list = products.filter(p => matchesFilter(p, attrs));
+                if (attrs.limit) list = list.slice(0, attrs.limit);
+                // clear container
+                container.innerHTML = '';
+                // normalize fields coming from DB before rendering
+                list.forEach(p => {
+                    const np = normalizeProduct(p);
+                    renderProduct(container, np, template);
+                });
+                // add a "Ver todo" CTA under the section (link to products listing with query params)
+                try {
+                    const section = container.closest('section') || container.parentElement;
+                    if (section) {
+                        // remove existing CTA if any
+                        const existing = section.querySelector('.section-cta');
+                        if (existing) existing.remove();
 
-                    const cta = document.createElement('div');
-                    cta.className = 'section-cta';
-                    cta.style.marginTop = '16px';
-                    const a = document.createElement('a');
-                    a.className = 'btn btn-outline';
-                    // build href with params
-                    const params = new URLSearchParams();
-                    if (attrs.filter) params.set('filter', attrs.filter);
-                    if (attrs.department) params.set('department', attrs.department);
-                    const href = '/pages/products.html' + (params.toString() ? ('?' + params.toString()) : '');
-                    a.href = href;
-                    a.textContent = 'Ver todo';
-                    cta.appendChild(a);
-                    section.appendChild(cta);
+                        const cta = document.createElement('div');
+                        cta.className = 'section-cta';
+                        cta.style.marginTop = '16px';
+                        const a = document.createElement('a');
+                        a.className = 'btn btn-outline';
+                        // build href with params
+                        const params = new URLSearchParams();
+                        if (attrs.filter) params.set('filter', attrs.filter);
+                        if (attrs.department) params.set('department', attrs.department);
+                        const href = '/pages/products.html' + (params.toString() ? ('?' + params.toString()) : '');
+                        a.href = href;
+                        a.textContent = 'Ver todo';
+                        cta.appendChild(a);
+                        section.appendChild(cta);
+                    }
+                } catch (e) {
+                    console.warn('Could not append Ver todo CTA', e);
                 }
-            } catch (e) {
-                console.warn('Could not append Ver todo CTA', e);
+            } catch (err) {
+                console.error('Error rendering products for a container', err);
             }
         });
     });
