@@ -1,0 +1,36 @@
+.site-header {
+    position: relative;
+}
+
+.header-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    margin: 0;
+}
+
+.header-container {
+    position: absolute;
+    top: 320px;
+    left: 64px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: center;
+    color: $font-color;
+    pointer-events: none;
+}
+
+.header-container h1 {
+    font-size: 3.5rem;
+    margin: 0 0 8px 0;
+    pointer-events: auto;
+}
+
+.header-container p {
+    font-size: 2.5rem;
+    margin: 0;
+    pointer-events: auto;
+}

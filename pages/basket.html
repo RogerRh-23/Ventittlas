@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito de compras</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+
+<body>
+    <div data-include="../components/navbar.html"></div>
+
+    <main class="site-main container">
+        <h1>Carrito de compras</h1>
+        <section class="basket-main">
+            <div class="basket-list" id="basket-items"></div>
+            <div class="basket-summary">
+                <span>Total:</span>
+                <span id="basket-total">$0.00</span>
+            </div>
+            <button class="basket-checkout">Finalizar compra</button>
+        </section>
+    </main>
+
+    <div data-include="../components/footer.html"></div>
+
+    <script src="../js/include.js"></script>
+    <script src="../js/basket.js"></script>
+</body>
+
+</html>

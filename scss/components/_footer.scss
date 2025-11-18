@@ -1,0 +1,120 @@
+.site-footer {
+    background: $secondary-color; // green from variables
+    color: $white;
+    margin-top: 32px; // multiple of 8
+}
+
+.footer-inner {
+    display: flex;
+    gap: 32px; // multiple of 16
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 32px 16px; // vertical 32, horizontal 16
+}
+
+.footer-logo {
+    height: 240px; // multiple of 16
+    width: auto;
+    display: block;
+    margin: 16px 16px 16px 16px;
+}
+
+.footer-brand {
+    flex: 0 0 280px; // fixed column on the left (multiple of 8)
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer-tag {
+    margin: 8px 0 0 0;
+    color: lighten($white, 30%);
+    font-size: 16px; // tagline stays readable (multiple of 8)
+}
+
+.footer-nav {
+    flex: 1 1 auto; // center column grows
+    display: flex;
+    justify-content: center; // center the column horizontally
+}
+
+.footer-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, auto)); // 2 columns on desktop
+    gap: 16px 32px; // row-gap 16px, column-gap 32px (multiples of 8)
+    align-items: start;
+}
+
+/* on very wide screens, use 3 columns */
+@media (min-width: 1200px) {
+    .footer-nav ul {
+        grid-template-columns: repeat(3, minmax(0, auto));
+        gap: 16px 32px;
+    }
+}
+
+.footer-nav li {
+    margin: 0;
+}
+
+.footer-nav a {
+    color: $white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 24px; // increased size, multiple of 8
+}
+
+.footer-nav a:hover {
+    text-decoration: underline;
+}
+
+.footer-contact {
+    flex: 0 0 240px; // fixed right column
+}
+
+.footer-contact h4 {
+    margin: 0 0 8px 0;
+    color: $white;
+    font-size: 20px; // bigger heading (multiple of 4, but we use 20 to keep hierarchy)
+}
+
+.footer-contact address {
+    font-style: normal;
+    color: lighten($white, 30%);
+    font-size: 16px;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    background: transparent;
+    padding: 16px 0; // multiple of 8
+    text-align: center; // center copyright text
+}
+
+.footer-bottom small {
+    color: lighten($white, 30%);
+    display: block;
+    font-size: 16px; // larger copyright text
+}
+
+@media (max-width: 760px) {
+    .footer-inner {
+        flex-direction: column;
+        gap: 16px;
+        padding: 24px 12px;
+        align-items: center;
+    }
+
+    .footer-brand,
+    .footer-contact,
+    .footer-nav {
+        width: 100%;
+    }
+
+    .footer-nav ul {
+        align-items: center; // center on small screens
+    }
+}

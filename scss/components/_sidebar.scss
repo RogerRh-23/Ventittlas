@@ -1,0 +1,265 @@
+// Sidebar funcional y visualmente correcta
+.app-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 24px 0 0 0;
+    background: $app-sidebar-bg;
+    color: $app-sidebar-color;
+    min-height: 100vh;
+    width: 260px;
+    border-radius: 0 $app-sidebar-radius $app-sidebar-radius 0;
+    box-shadow: $app-sidebar-shadow;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    transition: width 0.35s cubic-bezier(.68, -0.55, .27, 1.55), border-radius 0.35s cubic-bezier(.68, -0.55, .27, 1.55);
+    height: 100vh;
+}
+
+// Margen al contenido principal para que no se empuje hacia abajo
+@media (min-width: 900px) {
+    body.has-sidebar> :not(.app-sidebar) {
+        margin-left: 64px; // ancho de sidebar cerrada
+        margin-right: 32px;
+        transition: margin-left 0.35s, margin-right 0.35s;
+    }
+
+    body.has-sidebar .app-sidebar.collapsed~* {
+        margin-left: 64px !important;
+        margin-right: 32px !important;
+    }
+
+    body.has-sidebar .app-sidebar:not(.collapsed) {
+        z-index: 2000;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.12);
+    }
+
+    body.has-sidebar .app-sidebar:not(.collapsed)~* {
+        margin-left: 0 !important;
+        margin-right: 32px !important;
+    }
+}
+
+.app-sidebar.collapsed {
+    width: $app-sidebar-width-collapsed !important;
+    border-radius: 0 $app-sidebar-radius-collapsed $app-sidebar-radius-collapsed 0 !important;
+}
+
+.sidebar-toggle {
+    position: relative;
+    margin: 0 0 16px 0;
+    align-self: flex-start;
+    background: #fff;
+    border: 2px solid $secondary-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    color: $secondary-color;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.sidebar-hamburger {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    position: relative;
+    cursor: pointer;
+}
+
+.sidebar-hamburger span {
+    display: block;
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    height: 6px;
+    background: $secondary-color;
+    border-radius: 6px;
+    transition: all 0.35s cubic-bezier(.68, -0.55, .27, 1.55);
+    border: 1px solid #fff;
+}
+
+.sidebar-hamburger span:nth-child(1) {
+    top: 6px;
+}
+
+.sidebar-hamburger span:nth-child(2) {
+    top: 14px;
+}
+
+.sidebar-hamburger span:nth-child(3) {
+    top: 22px;
+}
+
+.sidebar-toggle.open .sidebar-hamburger span:nth-child(1) {
+    top: 14px;
+    transform: rotate(45deg);
+}
+
+.sidebar-toggle.open .sidebar-hamburger span:nth-child(2) {
+    opacity: 0;
+}
+
+.sidebar-toggle.open .sidebar-hamburger span:nth-child(3) {
+    top: 14px;
+    transform: rotate(-45deg);
+}
+
+.sidebar-nav {
+    list-style: none;
+    margin: 32px 0 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: transform 0.35s cubic-bezier(.68, -0.55, .27, 1.55), opacity 0.2s;
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-nav.open {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sidebar-item {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.sidebar-item a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: $app-sidebar-color;
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: $font-weight-bold;
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 0 8px;
+    transition: background 120ms, color 120ms;
+    background: transparent;
+}
+
+.sidebar-item a img,
+.sidebar-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 4px;
+    display: block;
+    filter: brightness(0) invert(1); // iconos blancos por defecto
+    transition: filter 0.2s;
+}
+
+
+.sidebar-link.active .sidebar-icon,
+.sidebar-link:hover .sidebar-icon {
+    filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(1000%) hue-rotate(88deg) brightness(1.1); // icono verde activo/hover
+}
+
+
+.sidebar-link-panel .sidebar-icon {
+    filter: brightness(0) invert(1); // icono blanco por defecto
+}
+
+
+.sidebar-link-panel.active .sidebar-icon,
+.sidebar-link-panel:hover .sidebar-icon {
+    filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(1000%) hue-rotate(88deg) brightness(1.1); // icono verde activo/hover
+}
+
+@media (min-width: 900px) {
+    .sidebar-icon {
+        display: block !important;
+    }
+}
+
+// Textos siempre blancos, solo visibles en sidebar expandida
+
+.sidebar-text {
+    color: $app-sidebar-color;
+    font-weight: $font-weight-bold;
+    font-size: 1.25rem;
+    transition: opacity 0.2s, margin-left 0.2s;
+    opacity: 1;
+    margin-left: 0;
+    display: inline-block;
+}
+
+.app-sidebar.collapsed .sidebar-text {
+    display: none !important;
+    opacity: 0 !important;
+    margin-left: 0 !important;
+}
+
+.app-sidebar.collapsed .sidebar-icon {
+    display: block !important;
+    margin: 0 auto !important;
+}
+
+.app-sidebar.collapsed .sidebar-item {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+// Solo cambia el fondo y SVG al hover/activo
+.sidebar-item a:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: $app-sidebar-color;
+}
+
+.sidebar-item a.active {
+    background: #fff !important;
+    color: $secondary-color !important;
+}
+
+.sidebar-item a.active .sidebar-text {
+    color: $secondary-color !important;
+}
+
+.sidebar-item a.active .sidebar-icon {
+    filter: brightness(0) saturate(100%) invert(41%) sepia(98%) saturate(1000%) hue-rotate(88deg) brightness(1.1) !important;
+}
+
+// Logout
+.sidebar-link-logout {
+    color: #e53935 !important;
+}
+
+.sidebar-link-logout .sidebar-text {
+    color: #e53935 !important;
+}
+
+.sidebar-link-logout .sidebar-icon {
+    filter: brightness(0) invert(1);
+}
+
+.sidebar-item-logout {
+    margin-top: auto;
+    width: 100%;
+}
+
+// Responsive: sidebar funcional en desktop y mobile
+@media (max-width: 900px) {
+    .app-sidebar {
+        width: $app-sidebar-width-collapsed;
+        border-radius: 0 $app-sidebar-radius-collapsed $app-sidebar-radius-collapsed 0;
+    }
+
+    .sidebar-text {
+        display: none !important;
+    }
+}

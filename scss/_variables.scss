@@ -1,0 +1,44 @@
+// Color palette
+$primary-color: #006414;
+$secondary-color: #009929;
+$third-color: #5ccb5f;
+$background-color: #eaeffe;
+$font-color: #ffffff;
+$navbar-bg-color: rgba(360, 360, 360, 0.3);
+$navbar-text-color: #ffffff;
+$black: #191919;
+$white: #ffffff;
+
+// Font family and weights
+$font-family-base: 'Roboto Condensed', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+$font-weight-black: 900;
+
+// Scales
+$font-size-base: 16px;
+$line-height-base: 1.4;
+
+// Button styles
+$button-border-radius: 16px;
+$button-padding: 16px 24px;
+$button-font-size: 1.25rem;
+$button-font-weight: $font-weight-bold;
+
+
+// Scrollbar styles
+$scrollbar-width: 8px;
+$scrollbar-thumb-color: darken($background-color, 10%);
+$scrollbar-border-radius: 16px;
+$scrollbar-color: linear-gradient(#5ab507, #a9e159);
+
+// Sidebar styles
+$app-sidebar-width: 72px;
+$app-sidebar-width-collapsed: 56px;
+$app-sidebar-radius: 24px;
+$app-sidebar-radius-collapsed: 16px;
+$app-sidebar-bg: $secondary-color;
+$app-sidebar-color: $white;
+$app-sidebar-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);

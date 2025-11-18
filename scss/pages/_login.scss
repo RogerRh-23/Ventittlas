@@ -1,0 +1,133 @@
+.login-main {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url('../assets/img/banner.jpeg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.login-section {
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.login-card {
+    background: $background-color;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.login-section h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.6rem;
+    text-align: center;
+    color: $secondary-color
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form label {
+    margin-top: 0.6rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+    color: $secondary-color;
+}
+
+.login-form input[type="email"],
+.login-form input[type="password"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-sizing: border-box;
+    font-size: 1rem;
+    color: $secondary-color;
+}
+
+.login-form button[type="submit"] {
+    margin-top: 1rem;
+    padding: 10px 14px;
+    border: none;
+    border-radius: $button-border-radius;
+    background: linear-gradient(90deg, $primary-color, $secondary-color);
+    color: #fff;
+    font-weight: $font-weight-bold;
+    cursor: pointer;
+    transition: transform 160ms ease, filter 160ms ease, box-shadow 160ms ease;
+}
+
+.login-form button[type="submit"]:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.06);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 600px) {
+    .login-section {
+        padding: 12px;
+    }
+
+    .login-card {
+        padding: 1.2rem;
+    }
+
+    .login-form input[type="text"],
+    .login-form input[type="password"] {
+        font-size: 0.95rem;
+    }
+}
+
+.back-btn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 10001;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.9);
+    color: $primary-color;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+    font-weight: $font-weight-bold;
+}
+
+.back-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+}
+
+.back-btn img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.back-btn:focus {
+    outline: 3px solid rgba(0, 123, 255, 0.18);
+    outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        width: 40px;
+        height: 40px;
+    }
+}

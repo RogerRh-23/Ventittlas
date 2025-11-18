@@ -1,0 +1,40 @@
+<nav class="site-navbar">
+    <div class="container">
+        <img src="/assets/img/logo.png" alt="Ventittlas Logo" class="nav-logo">
+        <ul class="nav-links">
+            <li class="nav-search-li">
+                <form class="nav-search" action="/search" method="get" role="search">
+                    <label for="nav-search-input" class="sr-only">Buscar en la tienda</label>
+                    <input id="nav-search-input" name="q" type="search" placeholder="Buscar en la tienda"
+                        aria-label="Buscar en la tienda">
+                    <button type="submit" class="nav-search-btn" aria-label="Buscar">🔍</button>
+                </form>
+            </li>
+            <li>
+                <a href="/index.html">
+                    <img src="/assets/icons/home.svg" alt="Inicio" class="nav-icon"> Inicio
+                </a>
+            </li>
+            <li>
+                <a href="/pages/products.html">
+                    <img src="/assets/icons/products.svg" alt="Productos" class="nav-icon"> Productos
+                </a>
+            </li>
+            <li>
+                <a href="/pages/services.html">
+                    <img src="/assets/icons/services.svg" alt="Servicios" class="nav-icon"> Servicios
+                </a>
+            </li>
+            <li>
+                <a href="/pages/basket.html">
+                    <img src="/assets/icons/basket.png" alt="Carrito" class="nav-icon nav-icon--invert"> Carrito
+                </a>
+            </li>
+            <li id="nav-login-item">
+                <a href="/pages/login.html" id="nav-login-link">
+                    <img src="/assets/icons/login.svg" alt="Iniciar Sesión" class="nav-icon"> <span id="nav-login-label">Iniciar Sesión</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>

@@ -1,0 +1,25 @@
+<!-- Template fragment for a single product card; intended to be included and used by JS -->
+<template id="product-card-template">
+    <article class="product-card">
+        <a class="product-link" href="#">
+            <div class="product-media">
+                <img src="/assets/img/products/Bacardi_Raspberry.png" alt="Producto" class="product-img">
+            </div>
+            <div class="product-body">
+                <h3 class="product-title">Producto</h3>
+                <div class="product-meta">
+                    <div class="price-row">
+                        <span class="product-price">$0.00</span>
+                        <span class="product-unit">/kg</span>
+                    </div>
+                    <div class="product-stock">Sin Stock</div>
+                </div>
+            </div>
+        </a>
+        <div class="product-actions">
+            <button class="btn add-to-cart" type="button">Agregar</button>
+        </div>
+    </article>
+</template>
+
+<!-- Styles for product cards could go in scss/components/_products.scss -->

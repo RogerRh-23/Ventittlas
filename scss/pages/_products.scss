@@ -1,0 +1,274 @@
+/* Section CTA (Ver todo) and small section helpers */
+.section-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+    /* multiple of 8 */
+}
+
+.section-cta .btn {
+    padding: 12px 24px;
+    /* vertical 12px, horizontal 24px (12 is multiple of 4 but acceptable for visual balance) */
+    border-radius: 12px;
+    /* multiple of 4 */
+    font-size: 16px;
+    /* multiple of 8/16 baseline */
+}
+
+.btn-outline {
+    background: transparent;
+    color: $primary-color;
+    border: 2px solid rgba($black, 0.08);
+}
+
+.section-sub {
+    margin-top: 8px;
+    margin-bottom: 12px;
+    color: lighten($black, 60%);
+    font-size: 16px;
+}
+
+/* Products grid and product card styles + price slider */
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    align-items: start;
+}
+
+.product-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.product-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
+
+.product-media {
+    background: linear-gradient(180deg, #f7f7f7, #fff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 140px;
+}
+
+.product-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.product-body {
+    padding: 12px;
+}
+
+.product-title {
+    font-size: 1rem;
+    margin: 0 0 8px 0;
+}
+
+.product-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.product-price {
+    font-weight: 700;
+    color: $primary-color;
+}
+
+/* Price slider styles */
+.price-slider {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.price-values {
+    font-size: .95rem;
+    color: $font-color;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-values .price-sep {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+.range-wrap {
+    position: relative;
+    height: 32px;
+}
+
+.range-input {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 8px;
+    width: 100%;
+    height: 8px;
+    background: transparent;
+    pointer-events: auto;
+}
+
+.range-input::-webkit-slider-runnable-track {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+}
+
+.range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: $primary-color;
+    border-radius: 50%;
+    margin-top: -5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.range-input::-moz-range-track {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+}
+
+.range-input::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: $primary-color;
+    border-radius: 50%;
+    border: none;
+}
+
+/* Make the top range pointer sit above so both thumbs can be used */
+.range-max {
+    z-index: 3;
+}
+
+.range-min {
+    z-index: 2;
+}
+
+/* Small responsive tweaks */
+@media (max-width: 600px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .product-media {
+        height: 110px;
+    }
+}
+
+/* Layout for products page: filters on the left, product list on the right */
+.products-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.products-filters {
+    flex: 0 0 300px;
+    box-sizing: border-box;
+    padding: 16px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.products-filters h3 {
+    margin-top: 0;
+    color: $primary-color;
+}
+
+.products-filters label {
+    color: #191919;
+}
+
+.products-list {
+    flex: 1 1 auto;
+}
+
+@media (min-width: 900px) {
+    .products-filters {
+        position: sticky;
+        top: 88px;
+        height: fit-content;
+    }
+}
+
+/* enhance range track and add fill element (JS will create .range-fill) */
+.range-wrap {
+    position: relative;
+    height: 32px;
+    background: linear-gradient(90deg, rgba(25, 25, 25, 0.06), rgba(25, 25, 25, 0.06));
+    border-radius: 8px;
+    overflow: visible;
+}
+
+.range-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 12px;
+    height: 8px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(25, 25, 25, 0.06) 0%, rgba(25, 25, 25, 0.06) 100%);
+    z-index: 1;
+}
+
+.range-fill {
+    position: absolute;
+    top: 12px;
+    height: 8px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, $primary-color, lighten($primary-color, 12%));
+    z-index: 2;
+    pointer-events: none;
+    transition: left .18s cubic-bezier(.2, .9, .2, 1), width .18s cubic-bezier(.2, .9, .2, 1), background .2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Thumb interaction */
+.range-input::-webkit-slider-thumb {
+    transition: transform .14s ease, box-shadow .14s ease;
+}
+
+.range-input::-moz-range-thumb {
+    transition: transform .14s ease, box-shadow .14s ease;
+}
+
+.range-input::-webkit-slider-thumb:hover {
+    transform: scale(1.08);
+}
+
+.range-input:active::-webkit-slider-thumb {
+    transform: scale(1.12);
+}
+
+.range-input::-moz-range-thumb:hover {
+    transform: scale(1.08);
+}
+
+.range-input:active::-moz-range-thumb {
+    transform: scale(1.12);
+}

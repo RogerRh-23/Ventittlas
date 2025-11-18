@@ -1,0 +1,95 @@
+@font-face {
+    font-family: 'Roboto Condensed';
+    src: url('../assets/fonts/Roboto/Roboto_Condensed-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto Condensed';
+    src: url('../assets/fonts/Roboto/Roboto_Condensed-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto Condensed';
+    src: url('../assets/fonts/Roboto/Roboto_Condensed-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto Condensed';
+    src: url('../assets/fonts/Roboto/Roboto_Condensed-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto Condensed';
+    src: url('../assets/fonts/Roboto/Roboto_Condensed-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --base-font-family: #{$font-family-base};
+}
+
+body {
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    line-height: $line-height-base;
+    color: $font-color;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-family: $font-family-base;
+    font-weight: $font-weight-black;
+}
+
+h2 {
+    font-family: $font-family-base;
+    font-weight: $font-weight-bold;
+}
+
+h3 {
+    font-family: $font-family-base;
+    font-weight: $font-weight-medium;
+}
+
+h4,
+h5,
+h6 {
+    font-family: $font-family-base;
+    font-weight: $font-weight-regular;
+}
+
+/* Utility font-weight helpers */
+.fw-light {
+    font-weight: $font-weight-light;
+}
+
+.fw-regular {
+    font-weight: $font-weight-regular;
+}
+
+.fw-medium {
+    font-weight: $font-weight-medium;
+}
+
+.fw-bold {
+    font-weight: $font-weight-bold;
+}
+
+.fw-black {
+    font-weight: $font-weight-black;
+}

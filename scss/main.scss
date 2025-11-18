@@ -1,0 +1,40 @@
+@import 'variables';
+@import 'mixins';
+@import 'base';
+@import 'layout';
+@import 'fonts';
+@import 'components/buttons';
+@import 'components/dropdown';
+@import 'components/footer';
+@import 'components/forms';
+@import 'components/header';
+@import 'components/navbar';
+@import 'components/products';
+@import 'components/sidebar';
+@import 'pages/basket';
+@import 'pages/home';
+@import 'pages/inventory';
+@import 'pages/login';
+@import 'pages/products';
+@import 'pages/register';
+@import 'pages/services';
+
+body {
+    background-color: $background-color;
+    overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+    width: $scrollbar-width;
+}
+
+::-webkit-scrollbar-thumb {
+    /* use the project scrollbar color variable (can be a gradient) */
+    background: $scrollbar-color;
+    border-radius: $scrollbar-border-radius;
+}
+
+::-webkit-scrollbar-track {
+    /* track uses a subtle background derived from page background */
+    background-color: lighten($background-color, 8%);
+}

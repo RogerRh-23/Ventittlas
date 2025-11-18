@@ -1,0 +1,79 @@
+// Styles for the admin inventory page
+// Uses project variables from scss/_variables.scss
+
+// Container
+#inventory-container {
+    font-family: $font-family-base;
+    color: $black;
+}
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: transparent;
+    border-radius: 6px;
+    margin-top: 12px;
+}
+
+/* Inventory table */
+#inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+    th,
+    td {
+        padding: 12px 14px;
+        border: 1px solid lighten($black, 80%);
+        text-align: left;
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    th {
+        background: lighten($background-color, 5%);
+        color: $black;
+        font-weight: $font-weight-medium;
+        font-size: 0.9rem;
+    }
+
+    caption {
+        caption-side: top;
+        text-align: left;
+        padding-bottom: 8px;
+        font-size: 0.95rem;
+        color: darken($black, 20%);
+    }
+}
+
+/* Empty / error state */
+#inventory-empty {
+    display: none;
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 6px;
+    background: mix($third-color, #fff, 94%); // subtle warm background
+    border: 1px solid lighten($third-color, 30%);
+    color: darken($black, 20%);
+}
+
+.muted {
+    color: lighten($black, 30%);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+/* Small screens: make table rows easier to scan */
+@media (max-width: 640px) {
+
+    #inventory-table th,
+    #inventory-table td {
+        padding: 10px 8px;
+        font-size: 0.9rem;
+    }
+
+    #inventory-table caption {
+        font-size: 0.9rem;
+    }
+}

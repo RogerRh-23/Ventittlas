@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Productos</title>
+    <link rel="icon" type="image/x-icon" href="../assets/img/logo.png">
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+
+<body>
+    <div data-include="../components/navbar.html"></div>
+
+    <main class="site-main">
+        <div class="products-layout">
+            <aside class="products-filters">
+                <h3>Filtros</h3>
+                <div class="filter-group">
+                    <label for="filter-department">Departamento</label>
+                    <select id="filter-department">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-category">Categoría</label>
+                    <select id="filter-category">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Precio</label>
+                    <div class="price-slider">
+                        <div class="price-values">
+                            <span id="price-min-label">0</span>
+                            <span class="price-sep">—</span>
+                            <span id="price-max-label">0</span>
+                        </div>
+                        <div class="range-wrap">
+                            <input id="filter-price-min" class="range-input range-min" type="range" min="0" max="1000"
+                                step="1" value="0" aria-label="Precio mínimo">
+                            <input id="filter-price-max" class="range-input range-max" type="range" min="0" max="1000"
+                                step="1" value="1000" aria-label="Precio máximo">
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label><input id="filter-best" type="checkbox"> Sólo en oferta</label>
+                </div>
+                <div class="filter-group">
+                    <label><input id="filter-available" type="checkbox"> Sólo disponibles</label>
+                </div>
+                <div class="filter-actions">
+                    <button id="apply-filters" class="btn">Aplicar</button>
+                    <button id="clear-filters" class="btn btn-secondary">Limpiar</button>
+                </div>
+            </aside>
+
+            <section class="products-list">
+                <h2>Todos los productos</h2>
+                <div id="all-products" class="products-grid"></div>
+            </section>
+        </div>
+    </main>
+    <!-- include product card template so JS can clone it -->
+    <div data-include="../components/products.html" style="display:none"></div>
+    <div data-include="../components/footer.html"></div>
+
+    <script src="../js/include.js"></script>
+    <script src="../js/navbar.js"></script>
+    <script src="../js/products_list.js"></script>
+    <script src="../js/products_page.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inventario — Admin</title>
+    <link rel="stylesheet" href="/styles/main.css" />
+</head>
+
+<body class="has-sidebar">
+    <div data-include="../../components/sidebar.html"></div>
+    <h1>Inventario de productos</h1>
+    <p class="muted">Lista de productos con su ID, nombre, precio y cantidad disponible. Si no hay stock se mostrará
+        <strong>Sin existencia</strong>.
+    </p>
+
+    <div id="inventory-container" class="has-sidebar">
+        <div style="margin:12px 0">
+            <button id="open-add-product" class="btn">Agregar producto</button>
+        </div>
+        <div class="table-wrap">
+            <table id="inventory-table" aria-describedby="inventory-desc">
+                <caption id="inventory-desc" style="caption-side:top;text-align:left;padding-bottom:8px"></caption>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="inventory-empty" class="empty" style="display:none">No se encontraron productos.</div>
+    </div>
+
+    <!-- Modal: Add Product -->
+    <div id="add-product-modal" class="modal" role="dialog" aria-hidden="true" style="display:none">
+        <div class="modal-content" role="document"
+            style="max-width:720px;padding:20px;background:#fff;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.2);margin:40px auto;">
+            <button id="close-add-product" class="modal-close" aria-label="Cerrar" style="float:right">✕</button>
+            <h2>Agregar producto</h2>
+            <form id="add-product-form">
+                <div class="form-row">
+                    <label for="p-nombre">Nombre</label>
+                    <input id="p-nombre" name="nombre" type="text" required />
+                </div>
+                <div class="form-row">
+                    <label for="p-descripcion">Descripción</label>
+                    <textarea id="p-descripcion" name="descripcion" rows="3" required></textarea>
+                </div>
+                <div class="form-row" style="display:flex;gap:8px">
+                    <div style="flex:1">
+                        <label for="p-precio">Precio</label>
+                        <input id="p-precio" name="precio" type="number" step="0.01" min="0" required />
+                    </div>
+                    <div style="width:120px">
+                        <label for="p-stock">Stock</label>
+                        <input id="p-stock" name="stock" type="number" min="0" value="1" />
+                    </div>
+                    <div style="width:160px">
+                        <label for="p-estado">Estado</label>
+                        <select id="p-estado" name="estado">
+                            <option value="disponible">Disponible</option>
+                            <option value="sin stock">Sin stock</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label for="p-categoria">Categoría</label>
+                    <input id="p-categoria" name="categoria" type="text" placeholder="(opcional)" />
+                </div>
+                <div class="form-row">
+                    <label for="p-imagen">Imagen (jpg, jpeg, png)</label>
+                    <input id="p-imagen" name="imagen" type="file" accept="image/jpeg,image/jpg,image/png" />
+                    <small class="muted">Si se sube imagen, se codificará en base64 y se enviará junto a los
+                        datos.</small>
+                </div>
+                <div id="add-product-error" style="color:#c00;margin-top:6px;display:none"></div>
+                <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+                    <button type="button" id="cancel-add" class="btn">Cancelar</button>
+                    <button type="submit" id="submit-add" class="btn primary">Crear producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../js/include.js"></script>
+    <script src="../../js/navbar.js"></script>
+    <script src="../../js/sidebar.js"></script>
+    <script>
+        async function loadInventory() {
+            const tbody = document.querySelector('#inventory-table tbody');
+            const empty = document.getElementById('inventory-empty');
+            const caption = document.querySelector('#inventory-table caption');
+            caption.textContent = 'Actualizando...';
+            try {
+                const res = await fetch('../../php/api/products.php');
+                if (!res.ok) throw new Error('Error fetching products: ' + res.status);
+                const data = await res.json();
+                // Support API returning either an array or { success, productos }
+                let list = [];
+                if (data && data.success && Array.isArray(data.productos)) list = data.productos;
+                else if (Array.isArray(data)) list = data;
+
+                // Expecting array of products
+                if (!Array.isArray(list) || list.length === 0) {
+                    document.querySelector('#inventory-table thead').style.display = 'table-header-group';
+                    tbody.innerHTML = '';
+                    caption.textContent = '';
+                    empty.style.display = 'block';
+                    return;
+                }
+                empty.style.display = 'none';
+                tbody.innerHTML = '';
+                caption.textContent = `Mostrando ${list.length} producto(s)`;
+                list.forEach(p => {
+                    const tr = document.createElement('tr');
+                    const idTd = document.createElement('td');
+                    idTd.textContent = p.id_producto ?? p.id ?? '';
+                    tr.appendChild(idTd);
+
+                    const nameTd = document.createElement('td');
+                    nameTd.textContent = p.nombre ?? p.name ?? '';
+                    tr.appendChild(nameTd);
+
+                    const priceTd = document.createElement('td');
+                    const price = (p.precio !== undefined && p.precio !== null) ? Number(p.precio).toFixed(2) : '';
+                    priceTd.textContent = price ? `€ ${price}` : '';
+                    tr.appendChild(priceTd);
+
+                    const stockTd = document.createElement('td');
+                    const stockVal = (p.stock !== undefined && p.stock !== null) ? Number(p.stock) : null;
+                    if (stockVal === null) {
+                        stockTd.textContent = '—';
+                    } else if (stockVal <= 0) {
+                        stockTd.textContent = 'Sin existencia';
+                        stockTd.style.color = '#c00';
+                    } else {
+                        stockTd.textContent = String(stockVal);
+                    }
+                    tr.appendChild(stockTd);
+
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error(err);
+                caption.textContent = '';
+                empty.style.display = 'block';
+                empty.textContent = 'Error cargando productos — abre la consola para más detalles.';
+            }
+        }
+
+        // load on page ready
+        document.addEventListener('DOMContentLoaded', loadInventory);
+    </script>
+    <script>
+        // Modal and add-product form logic
+        (function () {
+            const openBtn = document.getElementById('open-add-product');
+            const modal = document.getElementById('add-product-modal');
+            const closeBtn = document.getElementById('close-add-product');
+            const cancelBtn = document.getElementById('cancel-add');
+            const form = document.getElementById('add-product-form');
+            const errorBox = document.getElementById('add-product-error');
+            const submitBtn = document.getElementById('submit-add');
+
+            function showModal() {
+                modal.style.display = 'block';
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function hideModal() {
+                modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                errorBox.style.display = 'none';
+                form.reset();
+            }
+
+            openBtn && openBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showModal();
+            });
+            closeBtn && closeBtn.addEventListener('click', hideModal);
+            cancelBtn && cancelBtn.addEventListener('click', hideModal);
+
+            // validate image type
+            function validateImageFile(file) {
+                if (!file) return true; // optional
+                const allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+                return allowed.includes(file.type);
+            }
+
+            async function readFileAsDataURL(file) {
+                return new Promise((resolve, reject) => {
+                    const fr = new FileReader();
+                    fr.onload = () => resolve(fr.result);
+                    fr.onerror = () => reject(new Error('Error leyendo la imagen'));
+                    fr.readAsDataURL(file);
+                });
+            }
+
+            form && form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                errorBox.style.display = 'none';
+                submitBtn.disabled = true;
+
+                const nombre = document.getElementById('p-nombre').value.trim();
+                const descripcion = document.getElementById('p-descripcion').value.trim();
+                const precio = document.getElementById('p-precio').value;
+                const stock = document.getElementById('p-stock').value;
+                const categoria = document.getElementById('p-categoria').value.trim();
+                const estado = document.getElementById('p-estado').value;
+                const fileInput = document.getElementById('p-imagen');
+                const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+                if (!nombre || !descripcion || precio === '') {
+                    errorBox.textContent = 'Rellena nombre, descripción y precio.';
+                    errorBox.style.display = 'block';
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                if (file && !validateImageFile(file)) {
+                    errorBox.textContent = 'Formato de imagen no permitido. Usa jpg, jpeg o png.';
+                    errorBox.style.display = 'block';
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                try {
+                    let imagen_base64 = null;
+                    let imagen_nombre = null;
+                    if (file) {
+                        const dataUrl = await readFileAsDataURL(file);
+                        // dataUrl = data:<mime>;base64,BBBB
+                        imagen_base64 = dataUrl.split(',')[1];
+                        imagen_nombre = file.name;
+                    }
+
+                    const payload = {
+                        nombre,
+                        descripcion,
+                        precio,
+                        stock: stock ? Number(stock) : 1,
+                        categoria: categoria || null,
+                        estado: estado || 'disponible',
+                    };
+                    if (imagen_base64) {
+                        payload.imagen_base64 = imagen_base64;
+                        payload.imagen_nombre = imagen_nombre;
+                    }
+
+                    const res = await fetch('/php/api/create_product.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data || !data.ok) {
+                        throw new Error((data && data.error) ? data.error : ('Error server: ' + res.status));
+                    }
+
+                    // success: close modal and reload inventory
+                    hideModal();
+                    // small delay to allow DB commit on slower servers
+                    setTimeout(() => loadInventory(), 300);
+                } catch (err) {
+                    console.error(err);
+                    errorBox.textContent = err.message || 'Error creando producto';
+                    errorBox.style.display = 'block';
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+        })();
+    </script>
+</body>
+
+</html>

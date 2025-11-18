@@ -1,0 +1,41 @@
+<footer class="site-footer">
+    <div class="footer-inner container">
+        <div class="footer-brand">
+            <img src="/assets/img/logo.png" alt="Ventittlas" class="footer-logo">
+            <p class="footer-tag">Tu comercio en línea de confianza</p>
+        </div>
+
+        <nav class="footer-nav" aria-label="Enlaces de pie de página">
+            <ul>
+                <li><a href="/pages/products.html">Productos</a></li>
+                <li><a href="/pages/services.html">Servicios</a></li>
+                <li><a href="/pages/faq.html">Centro de ayuda</a></li>
+                <li><a href="/pages/privacy.html">Avisos de privacidad</a></li>
+                <li><a href="/pages/returns.html">Devoluciones</a></li>
+                <li><a href="/pages/terms.html">Términos y condiciones</a></li>
+                <li><a href="/pages/billing.html">Facturación electrónica</a></li>
+            </ul>
+        </nav>
+
+        <div class="footer-contact">
+            <h4>Contacto</h4>
+            <address>
+                <div>soporte@ventittlas.local</div>
+                <div>+34 600 000 000</div>
+            </address>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="container">
+            <small>&copy; <span id="year"></span> Ventittlas. Todos los derechos reservados.</small>
+        </div>
+    </div>
+
+    <script>
+        // fill year dynamically; this runs when include.js injects this HTML
+        (function () {
+            try { document.getElementById('year').textContent = new Date().getFullYear(); } catch (e) { }
+        })();
+    </script>
+</footer>

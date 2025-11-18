@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventittlas</title>
+    <link rel="icon" type="image/x-icon" href="assets/img/logo.png">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+    <div data-include="components/navbar.html"></div>
+    <div data-include="components/navbar.html"></div>
+    <header class="site-header">
+        <img src="assets/img/banner.jpeg" alt="banner" class="header-img">
+        <div class="container header-container">
+            <h1>Bienvenido a Ventittlas</h1>
+            <p>Tu tienda en línea de confianza</p>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <section class="featured-products">
+            <h2>Lo más vendido</h2>
+            <div class="products-grid" data-products data-filter="best_seller" data-limit="6"></div>
+        </section>
+
+        <section class="featured-products">
+            <h2>Para el hogar</h2>
+            <div class="products-grid" data-products data-department="hogar" data-limit="6"></div>
+        </section>
+
+        <section class="featured-products">
+            <h2>Ofertas</h2>
+            <p class="section-sub">Ofertas y descuentos por tiempo limitado</p>
+            <div class="products-grid" data-products data-filter="on_sale" data-limit="8"></div>
+        </section>
+
+        <section class="featured-products">
+            <h2>Cuidado de la piel</h2>
+            <p class="section-sub">Productos seleccionados para el cuidado diario de la piel</p>
+            <div class="products-grid" data-products data-department="cuidado_piel" data-limit="6"></div>
+        </section>
+
+        <section class="featured-products">
+            <h2>Lo más vendido en tecnología</h2>
+            <p class="section-sub">Gadgets y accesorios más populares</p>
+            <div class="products-grid" data-products data-department="electronica" data-filter="best_seller"
+                data-limit="6"></div>
+        </section>
+
+        <section class="featured-products">
+            <h2>Nuevas llegadas</h2>
+            <p class="section-sub">Productos recién añadidos a la tienda</p>
+            <div class="products-grid" data-products data-filter="new" data-limit="6"></div>
+        </section>
+    </main>
+    <div data-include="components/footer.html"></div>
+
+    <script src="js/include.js"></script>
+    <script src="js/navbar.js"></script>
+    <script src="js/products_list.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>

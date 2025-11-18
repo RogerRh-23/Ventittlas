@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin - Registro de Usuarios</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+
+<body class="has-sidebar">
+    <div data-include="../../components/sidebar.html"></div>
+    <main class="container">
+        <h1>Panel de administración — Registro de usuarios</h1>
+
+        <section id="registro">
+            <h2>Registrar Usuario</h2>
+            <form id="form-registro">
+                <label>Nombre completo<br>
+                    <input type="text" name="nombre" id="nombre" required>
+                </label>
+
+                <label>Correo<br>
+                    <input type="email" name="correo_electronico" id="correo_electronico" required>
+                </label>
+
+                <label>Contraseña<br>
+                    <input type="password" name="contrasena" id="contrasena" minlength="6" required>
+                </label>
+
+                <label>Rol<br>
+                    <select name="rol" id="rol">
+                        <option value="cliente">Cliente</option>
+                        <option value="vendedor">Vendedor</option>
+                        <option value="administrador">Administrador</option>
+                    </select>
+                </label>
+
+                <p><button type="submit">Registrar Usuario</button></p>
+                <div id="registro_msg" class="msg"></div>
+            </form>
+        </section>
+
+        <section id="registro-proveedor">
+            <h2>Registrar Proveedor</h2>
+            <form id="form-proveedor">
+                <label>Nombre de la empresa<br>
+                    <input type="text" name="nombre_empresa" id="nombre_empresa" required>
+                </label>
+
+                <label>RFC<br>
+                    <input type="text" name="rfc" id="rfc">
+                </label>
+
+                <label>Nombre de contacto<br>
+                    <input type="text" name="nombre_contacto" id="nombre_contacto">
+                </label>
+
+                <label>Teléfono<br>
+                    <input type="tel" name="telefono" id="telefono">
+                </label>
+
+                <label>Correo<br>
+                    <input type="email" name="correo_electronico" id="correo_electronico_prov">
+                </label>
+
+                <label>Dirección<br>
+                    <textarea name="direccion" id="direccion" rows="3"></textarea>
+                </label>
+
+                <label>Tipo de mercancía<br>
+                    <input type="text" name="tipo_mercancia" id="tipo_mercancia">
+                </label>
+
+                <label>Estado<br>
+                    <select name="estado" id="estado">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </label>
+
+                <p><button type="submit">Registrar Proveedor</button></p>
+                <div id="registro_proveedor_msg" class="msg"></div>
+            </form>
+        </section>
+    </main>
+
+    <script src="../../js/include.js"></script>
+    <script src="../../js/navbar.js"></script>
+    <script src="../../js/sidebar.js"></script>
+    <script>
+        async function postJSON(url, data) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            let body = null;
+            try { body = await res.json(); } catch (e) { body = null; }
+            return { status: res.status, ok: res.ok, body };
+        }
+
+        document.getElementById('form-registro').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                nombre: e.target.nombre.value.trim(),
+                correo_electronico: e.target.correo_electronico.value.trim(),
+                contrasena: e.target.contrasena.value,
+                rol: e.target.rol.value
+            };
+            const msg = document.getElementById('registro_msg');
+            msg.textContent = 'Enviando...';
+            const r = await postJSON('/php/api/register_user.php', data);
+            if (r.ok) {
+                if (r.body && (r.body.success === true || r.body.ok === true)) {
+                    msg.textContent = 'Usuario registrado correctamente';
+                } else if (r.body && (r.body.message || r.body.error)) {
+                    msg.textContent = r.body.message || r.body.error;
+                } else if (r.body) {
+                    msg.textContent = 'Registro completado (respuesta inesperada): ' + JSON.stringify(r.body);
+                } else {
+                    msg.textContent = 'Registro completado (sin JSON devuelto).';
+                }
+            } else {
+                msg.textContent = 'Error HTTP ' + r.status + (r.body && (r.body.message || r.body.error) ? (': ' + (r.body.message || r.body.error)) : '');
+            }
+        });
+
+        // Handler para registro de proveedores
+        document.getElementById('form-proveedor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                tipo: 'proveedor',
+                nombre_empresa: e.target.nombre_empresa.value.trim(),
+                rfc: e.target.rfc.value.trim(),
+                nombre_contacto: e.target.nombre_contacto.value.trim(),
+                telefono: e.target.telefono.value.trim(),
+                correo_electronico: e.target.correo_electronico.value.trim(),
+                direccion: e.target.direccion.value.trim(),
+                tipo_mercancia: e.target.tipo_mercancia.value.trim(),
+                estado: e.target.estado.value
+            };
+            const msg = document.getElementById('registro_proveedor_msg');
+            msg.textContent = 'Enviando...';
+            const r = await postJSON('/php/api/register_user.php', data);
+            if (r.ok) {
+                if (r.body && (r.body.success === true || r.body.ok === true)) {
+                    msg.textContent = 'Proveedor registrado correctamente';
+                    e.target.reset();
+                } else if (r.body && (r.body.message || r.body.error)) {
+                    msg.textContent = r.body.message || r.body.error;
+                } else if (r.body) {
+                    msg.textContent = 'Registro completado (respuesta inesperada): ' + JSON.stringify(r.body);
+                } else {
+                    msg.textContent = 'Registro completado (sin JSON devuelto).';
+                }
+            } else {
+                msg.textContent = 'Error HTTP ' + r.status + (r.body && (r.body.message || r.body.error) ? (': ' + (r.body.message || r.body.error)) : '');
+            }
+        });
+    </script>
+</body>
+
+</html>
