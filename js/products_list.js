@@ -31,12 +31,14 @@
         const link = node.querySelector('.product-link');
 
         if (img) {
-            img.src = product.image || '/assets/img/products/Bacardi_Raspberry.png';
+            // prefer database-provided image paths; fall back to a tiny transparent placeholder
+            img.src = product.image || product.imagen_url || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
             img.alt = product.title || '';
             img.loading = 'lazy';
             img.onerror = function () {
                 this.onerror = null;
-                this.src = '/assets/img/products/Bacardi_Raspberry.png';
+                // use small data-URI so no extra network request is made
+                this.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
                 this.classList.add('img-missing');
             };
         }
