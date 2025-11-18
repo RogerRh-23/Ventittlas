@@ -1,0 +1,36 @@
+// Product card specific styles (ensure readable text and button rules)
+.product-title {
+	color: $black;
+	font-size: 1rem;
+	margin: 0 0 8px 0;
+	font-weight: $font-weight-medium;
+}
+
+.product-stock {
+	color: $third-color;
+	font-size: 0.9rem;
+}
+.product-stock.out {
+	color: #c33;
+}
+
+.product-actions {
+	padding: 10px 12px;
+	border-top: 1px solid rgba(0,0,0,0.04);
+	display: flex;
+	justify-content: center;
+	background: #fff;
+}
+
+.product-actions .btn.add-to-cart {
+	background: linear-gradient(90deg, $primary-color, $secondary-color);
+	color: $white;
+	border: none;
+	padding: 8px 14px;
+	border-radius: 20px;
+	cursor: pointer;
+	font-weight: $font-weight-bold;
+}
+
+.product-actions .btn.add-to-cart:active { transform: translateY(1px); }
+

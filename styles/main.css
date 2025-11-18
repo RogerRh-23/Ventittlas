@@ -396,6 +396,44 @@ body.has-solid-navbar .site-navbar {
   /* slightly above the absolute/fixed navbar */
 }
 
+.product-title {
+  color: #191919;
+  font-size: 1rem;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.product-stock {
+  color: #5ccb5f;
+  font-size: 0.9rem;
+}
+
+.product-stock.out {
+  color: #c33;
+}
+
+.product-actions {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  justify-content: center;
+  background: #fff;
+}
+
+.product-actions .btn.add-to-cart {
+  background: linear-gradient(90deg, #006414, #009929);
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.product-actions .btn.add-to-cart:active {
+  transform: translateY(1px);
+}
+
 .app-sidebar {
   display: flex;
   flex-direction: column;
