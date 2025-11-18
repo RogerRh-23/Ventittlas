@@ -72,7 +72,13 @@
                 </div>
                 <div class="form-row">
                     <label for="p-categoria">Categoría</label>
-                    <input id="p-categoria" name="categoria" type="text" placeholder="(opcional)" />
+                    <select id="p-categoria" name="categoria">
+                        <option value="">(Seleccionar)</option>
+                    </select>
+                    <div id="new-category-row" style="display:none;margin-top:8px">
+                        <input id="p-categoria-new" type="text" placeholder="Nombre nueva categoría" style="margin-right:8px" />
+                        <button type="button" id="p-categoria-create" class="btn">Crear categoría</button>
+                    </div>
                 </div>
                 <div class="form-row">
                     <label for="p-imagen">Imagen (jpg, jpeg, png)</label>
@@ -156,7 +162,90 @@
         }
 
         // load on page ready
-        document.addEventListener('DOMContentLoaded', loadInventory);
+        async function loadCategories() {
+            try {
+                const res = await fetch('../../php/api/categories.php');
+                if (!res.ok) throw new Error('Error fetching categories: ' + res.status);
+                const data = await res.json();
+                let list = [];
+                if (data && data.success && Array.isArray(data.categorias)) list = data.categorias;
+                else if (Array.isArray(data)) list = data;
+                const sel = document.getElementById('p-categoria');
+                if (!sel) return;
+                // clear existing (keep first placeholder)
+                sel.innerHTML = '<option value="">(Seleccionar)</option>';
+                list.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.nombre ?? c.name ?? '';
+                    opt.textContent = c.nombre ?? c.name ?? '';
+                    sel.appendChild(opt);
+                });
+                // add option to create a new category inline
+                const optNew = document.createElement('option');
+                optNew.value = '_new';
+                optNew.textContent = 'Crear nueva categoría...';
+                sel.appendChild(optNew);
+            } catch (err) {
+                console.error('Could not load categories', err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => { loadInventory(); loadCategories(); });
+            // handle create-new-category inline UI
+            const catSelect = document.getElementById('p-categoria');
+            const newRow = document.getElementById('new-category-row');
+            const newInput = document.getElementById('p-categoria-new');
+            const createBtn = document.getElementById('p-categoria-create');
+
+            if (catSelect) {
+                catSelect.addEventListener('change', () => {
+                    if (catSelect.value === '_new') {
+                        if (newRow) newRow.style.display = 'block';
+                        if (newInput) newInput.focus();
+                    } else {
+                        if (newRow) newRow.style.display = 'none';
+                    }
+                });
+            }
+
+            if (createBtn) {
+                createBtn.addEventListener('click', async () => {
+                    if (!newInput) return;
+                    const name = newInput.value.trim();
+                    if (!name) {
+                        errorBox.textContent = 'Introduce un nombre de categoría';
+                        errorBox.style.display = 'block';
+                        return;
+                    }
+                    createBtn.disabled = true;
+                    try {
+                        const res = await fetch('/php/api/create_category.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nombre: name, descripcion: '' })
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data || !data.ok) {
+                            throw new Error(data && data.error ? data.error : 'Error creando categoría');
+                        }
+                        // append new option and select it
+                        const opt = document.createElement('option');
+                        const catName = (data.categoria && (data.categoria.nombre ?? data.categoria)) || name;
+                        opt.value = catName;
+                        opt.textContent = catName;
+                        opt.selected = true;
+                        if (catSelect) catSelect.appendChild(opt);
+                        if (newRow) newRow.style.display = 'none';
+                        newInput.value = '';
+                    } catch (err) {
+                        console.error(err);
+                        errorBox.textContent = err.message || 'Error creando categoría';
+                        errorBox.style.display = 'block';
+                    } finally {
+                        createBtn.disabled = false;
+                    }
+                });
+            }
     </script>
     <script>
         // Modal and add-product form logic

@@ -177,6 +177,8 @@
             url: p.url ?? null,
             // some APIs use 'stock', others 'cantidad'
             stock: (p.stock ?? p.cantidad ?? null) !== null ? Number(p.stock ?? p.cantidad) : null,
+            // category (from joined Categorias.nombre or other sources)
+            category: p.categoria ?? p.category ?? null,
             raw: p
         };
     }

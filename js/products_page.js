@@ -261,6 +261,8 @@
             image: p.imagen_url ?? p.imagen ?? p.image ?? null,
             url: p.url ?? null,
             stock: (p.stock ?? p.cantidad ?? null) !== null ? Number(p.stock ?? p.cantidad) : null,
+            // category field coming from products API (categoria) or other sources
+            category: p.categoria ?? p.category ?? null,
             raw: p
         };
     }
