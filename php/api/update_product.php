@@ -108,12 +108,16 @@ if (isset($input['id_vendedor'])) {
 }
 
 $categoriaName = isset($input['categoria']) ? trim($input['categoria']) : null;
+$id_categoria_input = isset($input['id_categoria']) && $input['id_categoria'] !== '' ? (int)$input['id_categoria'] : null;
 
 try {
     $pdo->beginTransaction();
 
     $id_categoria = null;
-    if ($categoriaName !== null) {
+    if ($id_categoria_input !== null) {
+        $fields[] = 'id_categoria = ?';
+        $params[] = $id_categoria_input;
+    } elseif ($categoriaName !== null) {
         $stmt = $pdo->prepare('SELECT id_categoria FROM Categorias WHERE LOWER(nombre) = LOWER(?) LIMIT 1');
         $stmt->execute([$categoriaName]);
         $row = $stmt->fetch();

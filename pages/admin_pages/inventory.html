@@ -28,6 +28,7 @@
                         <th>Nombre</th>
                         <th>Precio</th>
                         <th>Cantidad</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,6 +87,11 @@
                     <small class="muted">Si se sube imagen, se codificará en base64 y se enviará junto a los
                         datos.</small>
                 </div>
+                <div class="form-row">
+                    <label for="p-descuento">Descuento (%)</label>
+                    <input id="p-descuento" name="porcentaje_descuento" type="number" step="0.01" min="0" max="100" value="0" />
+                </div>
+                <input type="hidden" id="p-id" name="id" value="" />
                 <div id="add-product-error" style="color:#c00;margin-top:6px;display:none"></div>
                 <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
                     <button type="button" id="cancel-add" class="btn">Cancelar</button>
@@ -151,6 +157,59 @@
                     }
                     tr.appendChild(stockTd);
 
+                    // Actions column: Edit button
+                    const actionsTd = document.createElement('td');
+                    const editBtn = document.createElement('button');
+                    editBtn.type = 'button';
+                    editBtn.className = 'btn';
+                    editBtn.textContent = 'Editar';
+                    editBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        // populate modal with product data for editing
+                        const id = p.id_producto ?? p.id ?? null;
+                        document.getElementById('p-id').value = id ?? '';
+                        document.getElementById('p-nombre').value = p.nombre ?? p.title ?? '';
+                        document.getElementById('p-descripcion').value = p.descripcion ?? p.description ?? '';
+                        document.getElementById('p-precio').value = (p.precio ?? p.price ?? '') ;
+                        document.getElementById('p-stock').value = (p.stock ?? p.cantidad ?? '') ;
+                        const estadoEl = document.getElementById('p-estado');
+                        if (estadoEl && (p.estado ?? null) !== null) estadoEl.value = p.estado;
+                        const catEl = document.getElementById('p-categoria');
+                        if (catEl) {
+                            // prefer selecting by id if available
+                            const catId = p.id_categoria ?? p.idCategoria ?? null;
+                            const catName = p.categoria ?? p.category ?? null;
+                            if (catId !== null && catId !== undefined) {
+                                let opt = Array.from(catEl.options).find(o => o.value === String(catId));
+                                if (!opt) {
+                                    opt = document.createElement('option'); opt.value = String(catId); opt.textContent = catName || String(catId); catEl.appendChild(opt);
+                                }
+                                catEl.value = String(catId);
+                            } else if (catName) {
+                                // fallback to name-based option if id not present
+                                let opt = Array.from(catEl.options).find(o => o.value === catName);
+                                if (!opt) {
+                                    opt = document.createElement('option'); opt.value = catName; opt.textContent = catName; catEl.appendChild(opt);
+                                }
+                                catEl.value = catName;
+                            }
+                        }
+                        // porcentaje_descuento (may be present as porcentaje_descuento or porcentaje_descuento in raw)
+                        const descEl = document.getElementById('p-descuento');
+                        if (descEl) descEl.value = (p.porcentaje_descuento ?? p.porcentaje ?? p.descuento ?? 0);
+                        // update button text and show modal (manual open because showModal is inside another scope)
+                        const submitBtn = document.getElementById('submit-add');
+                        if (submitBtn) submitBtn.textContent = 'Actualizar producto';
+                        const modalEl = document.getElementById('add-product-modal');
+                        if (modalEl) {
+                            modalEl.style.display = 'block';
+                            modalEl.setAttribute('aria-hidden', 'false');
+                            document.body.style.overflow = 'hidden';
+                        }
+                    });
+                    actionsTd.appendChild(editBtn);
+                    tr.appendChild(actionsTd);
+
                     tbody.appendChild(tr);
                 });
             } catch (err) {
@@ -176,7 +235,7 @@
                 sel.innerHTML = '<option value="">(Seleccionar)</option>';
                 list.forEach(c => {
                     const opt = document.createElement('option');
-                    opt.value = c.nombre ?? c.name ?? '';
+                    opt.value = (c.id_categoria ?? c.id ?? '');
                     opt.textContent = c.nombre ?? c.name ?? '';
                     sel.appendChild(opt);
                 });
@@ -213,8 +272,11 @@
                     if (!newInput) return;
                     const name = newInput.value.trim();
                     if (!name) {
-                        errorBox.textContent = 'Introduce un nombre de categoría';
-                        errorBox.style.display = 'block';
+                        const errorBoxLocal = document.getElementById('add-product-error');
+                        if (errorBoxLocal) {
+                            errorBoxLocal.textContent = 'Introduce un nombre de categoría';
+                            errorBoxLocal.style.display = 'block';
+                        }
                         return;
                     }
                     createBtn.disabled = true;
@@ -228,10 +290,11 @@
                         if (!res.ok || !data || !data.ok) {
                             throw new Error(data && data.error ? data.error : 'Error creando categoría');
                         }
-                        // append new option and select it
+                        // append new option and select it (use returned id when available)
                         const opt = document.createElement('option');
+                        const newId = data.id_categoria ?? (data.categoria && (data.categoria.id_categoria ?? null));
                         const catName = (data.categoria && (data.categoria.nombre ?? data.categoria)) || name;
-                        opt.value = catName;
+                        opt.value = newId !== null && newId !== undefined ? String(newId) : catName;
                         opt.textContent = catName;
                         opt.selected = true;
                         if (catSelect) catSelect.appendChild(opt);
@@ -239,8 +302,11 @@
                         newInput.value = '';
                     } catch (err) {
                         console.error(err);
-                        errorBox.textContent = err.message || 'Error creando categoría';
-                        errorBox.style.display = 'block';
+                        const errorBoxLocal = document.getElementById('add-product-error');
+                        if (errorBoxLocal) {
+                            errorBoxLocal.textContent = err.message || 'Error creando categoría';
+                            errorBoxLocal.style.display = 'block';
+                        }
                     } finally {
                         createBtn.disabled = false;
                     }
@@ -269,6 +335,12 @@
                 document.body.style.overflow = '';
                 errorBox.style.display = 'none';
                 form.reset();
+                const submitBtn = document.getElementById('submit-add');
+                if (submitBtn) submitBtn.textContent = 'Crear producto';
+                const idEl = document.getElementById('p-id');
+                if (idEl) idEl.value = '';
+                const descEl = document.getElementById('p-descuento');
+                if (descEl) descEl.value = 0;
             }
 
             openBtn && openBtn.addEventListener('click', (e) => {
@@ -303,7 +375,8 @@
                 const descripcion = document.getElementById('p-descripcion').value.trim();
                 const precio = document.getElementById('p-precio').value;
                 const stock = document.getElementById('p-stock').value;
-                const categoria = document.getElementById('p-categoria').value.trim();
+                const categoriaRaw = document.getElementById('p-categoria').value;
+                const categoria = categoriaRaw ? categoriaRaw.trim() : '';
                 const estado = document.getElementById('p-estado').value;
                 const fileInput = document.getElementById('p-imagen');
                 const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
@@ -332,24 +405,43 @@
                         imagen_nombre = file.name;
                     }
 
-                    const payload = {
-                        nombre,
-                        descripcion,
-                        precio,
-                        stock: stock ? Number(stock) : 1,
-                        categoria: categoria || null,
-                        estado: estado || 'disponible',
-                    };
+                        const descuentoVal = document.getElementById('p-descuento') ? (document.getElementById('p-descuento').value) : 0;
+                        const payload = {
+                            nombre,
+                            descripcion,
+                            precio,
+                            stock: stock ? Number(stock) : 1,
+                            estado: estado || 'disponible',
+                            porcentaje_descuento: descuentoVal !== '' ? Number(descuentoVal) : 0,
+                        };
+                        // prefer sending id_categoria when an ID value is selected
+                        if (categoria && categoria !== '_new' && /^\d+$/.test(categoria)) {
+                            payload.id_categoria = Number(categoria);
+                        } else {
+                            payload.categoria = categoria || null;
+                        }
                     if (imagen_base64) {
                         payload.imagen_base64 = imagen_base64;
                         payload.imagen_nombre = imagen_nombre;
                     }
 
-                    const res = await fetch('/php/api/create_product.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                    });
+                    // if p-id present, update existing product
+                    const existingId = document.getElementById('p-id') ? document.getElementById('p-id').value : '';
+                    let res;
+                    if (existingId) {
+                        payload.id = Number(existingId);
+                        res = await fetch('/php/api/update_product.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        });
+                    } else {
+                        res = await fetch('/php/api/create_product.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload),
+                        });
+                    }
                     const data = await res.json();
                     if (!res.ok || !data || !data.ok) {
                         throw new Error((data && data.error) ? data.error : ('Error server: ' + res.status));

@@ -23,6 +23,7 @@ $descripcion = isset($input['descripcion']) ? trim($input['descripcion']) : null
 $precio = isset($input['precio']) ? $input['precio'] : null;
 $stock = isset($input['stock']) ? (int)$input['stock'] : 1;
 $categoriaName = isset($input['categoria']) ? trim($input['categoria']) : null;
+$id_categoria_input = isset($input['id_categoria']) && $input['id_categoria'] !== '' ? (int)$input['id_categoria'] : null;
 $estado = isset($input['estado']) ? trim($input['estado']) : 'disponible';
 
 
@@ -58,7 +59,9 @@ try {
     $pdo->beginTransaction();
 
     $id_categoria = null;
-    if ($categoriaName) {
+    if ($id_categoria_input !== null) {
+        $id_categoria = $id_categoria_input;
+    } elseif ($categoriaName) {
         $stmt = $pdo->prepare('SELECT id_categoria FROM Categorias WHERE LOWER(nombre) = LOWER(?) LIMIT 1');
         $stmt->execute([$categoriaName]);
         $row = $stmt->fetch();
