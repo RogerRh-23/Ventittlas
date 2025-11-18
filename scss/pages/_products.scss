@@ -31,10 +31,12 @@
 /* Products grid and product card styles + price slider */
 
 .products-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    // Use flex so items pack to the right and wrap downward when necessary
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end; // align items to the right
     gap: 16px;
-    align-items: start;
+    align-items: flex-start;
 }
 
 .product-card {
@@ -43,6 +45,9 @@
     border-radius: 8px;
     overflow: hidden;
     transition: transform .16s ease, box-shadow .16s ease;
+    box-sizing: border-box;
+    // fixed base width so wrapping is predictable; adjust as needed
+    flex: 0 0 200px;
 }
 
 .product-card:hover {
@@ -169,7 +174,11 @@
 /* Small responsive tweaks */
 @media (max-width: 600px) {
     .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        justify-content: center; // center items on small screens
+    }
+
+    .product-card {
+        flex: 0 0 150px;
     }
 
     .product-media {
