@@ -20,20 +20,12 @@
             })
             .then(data => {
                 // support { success:true, productos: [...] } or direct array
-                debugLog('fetchProducts: received data');
-                if (data && data.success && Array.isArray(data.productos)) {
-                    debugLog(`fetchProducts: productos length=${data.productos.length}`);
-                    return data.productos;
-                }
-                if (Array.isArray(data)) {
-                    debugLog(`fetchProducts: array length=${data.length}`);
-                    return data;
-                }
+                if (data && data.success && Array.isArray(data.productos)) return data.productos;
+                if (Array.isArray(data)) return data;
                 console.error('products.php returned unexpected format', data);
-                debugLog('fetchProducts: unexpected format', 'warn');
                 return [];
             })
-            .catch(err => { console.error('Error fetching products.json', err); debugLog('fetchProducts error: ' + err, 'error'); return []; });
+            .catch(err => { console.error('Error fetching products.json', err); return []; });
     }
 
     function uniqueValues(arr, key) {
@@ -41,10 +33,8 @@
     }
 
     function renderList(container, list, template) {
-        debugLog(`renderList: rendering ${list.length} products into container`);
         container.innerHTML = '';
         list.forEach(product => {
-            debugLog(`renderList: product id=${product.id} title=${product.title}`);
             const node = template.content.cloneNode(true);
             const img = node.querySelector('.product-img');
             const title = node.querySelector('.product-title');
@@ -82,15 +72,31 @@
 
             container.appendChild(node);
 
-            // add-to-cart button: annotate with data-* so the delegated handler can use it
+            // wire add-to-cart button
             const addBtn = node.querySelector('.btn.add-to-cart');
             if (addBtn) {
-                try {
-                    addBtn.dataset.id = String(product.id ?? '');
-                    addBtn.dataset.title = String(product.title ?? product.raw?.nombre ?? '');
-                    addBtn.dataset.price = String(product.price ?? '0');
-                    debugLog(`renderList: set addBtn dataset id=${addBtn.dataset.id}`);
-                } catch (e) { /* ignore */ }
+                addBtn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    addBtn.disabled = true;
+                    const item = {
+                        id_producto: product.id ?? null,
+                        nombre: product.title || product.raw?.nombre || '',
+                        precio: Number(product.price || 0),
+                        cantidad: 1
+                    };
+                    try {
+                        const key = 'basket';
+                        const arr = JSON.parse(localStorage.getItem(key) || '[]');
+                        const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
+                        if (exist) exist.cantidad = (Number(exist.cantidad)||0) + 1; else arr.push(item);
+                        localStorage.setItem(key, JSON.stringify(arr));
+                        try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) {}
+                        addBtn.textContent = '✓ Agregado';
+                    } catch (e) {
+                        addBtn.textContent = 'Error';
+                    }
+                    setTimeout(() => { addBtn.disabled = false; addBtn.textContent = 'Agregar'; }, 900);
+                });
             }
         });
     }
@@ -287,63 +293,11 @@
     }
 
     afterIncludes(async () => {
-        debugLog('afterIncludes (products_page): templates ready, fetching products');
         let products = await fetchProducts();
         // normalize all products to the shape used by the templates
         products = products.map(p => normalizeProduct(p));
         init(products);
     });
-
-    // Delegated add-to-cart handler (works for dynamically rendered product cards)
-    document.addEventListener('click', function (ev) {
-        const btn = ev.target.closest ? ev.target.closest('.btn.add-to-cart') : null;
-        if (!btn) return;
-        ev.preventDefault();
-        try {
-            btn.disabled = true;
-            const id = btn.dataset.id ?? null;
-            const title = btn.dataset.title ?? '';
-            const price = Number(btn.dataset.price ?? 0);
-            debugLog(`delegate(add-to-cart): click id=${id} title=${title} price=${price}`);
-            const item = { id_producto: id, nombre: title, precio: price, cantidad: 1 };
-            const key = 'basket';
-            const arr = JSON.parse(localStorage.getItem(key) || '[]');
-            const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
-            if (exist) exist.cantidad = (Number(exist.cantidad) || 0) + 1; else arr.push(item);
-            localStorage.setItem(key, JSON.stringify(arr));
-            debugLog(`delegate(add-to-cart): stored basket length=${arr.length}`);
-            try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) {}
-            btn.textContent = '✓ Agregado';
-        } catch (e) {
-            console.error('add-to-cart error', e);
-            debugLog('delegate(add-to-cart) error: ' + e, 'error');
-            btn.textContent = 'Error';
-        } finally {
-            setTimeout(() => { btn.disabled = false; btn.textContent = 'Agregar'; }, 900);
-        }
-    });
-
-    // in-page debug logger: writes to console and to a floating panel on the page
-    function debugLog(msg, level = 'log') {
-        try {
-            if (level === 'error') console.error('[debug]', msg);
-            else if (level === 'warn') console.warn('[debug]', msg);
-            else console.log('[debug]', msg);
-        } catch (e) { }
-        try {
-            let panel = document.getElementById('debug-log');
-            if (!panel) {
-                panel = document.createElement('div');
-                panel.id = 'debug-log';
-                panel.style.cssText = 'position:fixed;right:12px;bottom:12px;max-height:40vh;overflow:auto;background:rgba(0,0,0,0.75);color:#fff;padding:8px;font-size:12px;z-index:99999;border-radius:6px;min-width:200px;';
-                document.body.appendChild(panel);
-            }
-            const line = document.createElement('div');
-            line.textContent = new Date().toLocaleTimeString() + ' ' + String(msg);
-            panel.appendChild(line);
-            if (panel.childNodes.length > 200) panel.removeChild(panel.firstChild);
-        } catch (e) { }
-    }
 
     function normalizeProduct(p) {
         if (!p) return {};
