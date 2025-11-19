@@ -71,6 +71,16 @@
             }
 
             container.appendChild(node);
+
+            // add-to-cart button: annotate with data-* so the delegated handler can use it
+            const addBtn = node.querySelector('.btn.add-to-cart');
+            if (addBtn) {
+                try {
+                    addBtn.dataset.id = String(product.id ?? '');
+                    addBtn.dataset.title = String(product.title ?? product.raw?.nombre ?? '');
+                    addBtn.dataset.price = String(product.price ?? '0');
+                } catch (e) { /* ignore */ }
+            }
         });
     }
 
@@ -270,6 +280,32 @@
         // normalize all products to the shape used by the templates
         products = products.map(p => normalizeProduct(p));
         init(products);
+    });
+
+    // Delegated add-to-cart handler (works for dynamically rendered product cards)
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest ? ev.target.closest('.btn.add-to-cart') : null;
+        if (!btn) return;
+        ev.preventDefault();
+        try {
+            btn.disabled = true;
+            const id = btn.dataset.id ?? null;
+            const title = btn.dataset.title ?? '';
+            const price = Number(btn.dataset.price ?? 0);
+            const item = { id_producto: id, nombre: title, precio: price, cantidad: 1 };
+            const key = 'basket';
+            const arr = JSON.parse(localStorage.getItem(key) || '[]');
+            const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
+            if (exist) exist.cantidad = (Number(exist.cantidad) || 0) + 1; else arr.push(item);
+            localStorage.setItem(key, JSON.stringify(arr));
+            try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) {}
+            btn.textContent = '✓ Agregado';
+        } catch (e) {
+            console.error('add-to-cart error', e);
+            btn.textContent = 'Error';
+        } finally {
+            setTimeout(() => { btn.disabled = false; btn.textContent = 'Agregar'; }, 900);
+        }
     });
 
     function normalizeProduct(p) {

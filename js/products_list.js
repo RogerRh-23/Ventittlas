@@ -55,6 +55,19 @@
     if (price) price.textContent = formatPrice(product.price || 0);
         if (link) link.href = product.url || `#/product/${product.id}`;
 
+        // wire add-to-cart button if present: store product info in data-* attrs
+        const addBtn = node.querySelector('.btn.add-to-cart');
+        if (addBtn) {
+            // store minimal data so a delegated listener can use it reliably
+            try {
+                addBtn.dataset.id = String(product.id ?? '');
+                addBtn.dataset.title = String(product.title ?? product.raw?.nombre ?? '');
+                addBtn.dataset.price = String(product.price ?? '0');
+            } catch (e) {
+                // ignore dataset errors
+            }
+        }
+
         // stock element (if present in template)
         const stockEl = node.querySelector('.product-stock');
         if (stockEl) {
@@ -71,6 +84,32 @@
         }
 
         container.appendChild(node);
+    }
+
+    function addToBasket(product) {
+        try {
+            const key = 'basket';
+            const raw = localStorage.getItem(key) || '[]';
+            const arr = JSON.parse(raw);
+            // item shape: { id_producto, nombre, precio, cantidad }
+            const item = {
+                id_producto: product.id ?? null,
+                nombre: product.title || product.raw?.nombre || '',
+                precio: Number(product.price || 0),
+                cantidad: 1
+            };
+            // if exists, increment cantidad
+            const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
+            if (exist) {
+                exist.cantidad = (Number(exist.cantidad) || 0) + 1;
+            } else {
+                arr.push(item);
+            }
+            localStorage.setItem(key, JSON.stringify(arr));
+            // dispatch update event for other parts of the app
+            try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) { }
+            return true;
+        } catch (e) { return false; }
     }
 
     function matchesFilter(product, attrs) {
@@ -177,6 +216,28 @@
                 console.error('Error rendering products for a container', err);
             }
         });
+    });
+
+    // Delegated click handler for add-to-cart buttons. Using delegation ensures
+    // buttons added from templates or later DOM updates still work.
+    document.addEventListener('click', function (ev) {
+        const btn = ev.target.closest ? ev.target.closest('.btn.add-to-cart') : null;
+        if (!btn) return;
+        ev.preventDefault();
+        try {
+            btn.disabled = true;
+            const id = btn.dataset.id ?? null;
+            const title = btn.dataset.title ?? '';
+            const price = Number(btn.dataset.price ?? 0);
+            const product = { id: id, title: title, price: price };
+            const ok = addToBasket(product);
+            btn.textContent = ok ? '✓ Agregado' : 'Error';
+        } catch (e) {
+            console.error('add-to-cart delegate error', e);
+            btn.textContent = 'Error';
+        } finally {
+            setTimeout(() => { btn.disabled = false; btn.textContent = 'Agregar'; }, 900);
+        }
     });
 
     // Normalize fields coming from DB to the properties used by templates
