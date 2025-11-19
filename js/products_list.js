@@ -17,22 +17,28 @@
             const res = await fetch(url);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
+            debugLog(`fetchProducts: received response, ok=${res.ok}`);
             // Support two response shapes: { success: true, productos: [...] } or [...]
             if (data && data.success && Array.isArray(data.productos)) {
+                debugLog(`fetchProducts: normalized to data.productos length=${data.productos.length}`);
                 return data.productos;
             }
             if (Array.isArray(data)) {
+                debugLog(`fetchProducts: received array length=${data.length}`);
                 return data;
             }
             console.error('API error:', data && data.error ? data.error : 'Formato de respuesta inesperado');
+            debugLog('fetchProducts: unexpected response format');
             return [];
         } catch (err) {
             console.error('Error fetching products.php', err);
+            debugLog('fetchProducts error: ' + (err && err.message ? err.message : String(err)), 'error');
             return [];
         }
     }
 
     function renderProduct(container, product, template) {
+        debugLog(`renderProduct: id=${product.id} title=${product.title}`);
         const node = template.content.cloneNode(true);
         const img = node.querySelector('.product-img');
         const title = node.querySelector('.product-title');
@@ -63,8 +69,9 @@
                 addBtn.dataset.id = String(product.id ?? '');
                 addBtn.dataset.title = String(product.title ?? product.raw?.nombre ?? '');
                 addBtn.dataset.price = String(product.price ?? '0');
+                debugLog(`renderProduct: addBtn dataset set id=${addBtn.dataset.id}`);
             } catch (e) {
-                // ignore dataset errors
+                debugLog('renderProduct: failed to set addBtn dataset ' + e, 'error');
             }
         }
 
@@ -87,6 +94,7 @@
     }
 
     function addToBasket(product) {
+        debugLog(`addToBasket: called id=${product.id} title=${product.title}`);
         try {
             const key = 'basket';
             const raw = localStorage.getItem(key) || '[]';
@@ -106,6 +114,7 @@
                 arr.push(item);
             }
             localStorage.setItem(key, JSON.stringify(arr));
+            debugLog(`addToBasket: stored basket length=${arr.length}`);
             // dispatch update event for other parts of the app
             try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) { }
             return true;
@@ -165,6 +174,7 @@
     }
 
     afterIncludes(async () => {
+        debugLog('afterIncludes: templates ready, starting fetch');
         const products = await fetchProducts();
         const template = document.querySelector('template#product-card-template');
         if (!template) {
@@ -229,16 +239,41 @@
             const id = btn.dataset.id ?? null;
             const title = btn.dataset.title ?? '';
             const price = Number(btn.dataset.price ?? 0);
+            debugLog(`delegate: click id=${id} title=${title} price=${price}`);
             const product = { id: id, title: title, price: price };
             const ok = addToBasket(product);
+            debugLog(`delegate: addToBasket result=${ok}`);
             btn.textContent = ok ? '✓ Agregado' : 'Error';
         } catch (e) {
             console.error('add-to-cart delegate error', e);
+            debugLog('delegate error: ' + e, 'error');
             btn.textContent = 'Error';
         } finally {
             setTimeout(() => { btn.disabled = false; btn.textContent = 'Agregar'; }, 900);
         }
     });
+
+    // in-page debug logger: writes to console and to a floating panel on the page
+    function debugLog(msg, level = 'log') {
+        try {
+            if (level === 'error') console.error('[debug]', msg);
+            else if (level === 'warn') console.warn('[debug]', msg);
+            else console.log('[debug]', msg);
+        } catch (e) { }
+        try {
+            let panel = document.getElementById('debug-log');
+            if (!panel) {
+                panel = document.createElement('div');
+                panel.id = 'debug-log';
+                panel.style.cssText = 'position:fixed;right:12px;bottom:12px;max-height:40vh;overflow:auto;background:rgba(0,0,0,0.75);color:#fff;padding:8px;font-size:12px;z-index:99999;border-radius:6px;min-width:200px;';
+                document.body.appendChild(panel);
+            }
+            const line = document.createElement('div');
+            line.textContent = new Date().toLocaleTimeString() + ' ' + String(msg);
+            panel.appendChild(line);
+            if (panel.childNodes.length > 200) panel.removeChild(panel.firstChild);
+        } catch (e) { }
+    }
 
     // Normalize fields coming from DB to the properties used by templates
     function normalizeProduct(p) {
