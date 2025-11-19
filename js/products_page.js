@@ -2,6 +2,15 @@
 // Wait for includes/templates then initialize filter UI and render all products into #all-products
 
 (function () {
+    // price formatter (use global if provided)
+    const formatPrice = window.formatPrice || function (v) {
+        try {
+            const n = Number(v) || 0;
+            return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(n);
+        } catch (e) {
+            return '$' + (Number(v) || 0).toFixed(2);
+        }
+    };
     const urlParams = new URLSearchParams(window.location.search);
     function fetchProducts() {
         return fetch('/php/api/products.php')
@@ -43,7 +52,7 @@
                 };
             }
             if (title) title.textContent = product.title || '';
-            if (price) price.textContent = `$${Number(product.price || 0).toFixed(2)}`;
+        if (price) price.textContent = formatPrice(product.price || 0);
             if (link) link.href = product.url || `#/product/${product.id}`;
 
             // stock handling (template has .product-stock)

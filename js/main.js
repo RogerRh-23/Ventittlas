@@ -69,7 +69,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (img) img.src = product.imagen_url || product.image || '/assets/img/products/placeholder.png';
                 if (img) img.alt = product.nombre || product.title;
                 if (title) title.textContent = product.nombre || product.title;
-                if (price) price.textContent = '$' + (Number(product.precio ?? product.price ?? 0).toFixed(2));
+                // format price using Intl for ARS (fallback to simple formatting)
+                const formatPrice = window.formatPrice || function (v) {
+                    try {
+                        const n = Number(v) || 0;
+                        return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(n);
+                    } catch (e) {
+                        return '$' + (Number(v) || 0).toFixed(2);
+                    }
+                };
+                if (price) price.textContent = formatPrice(product.precio ?? product.price ?? 0);
                 const stockEl = node.querySelector('.product-stock');
                 if (stockEl) {
                     const stockVal = (product.stock !== undefined && product.stock !== null) ? Number(product.stock) : null;

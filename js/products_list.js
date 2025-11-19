@@ -2,6 +2,15 @@
 // Fetches /assets/data/products.json and renders product cards into containers marked with [data-products]
 
 (async function () {
+    // price formatter (use global if provided)
+    const formatPrice = window.formatPrice || function (v) {
+        try {
+            const n = Number(v) || 0;
+            return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(n);
+        } catch (e) {
+            return '$' + (Number(v) || 0).toFixed(2);
+        }
+    };
     async function fetchProducts() {
         const url = '/php/api/products.php';
         try {
@@ -43,7 +52,7 @@
             };
         }
         if (title) title.textContent = product.title || '';
-        if (price) price.textContent = `$${Number(product.price || 0).toFixed(2)}`;
+    if (price) price.textContent = formatPrice(product.price || 0);
         if (link) link.href = product.url || `#/product/${product.id}`;
 
         // stock element (if present in template)

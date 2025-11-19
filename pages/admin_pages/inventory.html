@@ -141,8 +141,23 @@
                     tr.appendChild(nameTd);
 
                     const priceTd = document.createElement('td');
-                    const price = (p.precio !== undefined && p.precio !== null) ? Number(p.precio).toFixed(2) : '';
-                    priceTd.textContent = price ? `€ ${price}` : '';
+                    // Ensure decimal separator handled and always show two decimals
+                    let priceStr = '';
+                    const rawPrice = (p.precio !== undefined && p.precio !== null) ? String(p.precio).trim() : '';
+                    if (rawPrice !== '') {
+                        // accept comma as decimal separator
+                        const normalized = rawPrice.replace(',', '.');
+                        const num = Number(normalized);
+                        if (!Number.isNaN(num)) {
+                            // use Intl formatter when available
+                            const fmt = window.formatPrice || function (v) {
+                                try { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(Number(v) || 0); }
+                                catch (e) { return '$ ' + (Number(v) || 0).toFixed(2); }
+                            };
+                            priceStr = fmt(num);
+                        }
+                    }
+                    priceTd.textContent = priceStr;
                     tr.appendChild(priceTd);
 
                     const stockTd = document.createElement('td');

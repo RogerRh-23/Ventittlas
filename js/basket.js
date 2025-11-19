@@ -17,20 +17,41 @@ document.addEventListener('DOMContentLoaded', () => {
         basket.forEach((item, idx) => {
             const row = document.createElement('div');
             row.className = 'basket-row';
+            // format prices using Intl (use global if available)
+            const formatPrice = window.formatPrice || function (v) {
+                try { return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(Number(v) || 0); }
+                catch (e) { return '$' + (Number(v) || 0).toFixed(2); }
+            };
             row.innerHTML = `
                 <div class="basket-product">${item.nombre}</div>
-                <div class="basket-price">$${Number(item.precio).toFixed(2)}</div>
+                <div class="basket-price">${formatPrice(item.precio)}</div>
                 <div class="basket-qty">
                     <input type="number" min="1" value="${item.cantidad}" data-idx="${idx}" class="basket-qty-input" />
                 </div>
-                <div class="basket-subtotal">$${(item.precio * item.cantidad).toFixed(2)}</div>
+                <div class="basket-subtotal">${formatPrice(Number(item.precio) * Number(item.cantidad))}</div>
                 <button class="basket-remove" data-idx="${idx}">Eliminar</button>
             `;
             basketContainer.appendChild(row);
             total += item.precio * item.cantidad;
         });
-        totalContainer.textContent = `$${total.toFixed(2)}`;
+        // Use formatter for total
+        const totalFmt = (window.formatPrice || (v => { try { return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(Number(v)||0);}catch(e){return '$'+(Number(v)||0).toFixed(2);} }))(total);
+        totalContainer.textContent = totalFmt;
     }
+
+    // expose a small API and dispatch event when basket changes
+    function dispatchBasketUpdated() {
+        try {
+            window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: basket } }));
+        } catch (e) { /* ignore */ }
+    }
+
+    // expose helper API
+    window.basketApi = {
+        get: () => JSON.parse(JSON.stringify(basket)),
+        set: (newBasket) => { basket = Array.isArray(newBasket) ? newBasket : []; localStorage.setItem('basket', JSON.stringify(basket)); renderBasket(); dispatchBasketUpdated(); },
+        refresh: () => { renderBasket(); dispatchBasketUpdated(); }
+    };
 
     basketContainer.addEventListener('click', e => {
         if (e.target.classList.contains('basket-remove')) {
@@ -38,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
             basket.splice(idx, 1);
             localStorage.setItem('basket', JSON.stringify(basket));
             renderBasket();
+            dispatchBasketUpdated();
         }
     });
 
@@ -48,6 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             basket[idx].cantidad = qty;
             localStorage.setItem('basket', JSON.stringify(basket));
             renderBasket();
+            dispatchBasketUpdated();
         }
     });
 
@@ -56,17 +79,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutBtn = document.querySelector('.basket-checkout');
     const paymentArea = document.getElementById('payment-area');
 
-    if (checkoutBtn && paymentArea) {
-        checkoutBtn.addEventListener('click', async () => {
-            // if cart empty, show message
-            if (!basket || basket.length === 0) {
-                paymentArea.innerHTML = '<div class="msg">Tu carrito está vacío. Agrega productos antes de pagar.</div>';
-                return;
-            }
-            // show payment UI
-            showPaymentUI();
-        });
-    }
+        if (checkoutBtn && paymentArea) {
+            checkoutBtn.addEventListener('click', async () => {
+                // if cart empty, show message
+                if (!basket || basket.length === 0) {
+                    paymentArea.innerHTML = '<div class="msg">Tu carrito está vacío. Agrega productos antes de pagar.</div>';
+                    return;
+                }
+
+                // Require user to be logged in before showing payment UI
+                try {
+                    const sres = await fetch('/php/api/session.php', { credentials: 'same-origin' });
+                    const sj = await sres.json().catch(() => null);
+                    if (!sres.ok || !sj || !sj.ok || !sj.user) {
+                        // redirect to login and preserve return URL
+                        const next = encodeURIComponent('/pages/basket.html');
+                        window.location.href = '/pages/login.html?next=' + next;
+                        return;
+                    }
+                } catch (err) {
+                    // On network error, also require login
+                    const next = encodeURIComponent('/pages/basket.html');
+                    window.location.href = '/pages/login.html?next=' + next;
+                    return;
+                }
+
+                // show payment UI
+                showPaymentUI();
+            });
+        }
 
     // Render a simple payment UI: list saved methods + add new method form + confirm button
     async function showPaymentUI() {
@@ -105,7 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
         html.push('<div style="margin-top:12px"><button type="submit" class="btn">Guardar método</button></div>');
         html.push('</form>');
 
-        html.push(`<div style="margin-top:16px"><strong>Total a pagar:</strong> $${total}</div>`);
+    // format total for display
+    const totalDisplay = (window.formatPrice || (v => { try { return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(Number(v)||0);}catch(e){return '$'+(Number(v)||0).toFixed(2);} }))(total);
+    html.push(`<div style="margin-top:16px"><strong>Total a pagar:</strong> ${totalDisplay}</div>`);
         html.push('<div style="margin-top:12px"><button id="confirm-pay" class="btn">Pagar ahora</button></div>');
         html.push('</div>');
 
@@ -148,17 +191,67 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // confirm pay handler: pick selected method and simulate checkout
+        // confirm pay handler: pick selected method and create real sale (with confirmation modal)
         const confirmBtn = document.getElementById('confirm-pay');
         if (confirmBtn) {
             confirmBtn.addEventListener('click', async () => {
                 const sel = paymentArea.querySelector('input[name="pay-method"]:checked');
                 const methodId = sel ? sel.value : null;
-                // simulate server-side sale creation — here we just clear basket and show success
-                localStorage.removeItem('basket');
-                basket = [];
-                renderBasket();
-                paymentArea.innerHTML = `<div class="msg" style="background:#d1e7dd;color:#0f5132;padding:12px;border-radius:8px">Pago simulado realizado ${methodId ? 'usando método #' + methodId : '(sin método seleccionado)'} — ¡Gracias por tu compra!</div>`;
+                const total = basket.reduce((s, it) => s + (Number(it.precio) * Number(it.cantidad)), 0).toFixed(2);
+                const totalDisplay = (window.formatPrice || (v => { try { return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(Number(v)||0);}catch(e){return '$'+(Number(v)||0).toFixed(2);} }))(total);
+
+                // Build confirmation modal
+                const modal = document.createElement('div');
+                modal.className = 'confirm-overlay';
+                modal.style = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:11000;padding:20px;';
+                modal.innerHTML = `
+                    <div style="background:#fff;padding:20px;border-radius:8px;max-width:420px;width:100%">
+                        <h3>Confirmar pago</h3>
+                        <p>Total a pagar: <strong>${totalDisplay}</strong></p>
+                        <p>Método: <strong>${methodId ? 'ID ' + methodId : 'Sin método seleccionado'}</strong></p>
+                        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+                            <button id="confirm-cancel" class="btn">Cancelar</button>
+                            <button id="confirm-ok" class="btn primary">Confirmar y pagar</button>
+                        </div>
+                        <div id="confirm-msg" style="margin-top:12px"></div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                const btnCancel = modal.querySelector('#confirm-cancel');
+                const btnOk = modal.querySelector('#confirm-ok');
+                const msgBox = modal.querySelector('#confirm-msg');
+
+                btnCancel.addEventListener('click', () => { modal.remove(); });
+
+                btnOk.addEventListener('click', async () => {
+                    btnOk.disabled = true; btnCancel.disabled = true; btnOk.textContent = 'Procesando...';
+                    try {
+                        const payload = { items: basket.map(it => ({ id_producto: it.id_producto ?? it.id ?? null, cantidad: it.cantidad, precio: it.precio })), metodo_pago_id: methodId };
+                        const res = await fetch('/php/api/create_sale.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'same-origin',
+                            body: JSON.stringify(payload)
+                        });
+                        const jr = await res.json();
+                        if (!res.ok || !jr || !jr.ok) {
+                            throw new Error((jr && jr.message) ? jr.message : ('Error creando venta: ' + res.status));
+                        }
+
+                        // success: clear basket, update UI
+                        localStorage.removeItem('basket');
+                        basket = [];
+                        renderBasket();
+                        dispatchBasketUpdated();
+                        paymentArea.innerHTML = `<div class="msg" style="background:#d1e7dd;color:#0f5132;padding:12px;border-radius:8px">Venta creada (ID ${jr.id_venta}) — ¡Gracias por tu compra!</div>`;
+                        modal.remove();
+                    } catch (err) {
+                        console.error(err);
+                        msgBox.innerHTML = `<div class="msg" style="background:#f8d7da;color:#842029;padding:8px;border-radius:6px">${err.message || 'Error procesando pago'}</div>`;
+                        btnOk.disabled = false; btnCancel.disabled = false; btnOk.textContent = 'Confirmar y pagar';
+                    }
+                });
             });
         }
     }
