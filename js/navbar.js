@@ -83,6 +83,24 @@
                 // ignore
             }
         })();
+
+        // Intercept navbar search form and redirect to products page with query param
+        try {
+            const searchForm = document.querySelector('.nav-search');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function (ev) {
+                    ev.preventDefault();
+                    const input = searchForm.querySelector('input[name="q"]') || searchForm.querySelector('input[type="search"]');
+                    if (!input) return;
+                    const q = (input.value || '').trim();
+                    if (!q) return;
+                    // Redirect to products page with query param 'q'
+                    window.location.href = '/pages/products.html?q=' + encodeURIComponent(q);
+                });
+            }
+        } catch (e) {
+            // ignore
+        }
     }
 
     if (document.readyState === 'loading') {
