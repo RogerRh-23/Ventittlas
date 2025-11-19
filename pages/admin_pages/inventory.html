@@ -39,10 +39,10 @@
         <div id="inventory-empty" class="empty" style="display:none">No se encontraron productos.</div>
     </div>
 
-    <!-- Modal: Add Product -->
-    <div id="add-product-modal" class="modal" role="dialog" aria-hidden="true" style="display:none">
+    <!-- Modal: Add Product (fixed overlay, click outside does NOT close) -->
+    <div id="add-product-modal" class="modal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:10000;padding:20px;">
         <div class="modal-content" role="document"
-            style="max-width:720px;padding:20px;background:#fff;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.2);margin:40px auto;">
+            style="max-width:720px;width:100%;padding:20px;background:#fff;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.2);overflow:auto;max-height:calc(100vh - 80px);">
             <button id="close-add-product" class="modal-close" aria-label="Cerrar" style="float:right">✕</button>
             <h2>Agregar producto</h2>
             <form id="add-product-form">
