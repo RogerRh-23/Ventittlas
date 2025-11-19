@@ -178,7 +178,20 @@
             title: p.nombre ?? p.title ?? p.name ?? '',
             price: (p.precio ?? p.price ?? 0),
             // prefer explicit imagen_url / image fields, else try imagen or build from name heuristics
-            image: p.imagen_url ?? p.imagen ?? p.image ?? null,
+            // Normalize image path: DB may store either a full URL, a web path (/assets/...), or just a filename.
+            // Ensure we return a proper web path so <img> requests don't become relative filenames (which caused 404s).
+            image: (function(){
+                let img = p.imagen_url ?? p.imagen ?? p.image ?? null;
+                if (!img) return null;
+                img = String(img).trim();
+                if (img === '') return null;
+                // If it's already an absolute URL or starts with a slash, leave as-is
+                if (/^https?:\/\//i.test(img) || img.startsWith('/')) return img;
+                // If it starts with 'assets/' (missing leading slash), add it
+                if (img.startsWith('assets/')) return '/' + img;
+                // Otherwise assume it's a filename stored in the DB and prepend the products folder
+                return '/assets/img/products/' + img;
+            })(),
             url: p.url ?? null,
             // some APIs use 'stock', others 'cantidad'
             stock: (p.stock ?? p.cantidad ?? null) !== null ? Number(p.stock ?? p.cantidad) : null,
