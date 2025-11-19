@@ -159,3 +159,29 @@ body.has-solid-navbar .site-navbar {
     z-index: 10060;
     /* slightly above the absolute/fixed navbar */
 }
+
+/* Ensure that when the navbar becomes 'solid' it stays fixed to the top
+   so the UX is consistent: it overlays content and remains visible while scrolling. */
+.site-navbar--solid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 11000;
+}
+
+/* Defensive: ensure navbar is visible by default */
+.site-navbar {
+    visibility: visible;
+}
+
+/* Emergency override: if any script or style hides the navbar, force it visible.
+   This is a defensive temporary rule to make the UI usable while debugging. */
+.site-navbar {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    z-index: 12000 !important;
+}

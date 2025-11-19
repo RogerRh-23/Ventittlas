@@ -18,46 +18,49 @@
             return;
         }
 
-        // If navbar is inside the header (index), compute an overlay offset so it sits over the banner
-        function ensureOverlay() {
+        // Position the fixed navbar so it sits above the banner at the banner's
+        // bottom edge initially. As the user scrolls and the banner moves out of
+        // view, the navbar will be clamped to `top: 0` and act like a classic
+        // sticky header. Also set body padding only when navbar is at the top so
+        // it doesn't cover page content.
+        function positionNavbar() {
             try {
                 var navHeight = navbar.getBoundingClientRect().height || navbar.offsetHeight || 0;
-                // apply a negative margin so the navbar overlaps the banner while remaining in flow
-                navbar.style.marginTop = '-' + navHeight + 'px';
-            } catch (e) {
-                // ignore
-            }
-        }
-
-        // Compute the threshold: when the bottom of the header image is <= navbar offsetTop
-        function checkScroll() {
-            var bannerRect = headerImg.getBoundingClientRect();
-            var navRect = navbar.getBoundingClientRect();
-
-            // When bottom of banner is above or equal navbar's top in viewport, make solid
-            if (bannerRect.bottom <= navRect.top) {
-                if (!navbar.classList.contains('site-navbar--solid')) {
+                if (!headerImg) {
+                    // No banner: stick to top and reserve space
+                    navbar.style.top = '0px';
+                    document.body.style.paddingTop = navHeight + 'px';
                     navbar.classList.add('site-navbar--solid');
+                    return;
                 }
-            } else {
-                if (navbar.classList.contains('site-navbar--solid')) {
+
+                var bannerRect = headerImg.getBoundingClientRect();
+                // compute desired top: place navbar at the top edge of the banner
+                // so the navbar appears at the top of the image rather than at its bottom
+                var desiredTop = Math.round(bannerRect.top);
+                if (desiredTop <= 0) {
+                    // banner scrolled out enough: keep navbar at viewport top
+                    navbar.style.top = '0px';
+                    document.body.style.paddingTop = navHeight + 'px';
+                    navbar.classList.add('site-navbar--solid');
+                } else {
+                    // position navbar overlapping the bottom of the banner
+                    // place the navbar at the banner's top position
+                    navbar.style.top = desiredTop + 'px';
+                    document.body.style.paddingTop = '0px';
                     navbar.classList.remove('site-navbar--solid');
                 }
-            }
+            } catch (e) { /* ignore */ }
         }
 
         // Run on scroll and on resize (banner dims may change)
-        window.addEventListener('scroll', checkScroll, { passive: true });
+        window.addEventListener('scroll', positionNavbar, { passive: true });
         window.addEventListener('resize', function () {
-            ensureOverlay();
-            checkScroll();
+            positionNavbar();
         });
 
-        // Ensure overlay initially
-        ensureOverlay();
-
-        // Initial check in case the page loads scrolled
-        checkScroll();
+        // Initial placement
+        positionNavbar();
 
         // ---- User session handling: replace login link with user name if logged ----
         (async function updateUserLink() {

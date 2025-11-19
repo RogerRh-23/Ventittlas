@@ -5,6 +5,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Roboto Condensed";
   src: url("../assets/fonts/Roboto/Roboto_Condensed-Regular.ttf") format("truetype");
@@ -12,6 +13,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Roboto Condensed";
   src: url("../assets/fonts/Roboto/Roboto_Condensed-Medium.ttf") format("truetype");
@@ -19,6 +21,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Roboto Condensed";
   src: url("../assets/fonts/Roboto/Roboto_Condensed-Bold.ttf") format("truetype");
@@ -26,6 +29,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: "Roboto Condensed";
   src: url("../assets/fonts/Roboto/Roboto_Condensed-Black.ttf") format("truetype");
@@ -33,6 +37,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 :root {
   --base-font-family: Roboto Condensed, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
 }
@@ -146,6 +151,7 @@ h6 {
     gap: 16px 32px;
   }
 }
+
 .footer-nav li {
   margin: 0;
 }
@@ -197,15 +203,18 @@ h6 {
     padding: 24px 12px;
     align-items: center;
   }
+
   .footer-brand,
   .footer-contact,
   .footer-nav {
     width: 100%;
   }
+
   .footer-nav ul {
     align-items: center;
   }
 }
+
 .site-header {
   position: relative;
 }
@@ -258,6 +267,7 @@ h6 {
   backdrop-filter: blur(6px);
   transition: none;
 }
+
 .site-navbar .container {
   display: flex;
   align-items: center;
@@ -269,11 +279,13 @@ h6 {
   padding: 0 20px;
   box-sizing: border-box;
 }
+
 .site-navbar .nav-logo {
   height: 96px;
   width: auto;
   display: block;
 }
+
 .site-navbar .nav-links {
   list-style: none;
   display: flex;
@@ -281,9 +293,11 @@ h6 {
   padding: 0;
   align-items: center;
 }
+
 .site-navbar .nav-links li {
   margin-left: 32px;
 }
+
 .site-navbar .nav-links li a {
   font-weight: 700;
   color: #ffffff;
@@ -292,6 +306,7 @@ h6 {
   display: inline-flex;
   align-items: center;
 }
+
 .site-navbar .nav-links li a:hover {
   text-decoration: underline;
 }
@@ -345,6 +360,7 @@ h6 {
   transition: filter 160ms ease-in-out, opacity 160ms ease-in-out;
   filter: none;
 }
+
 .nav-icon img {
   width: 100%;
   height: 100%;
@@ -386,14 +402,24 @@ body.has-solid-navbar .site-navbar {
   left: 0;
 }
 
-/* When the navbar is placed inside the header (index page), make it sticky
-   so it scrolls with the page and then sticks to the top of the viewport. */
-.site-header .site-navbar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 10060;
-  /* slightly above the absolute/fixed navbar */
+/* Navbar placement: handled by JS (fixed). Keep a noop rule here so
+  pages that expect `.site-header .site-navbar` selectors still match. */
+.site-header .site-navbar {}
+
+/* Defensive: ensure navbar is visible by default */
+.site-navbar {
+  visibility: visible;
+}
+
+/* Emergency override: if any script or style hides the navbar, force it visible.
+   This is a defensive temporary rule to make the UI usable while debugging. */
+.site-navbar {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  z-index: 12000 !important;
 }
 
 .product-title {
@@ -455,24 +481,28 @@ body.has-solid-navbar .site-navbar {
 }
 
 @media (min-width: 900px) {
-  body.has-sidebar > :not(.app-sidebar) {
+  body.has-sidebar> :not(.app-sidebar) {
     margin-left: 64px;
     margin-right: 32px;
     transition: margin-left 0.35s, margin-right 0.35s;
   }
-  body.has-sidebar .app-sidebar.collapsed ~ * {
+
+  body.has-sidebar .app-sidebar.collapsed~* {
     margin-left: 64px !important;
     margin-right: 32px !important;
   }
+
   body.has-sidebar .app-sidebar:not(.collapsed) {
     z-index: 2000;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.12);
   }
-  body.has-sidebar .app-sidebar:not(.collapsed) ~ * {
+
+  body.has-sidebar .app-sidebar:not(.collapsed)~* {
     margin-left: 0 !important;
     margin-right: 32px !important;
   }
 }
+
 .app-sidebar.collapsed {
   width: 56px !important;
   border-radius: 0 16px 16px 0 !important;
@@ -611,6 +641,7 @@ body.has-solid-navbar .site-navbar {
     display: block !important;
   }
 }
+
 .sidebar-text {
   color: #ffffff;
   font-weight: 700;
@@ -679,10 +710,12 @@ body.has-solid-navbar .site-navbar {
     width: 56px;
     border-radius: 0 16px 16px 0;
   }
+
   .sidebar-text {
     display: none !important;
   }
 }
+
 body {
   background-color: #e9edfb;
 }
@@ -800,6 +833,7 @@ body {
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
+
 #inventory-table th,
 #inventory-table td {
   padding: 12px 14px;
@@ -808,12 +842,14 @@ body {
   vertical-align: middle;
   font-size: 0.95rem;
 }
+
 #inventory-table th {
   background: white;
   color: #191919;
   font-weight: 500;
   font-size: 0.9rem;
 }
+
 #inventory-table caption {
   caption-side: top;
   text-align: left;
@@ -841,15 +877,18 @@ body {
 
 /* Small screens: make table rows easier to scan */
 @media (max-width: 640px) {
+
   #inventory-table th,
   #inventory-table td {
     padding: 10px 8px;
     font-size: 0.9rem;
   }
+
   #inventory-table caption {
     font-size: 0.9rem;
   }
 }
+
 .login-main {
   min-height: 100vh;
   display: flex;
@@ -929,14 +968,17 @@ body {
   .login-section {
     padding: 12px;
   }
+
   .login-card {
     padding: 1.2rem;
   }
+
   .login-form input[type=text],
   .login-form input[type=password] {
     font-size: 0.95rem;
   }
 }
+
 .back-btn {
   position: fixed;
   top: 16px;
@@ -980,6 +1022,7 @@ body {
     height: 40px;
   }
 }
+
 /* Section CTA (Ver todo) and small section helpers */
 .section-cta {
   display: flex;
@@ -1155,13 +1198,16 @@ body {
   .products-grid {
     justify-content: center;
   }
+
   .product-card {
     flex: 0 0 150px;
   }
+
   .product-media {
     height: 110px;
   }
 }
+
 /* Layout for products page: filters on the left, product list on the right */
 .products-layout {
   display: flex;
@@ -1199,6 +1245,7 @@ body {
     height: fit-content;
   }
 }
+
 /* enhance range track and add fill element (JS will create .range-fill) */
 .range-wrap {
   position: relative;
@@ -1355,13 +1402,16 @@ button[type=submit]:hover {
   .container {
     padding: 1rem;
   }
+
   form {
     grid-template-columns: 1fr;
   }
+
   button[type=submit] {
     width: 100%;
   }
 }
+
 .muted {
   color: #7f7f7f;
   font-size: 0.9rem;
@@ -1388,3 +1438,29 @@ body {
 }
 
 /*# sourceMappingURL=main.css.map */
+
+/* Navbar: fixed layout for the site header (always visible) */
+.site-navbar {
+  position: fixed !important;
+  left: 0 !important;
+  width: 100% !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  z-index: 12000 !important;
+  /* Smooth transitions for position and visual state */
+  transition: top 220ms cubic-bezier(0.22, 0.9, 0.32, 1), background-color 200ms ease, box-shadow 200ms ease, transform 220ms ease, opacity 180ms ease;
+  will-change: top, background-color, transform;
+}
+
+/* .site-navbar--solid only changes visuals (color/shadow) */
+.site-navbar--solid {
+  background-color: #009929 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Reserve space for the fixed navbar via inline body padding set from JS */
+/* JS will set `document.body.style.paddingTop = '<nav-height>px'` */
