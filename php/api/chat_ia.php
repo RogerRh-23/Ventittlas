@@ -4,10 +4,18 @@
 header('Content-Type: application/json');
 
 
-$apiKey = 'AIzaSyDdE7QfAqAsmsMlN0a_rWmDZE1sxoGtPJc';
+$apiKey = '';
 
 
 require_once '../conect.php';
+
+// Load API key from environment (php/.env via conect.php)
+$apiKey = getenv('GEN_API_KEY') ?: getenv('GOOGLE_API_KEY') ?: getenv('API_KEY');
+if (!$apiKey) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Server configuration error: missing GEN_API_KEY']);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['error' => 'Método no permitido.']);

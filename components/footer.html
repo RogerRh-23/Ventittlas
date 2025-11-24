@@ -231,16 +231,34 @@
                 body: JSON.stringify({ mensaje: text })
             });
 
-            const data = await response.json();
-
+            // read raw text first to avoid JSON parse exception on empty/invalid responses
+            const raw = await response.text();
             const loader = document.getElementById(loadingId);
             if (loader) loader.remove();
 
-            if (data.respuesta) {
-                addMessage(data.respuesta, 'bot-msg');
+            if (!raw || raw.trim() === '') {
+                addMessage("⚠️ Respuesta vacía del servidor.", 'error-msg');
+                console.error('Empty response from chat_ia.php');
+            } else {
+                let data = null;
+                try {
+                    data = JSON.parse(raw);
+                } catch (e) {
+                    // show raw for debugging, but keep UX-friendly message
+                    console.error('Invalid JSON from chat_ia.php:', raw.substring(0,2000));
+                    addMessage("⚠️ Respuesta inválida del servidor.", 'error-msg');
+                }
 
-            } else if (data.error) {
-                addMessage("⚠️ " + data.error, 'error-msg');
+                if (data) {
+                    if (data.respuesta) {
+                        addMessage(data.respuesta, 'bot-msg');
+                    } else if (data.error) {
+                        addMessage("⚠️ " + data.error, 'error-msg');
+                    } else {
+                        addMessage("⚠️ Respuesta inesperada del servidor.", 'error-msg');
+                        console.log('chat_ia unexpected response:', data);
+                    }
+                }
             }
 
         } catch (error) {
