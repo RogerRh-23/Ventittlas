@@ -39,3 +39,236 @@
         })();
     </script>
 </footer>
+<div id="venti-chat-widget">
+    <button id="chat-toggle-btn" onclick="toggleChat()">
+        🤖 Ayuda
+    </button>
+
+    <div id="chat-window" class="hidden">
+        <div class="chat-header">
+            <span>KikaBot 🤖</span>
+            <button onclick="toggleChat()" class="close-btn">✖</button>
+        </div>
+        <div id="chat-messages">
+            <div class="message bot-msg">
+                ¡Hola! Soy KikaBot!. Pregúntame por precios o productos como la Laptop HP.
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Escribe aquí..." onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    #venti-chat-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 99999;
+        font-family: sans-serif;
+    }
+
+    #chat-toggle-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: transform 0.2s;
+    }
+
+    #chat-toggle-btn:hover {
+        transform: scale(1.05);
+    }
+
+    #chat-window {
+        width: 320px;
+        height: 450px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        overflow: hidden;
+        border: 1px solid #ddd;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .chat-header {
+        background: #28a745;
+        color: white;
+        padding: 12px;
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    #chat-messages {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .message {
+        padding: 10px 14px;
+        border-radius: 12px;
+        max-width: 85%;
+        font-size: 14px;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .bot-msg {
+        background: #e9ecef;
+        color: #333;
+        align-self: flex-start;
+        border-bottom-left-radius: 2px;
+    }
+
+    .user-msg {
+        background: #d1e7dd;
+        color: #0f5132;
+        align-self: flex-end;
+        border-bottom-right-radius: 2px;
+    }
+
+    .error-msg {
+        background: #f8d7da;
+        color: #721c24;
+        align-self: center;
+        font-size: 12px;
+    }
+
+    .chat-input-area {
+        padding: 10px;
+        border-top: 1px solid #eee;
+        display: flex;
+        gap: 8px;
+        background: white;
+    }
+
+    #user-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 20px;
+        outline: none;
+    }
+
+    .chat-input-area button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .chat-input-area button:hover {
+        background-color: #218838;
+    }
+</style>
+
+<script>
+    function toggleChat() {
+        const chatWindow = document.getElementById('chat-window');
+        chatWindow.classList.toggle('hidden');
+        if (!chatWindow.classList.contains('hidden')) {
+            setTimeout(() => document.getElementById('user-input').focus(), 100);
+        }
+    }
+
+    function handleEnter(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const messagesDiv = document.getElementById('chat-messages');
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        addMessage(text, 'user-msg');
+        input.value = '';
+        input.disabled = true;
+
+        const loadingId = 'loading-' + Date.now();
+        messagesDiv.innerHTML += `<div id="${loadingId}" class="message bot-msg">Escribiendo... 💬</div>`;
+        scrollToBottom();
+
+        try {
+
+            const response = await fetch('/php/api/chat_ia.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mensaje: text })
+            });
+
+            const data = await response.json();
+
+            const loader = document.getElementById(loadingId);
+            if (loader) loader.remove();
+
+            if (data.respuesta) {
+                addMessage(data.respuesta, 'bot-msg');
+
+            } else if (data.error) {
+                addMessage("⚠️ " + data.error, 'error-msg');
+            }
+
+        } catch (error) {
+            const loader = document.getElementById(loadingId);
+            if (loader) loader.remove();
+            addMessage("Error de conexión. Intenta más tarde.", 'error-msg');
+            console.error(error);
+        }
+
+        input.disabled = false;
+        input.focus();
+        scrollToBottom();
+    }
+
+    function addMessage(text, className) {
+        const messagesDiv = document.getElementById('chat-messages');
+
+        let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        formattedText = formattedText.replace(/\n/g, '<br>');
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${className}`;
+        msgDiv.innerHTML = formattedText;
+        messagesDiv.appendChild(msgDiv);
+    }
+
+    function scrollToBottom() {
+        const messagesDiv = document.getElementById('chat-messages');
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+</script>
