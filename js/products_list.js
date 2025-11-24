@@ -55,6 +55,19 @@
     if (price) price.textContent = formatPrice(product.price || 0);
         if (link) link.href = product.url || `#/product/${product.id}`;
 
+        // wire add-to-cart button if present
+        const addBtn = node.querySelector('.btn.add-to-cart');
+        if (addBtn) {
+            addBtn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                addBtn.disabled = true;
+                const ok = addToBasket(product);
+                // simple feedback
+                addBtn.textContent = ok ? '✓ Agregado' : 'Error';
+                setTimeout(() => { addBtn.disabled = false; addBtn.textContent = 'Agregar'; }, 900);
+            });
+        }
+
         // stock element (if present in template)
         const stockEl = node.querySelector('.product-stock');
         if (stockEl) {
@@ -71,6 +84,32 @@
         }
 
         container.appendChild(node);
+    }
+
+    function addToBasket(product) {
+        try {
+            const key = 'basket';
+            const raw = localStorage.getItem(key) || '[]';
+            const arr = JSON.parse(raw);
+            // item shape: { id_producto, nombre, precio, cantidad }
+            const item = {
+                id_producto: product.id ?? null,
+                nombre: product.title || product.raw?.nombre || '',
+                precio: Number(product.price || 0),
+                cantidad: 1
+            };
+            // if exists, increment cantidad
+            const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
+            if (exist) {
+                exist.cantidad = (Number(exist.cantidad) || 0) + 1;
+            } else {
+                arr.push(item);
+            }
+            localStorage.setItem(key, JSON.stringify(arr));
+            // dispatch update event for other parts of the app
+            try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) { }
+            return true;
+        } catch (e) { return false; }
     }
 
     function matchesFilter(product, attrs) {

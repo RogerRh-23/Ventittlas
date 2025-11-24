@@ -63,9 +63,10 @@
         positionNavbar();
 
         // ---- User session handling: replace login link with user name if logged ----
-        (async function updateUserLink() {
+    (async function updateUserLink() {
             try {
-                const res = await fetch('/php/api/session.php', { credentials: 'same-origin' });
+        // use 'include' to ensure cookies are sent even if some pages differ in origin handling
+        const res = await fetch('/php/api/session.php', { credentials: 'include' });
                 const j = await res.json().catch(() => null);
                 if (j && j.ok && j.user) {
                     const user = j.user;

@@ -71,6 +71,33 @@
             }
 
             container.appendChild(node);
+
+            // wire add-to-cart button
+            const addBtn = node.querySelector('.btn.add-to-cart');
+            if (addBtn) {
+                addBtn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    addBtn.disabled = true;
+                    const item = {
+                        id_producto: product.id ?? null,
+                        nombre: product.title || product.raw?.nombre || '',
+                        precio: Number(product.price || 0),
+                        cantidad: 1
+                    };
+                    try {
+                        const key = 'basket';
+                        const arr = JSON.parse(localStorage.getItem(key) || '[]');
+                        const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
+                        if (exist) exist.cantidad = (Number(exist.cantidad)||0) + 1; else arr.push(item);
+                        localStorage.setItem(key, JSON.stringify(arr));
+                        try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) {}
+                        addBtn.textContent = '✓ Agregado';
+                    } catch (e) {
+                        addBtn.textContent = 'Error';
+                    }
+                    setTimeout(() => { addBtn.disabled = false; addBtn.textContent = 'Agregar'; }, 900);
+                });
+            }
         });
     }
 
