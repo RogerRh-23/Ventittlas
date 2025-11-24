@@ -26,6 +26,15 @@ if (!$apiKey) {
     exit;
 }
 
+// Safe debug endpoint: only available from localhost (127.0.0.1) or CLI
+if ((isset($_GET['debug_env']) && $_GET['debug_env'] == '1') && (php_sapi_name() === 'cli' || ($_SERVER['REMOTE_ADDR'] ?? '') === '127.0.0.1')) {
+    // do not echo the key itself, only whether it is present
+    $present = $apiKey ? true : false;
+    error_log('chat_ia debug_env check: key_present=' . ($present ? '1' : '0'));
+    echo json_encode(['GEM_API_KEY_present' => $present]);
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['error' => 'Método no permitido.']);
     http_response_code(405);
