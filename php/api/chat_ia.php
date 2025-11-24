@@ -10,51 +10,18 @@ error_reporting(E_ALL);
 
 error_log('chat_ia.php invoked');
 
-// --- INICIO BLOQUE CORREGIDO ---
+require_once '../conect.php';
 
-// Función simple para leer .env
-function cargarEnv($ruta) {
-    if (!file_exists($ruta)) {
-        return false;
-    }
-    $lineas = file($ruta, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lineas as $linea) {
-        if (strpos(trim($linea), '#') === 0) continue; // Ignorar comentarios
-        
-        list($nombre, $valor) = explode('=', $linea, 2);
-        $nombre = trim($nombre);
-        $valor = trim($valor);
-        
-        if (!array_key_exists($nombre, $_SERVER) && !array_key_exists($nombre, $_ENV)) {
-            putenv(sprintf('%s=%s', $nombre, $valor));
-            $_ENV[$nombre] = $valor;
-            $_SERVER[$nombre] = $valor;
-        }
-    }
-    return true;
-}
-
-// Intentar cargar el archivo .env desde la raíz del proyecto
-// (Subimos 2 niveles desde /php/api/ hasta /var/www/html/)
-cargarEnv(__DIR__ . '/../../.env');
-
-// Ahora sí, buscar la llave
-$apiKey = getenv('GEM_API_KEY');
-
-if (!$apiKey) {
-    // Intento de fallback por si acaso
-    $apiKey = getenv('GEN_API_KEY') ?: getenv('GOOGLE_API_KEY');
-}
-
+// Load API key from environment (php/.env via conect.php)
+// Support both GEM_API_KEY (used in .env) and older GEN_API_KEY/GOOGLE_API_KEY names
+$apiKey = getenv('GEM_API_KEY') ?: getenv('GEN_API_KEY') ?: getenv('GOOGLE_API_KEY') ?: getenv('API_KEY');
 if (!$apiKey) {
     http_response_code(500);
-    $msg = 'Error de configuración: No se encontró la API Key en el archivo .env';
+    $msg = 'Server configuration error: missing GEM_API_KEY';
     error_log('chat_ia: ' . $msg);
     echo json_encode(['error' => $msg]);
     exit;
 }
-
-// --- FIN BLOQUE CORREGIDO ---
 
 // Safe debug endpoint: only available from localhost (127.0.0.1) or CLI
 if ((isset($_GET['debug_env']) && $_GET['debug_env'] == '1') && (php_sapi_name() === 'cli' || ($_SERVER['REMOTE_ADDR'] ?? '') === '127.0.0.1')) {
