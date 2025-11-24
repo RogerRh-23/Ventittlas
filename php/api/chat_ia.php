@@ -15,6 +15,7 @@ require_once __DIR__ . '/../conect.php';
 // Load API key from environment (php/.env via conect.php)
 // Support both GEM_API_KEY (used in .env) and older GEN_API_KEY/GOOGLE_API_KEY names
 $apiKey = getenv('GEM_API_KEY') ?: getenv('GEN_API_KEY') ?: getenv('GOOGLE_API_KEY') ?: getenv('API_KEY');
+error_log('chat_ia: GEM_API_KEY present: ' . ($apiKey ? 'YES' : 'NO'));
 if (!$apiKey) {
     http_response_code(500);
     $msg = 'Server configuration error: missing GEM_API_KEY';
