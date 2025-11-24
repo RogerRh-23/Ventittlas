@@ -3,9 +3,15 @@
 
 header('Content-Type: application/json');
 
+// Do not expose PHP errors to users; log them instead
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
 
+error_log('chat_ia.php invoked');
+
+// placeholder for API key variable
 $apiKey = '';
-
 
 require_once '../conect.php';
 
@@ -13,7 +19,9 @@ require_once '../conect.php';
 $apiKey = getenv('GEN_API_KEY') ?: getenv('GOOGLE_API_KEY') ?: getenv('API_KEY');
 if (!$apiKey) {
     http_response_code(500);
-    echo json_encode(['error' => 'Server configuration error: missing GEN_API_KEY']);
+    $msg = 'Server configuration error: missing GEN_API_KEY';
+    error_log('chat_ia: ' . $msg);
+    echo json_encode(['error' => $msg]);
     exit;
 }
 
@@ -23,7 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$data = json_decode(file_get_contents('php://input'), true);
+$rawInput = file_get_contents('php://input');
+error_log('chat_ia raw input: ' . substr($rawInput, 0, 2000));
+$data = json_decode($rawInput, true);
 if (!isset($data['mensaje']) || empty(trim($data['mensaje']))) {
     echo json_encode(['error' => 'El mensaje es obligatorio.']);
     http_response_code(400);
