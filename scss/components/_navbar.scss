@@ -1,9 +1,9 @@
 // Navbar component styles
 
 .site-navbar {
-    /* position fixed so the navbar is always visible */
-    position: absolute;
-    top: 0 !important;
+    /* Default: sticky position for header pages */
+    position: sticky;
+    top: 0;
     left: 0;
     width: 100%;
     /* translucent background + blur when over the header image */
@@ -129,9 +129,17 @@
 
 /* When the body has this class we reserve space equal to the navbar height
    so fixed navbar doesn't cover page content on pages without banner. */
-body.has-solid-navbar {
+body.has-solid-navbar,
+body:not(.has-header) {
     padding-top: 128px;
     /* approximate navbar height (logo 96px + 16px padding top/bottom) */
+}
+
+/* Ensure main content on non-header pages starts below navbar */
+body:not(.has-header) .site-main,
+body.has-solid-navbar .site-main {
+    margin-top: 0;
+    padding-top: 20px;
 }
 
 /* On pages where body.has-solid-navbar is set, fix the navbar and keep layout spacing */
@@ -141,14 +149,31 @@ body.has-solid-navbar .site-navbar {
     left: 0;
 }
 
-/* When the navbar is placed inside the header (index page), make it sticky
-   so it scrolls with the page and then sticks to the top of the viewport. */
+/* When navbar is NOT inside header (other pages), make it fixed and solid */
+body:not(.has-header) .site-navbar,
+body.has-solid-navbar .site-navbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0;
+    background-color: $secondary-color !important;
+    color: $white;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    z-index: 11000;
+}
+
+/* Text color for navbar on non-header pages */
+body:not(.has-header) .site-navbar .nav-links li a,
+body.has-solid-navbar .site-navbar .nav-links li a {
+    color: $white !important;
+}
+
+/* When the navbar is placed inside the header (index page), make it sticky */
 .site-header .site-navbar {
     position: sticky;
     top: 0;
     left: 0;
     z-index: 10060;
-    /* slightly above the absolute/fixed navbar */
 }
 
 /* Ensure that when the navbar becomes 'solid' it stays fixed to the top

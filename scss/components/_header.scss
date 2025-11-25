@@ -5,17 +5,16 @@
     top: 0;
     left: 0;
     width: 100%;
-    min-height: 100vh;
 }
 
 .header-img {
     width: 100%;
-    height: 100vh;
+    height: auto;
     display: block;
     object-fit: cover;
     margin: 0 !important;
     padding: 0 !important;
-    position: absolute;
+    position: relative;
     top: 0;
     left: 0;
     z-index: 1;
@@ -32,7 +31,7 @@
     text-align: center;
     color: $font-color;
     pointer-events: none;
-    z-index: 2;
+    z-index: 10070;
 }
 
 .header-container h1 {
@@ -52,6 +51,4 @@
     position: relative;
     z-index: 3;
     background-color: $background-color;
-    margin-top: -50px;
-    padding-top: 50px;
 }

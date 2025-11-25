@@ -9,14 +9,24 @@
         if (!navbar) return;
 
         var headerImg = document.querySelector('.header-img');
+        var isIndexPage = document.querySelector('.site-header'); // Check if we're on index page
 
-        // If no header image/banner exists on the page, default to solid
-        if (!headerImg) {
+        // If no header image/banner exists on the page (not index page), default to solid
+        if (!headerImg || !isIndexPage) {
             navbar.classList.add('site-navbar--solid');
             // add a body class so we can add top padding to avoid covering content
-            try { document.body.classList.add('has-solid-navbar'); } catch (e) { }
+            try { 
+                document.body.classList.add('has-solid-navbar'); 
+                document.body.classList.remove('has-header');
+            } catch (e) { }
             return;
         }
+
+        // Mark that we have a header (for CSS targeting)
+        try { 
+            document.body.classList.add('has-header');
+            document.body.classList.remove('has-solid-navbar');
+        } catch (e) { }
 
         // Position the fixed navbar so it sits above the banner at the banner's
         // bottom edge initially. As the user scrolls and the banner moves out of
