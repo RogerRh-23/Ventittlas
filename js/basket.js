@@ -113,11 +113,31 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showPaymentUI() {
         paymentArea.innerHTML = '<div class="msg">Cargando métodos de pago…</div>';
         let methods = [];
+        let userSession = null;
+        
+        // Get current user session
         try {
-            const res = await fetch('/php/api/payments.php?type=methods');
-            methods = await res.json().then(j => j.data || []);
+            const sessionRes = await fetch('/php/api/session.php', { credentials: 'same-origin' });
+            const sessionData = await sessionRes.json();
+            if (sessionData && sessionData.ok && sessionData.user) {
+                userSession = sessionData.user;
+            }
         } catch (e) {
-            methods = [];
+            console.error('Error getting session:', e);
+        }
+        
+        // Try to load payment methods if user is logged in
+        if (userSession) {
+            try {
+                const res = await fetch(`/php/api/payments.php?type=methods&id_usuario=${userSession.id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    methods = data.ok ? (data.data || []) : [];
+                }
+            } catch (e) {
+                console.error('Error loading payment methods:', e);
+                methods = [];
+            }
         }
 
         const total = basket.reduce((s, it) => s + (Number(it.precio) * Number(it.cantidad)), 0).toFixed(2);
@@ -172,11 +192,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // POST to payments API
                 try {
+                    if (!userSession || !userSession.id) {
+                        throw new Error('Usuario no autenticado');
+                    }
+                    
+                    body.id_usuario = userSession.id;
+                    
                     const r = await fetch('/php/api/payments.php?type=methods', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        credentials: 'same-origin',
                         body: JSON.stringify(body)
                     });
+                    
+                    if (!r.ok) {
+                        const errorText = await r.text();
+                        throw new Error(`HTTP ${r.status}: ${errorText}`);
+                    }
+                    
                     const jr = await r.json();
                     if (jr && jr.ok) {
                         // re-open payment UI to refresh methods
@@ -186,7 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         paymentArea.insertAdjacentHTML('afterbegin', `<div class="msg" style="background:#f8d7da;color:#842029;padding:8px;border-radius:6px;margin-bottom:8px">${msg}</div>`);
                     }
                 } catch (e) {
-                    paymentArea.insertAdjacentHTML('afterbegin', `<div class="msg" style="background:#f8d7da;color:#842029;padding:8px;border-radius:6px;margin-bottom:8px">Error de red al crear método</div>`);
+                    console.error('Error creating payment method:', e);
+                    paymentArea.insertAdjacentHTML('afterbegin', `<div class="msg" style="background:#f8d7da;color:#842029;padding:8px;border-radius:6px;margin-bottom:8px">Error: ${e.message}</div>`);
                 }
             });
         }
@@ -226,17 +260,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 btnOk.addEventListener('click', async () => {
                     btnOk.disabled = true; btnCancel.disabled = true; btnOk.textContent = 'Procesando...';
+                    
                     try {
-                        const payload = { items: basket.map(it => ({ id_producto: it.id_producto ?? it.id ?? null, cantidad: it.cantidad, precio: it.precio })), metodo_pago_id: methodId };
+                        // Prepare payload with proper product IDs
+                        const items = basket.map(item => {
+                            const productId = item.id_producto || item.id || item.productId;
+                            if (!productId) {
+                                throw new Error('ID de producto no encontrado en el carrito');
+                            }
+                            return {
+                                id_producto: parseInt(productId),
+                                cantidad: parseInt(item.cantidad),
+                                precio: parseFloat(item.precio)
+                            };
+                        });
+                        
+                        const payload = {
+                            items: items,
+                            metodo_pago_id: methodId || 'tarjeta'
+                        };
+                        
+                        console.log('Sending payment payload:', payload);
+                        
                         const res = await fetch('/php/api/create_sale.php', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
                             credentials: 'same-origin',
                             body: JSON.stringify(payload)
                         });
+                        
+                        if (!res.ok) {
+                            const errorText = await res.text();
+                            console.error('Sale creation failed:', res.status, errorText);
+                            throw new Error(`Error del servidor (${res.status}): ${errorText}`);
+                        }
+                        
                         const jr = await res.json();
-                        if (!res.ok || !jr || !jr.ok) {
-                            throw new Error((jr && jr.message) ? jr.message : ('Error creando venta: ' + res.status));
+                        console.log('Sale creation response:', jr);
+                        
+                        if (!jr || !jr.ok) {
+                            throw new Error(jr && jr.message ? jr.message : 'Error creando venta');
                         }
 
                         // success: clear basket, update UI
@@ -244,11 +310,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         basket = [];
                         renderBasket();
                         dispatchBasketUpdated();
-                        paymentArea.innerHTML = `<div class="msg" style="background:#d1e7dd;color:#0f5132;padding:12px;border-radius:8px">Venta creada (ID ${jr.id_venta}) — ¡Gracias por tu compra!</div>`;
+                        
+                        const successMsg = `
+                            <div class="msg" style="background:#d1e7dd;color:#0f5132;padding:12px;border-radius:8px;text-align:center">
+                                <h3>¡Pago exitoso!</h3>
+                                <p>Venta creada con ID: <strong>#${jr.id_venta}</strong></p>
+                                <p>Monto total: <strong>${totalDisplay}</strong></p>
+                                <p>¡Gracias por tu compra!</p>
+                            </div>
+                        `;
+                        
+                        paymentArea.innerHTML = successMsg;
                         modal.remove();
+                        
                     } catch (err) {
-                        console.error(err);
-                        msgBox.innerHTML = `<div class="msg" style="background:#f8d7da;color:#842029;padding:8px;border-radius:6px">${err.message || 'Error procesando pago'}</div>`;
+                        console.error('Payment error:', err);
+                        msgBox.innerHTML = `<div class="msg" style="background:#f8d7da;color:#842029;padding:8px;border-radius:6px"><strong>Error:</strong> ${err.message || 'Error procesando pago'}</div>`;
                         btnOk.disabled = false; btnCancel.disabled = false; btnOk.textContent = 'Confirmar y pagar';
                     }
                 });

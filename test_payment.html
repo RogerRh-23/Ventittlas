@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Pago - Ventittlas</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d1e7dd; color: #0f5132; }
+        .error { background-color: #f8d7da; color: #842029; }
+        .info { background-color: #cff4fc; color: #055160; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background-color: #0d6efd; color: white; }
+        .btn-success { background-color: #198754; color: white; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        input { padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Test del Sistema de Pago</h1>
+
+    <div class="section">
+        <h2>1. Verificar Sesión</h2>
+        <button class="btn-primary" onclick="checkSession()">Verificar Sesión</button>
+        <div id="session-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>2. Simular Login</h2>
+        <input type="text" id="username" placeholder="Usuario" value="test">
+        <input type="password" id="password" placeholder="Contraseña" value="123">
+        <button class="btn-primary" onclick="testLogin()">Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>3. Verificar API de Pagos</h2>
+        <button class="btn-primary" onclick="testPaymentsAPI()">Test Métodos de Pago</button>
+        <div id="payments-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>4. Crear Venta de Prueba</h2>
+        <button class="btn-success" onclick="testCreateSale()">Crear Venta</button>
+        <div id="sale-result"></div>
+    </div>
+
+    <script>
+        async function checkSession() {
+            const resultDiv = document.getElementById('session-result');
+            try {
+                const response = await fetch('/php/api/session.php');
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="${data.ok ? 'info' : 'error'}">
+                        <strong>Estado:</strong> ${response.status}<br>
+                        <strong>Respuesta:</strong>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('login-result');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/php/api/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="${data.ok ? 'success' : 'error'}">
+                        <strong>Estado:</strong> ${response.status}<br>
+                        <strong>Respuesta:</strong>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testPaymentsAPI() {
+            const resultDiv = document.getElementById('payments-result');
+            try {
+                // First check session
+                const sessionRes = await fetch('/php/api/session.php');
+                const sessionData = await sessionRes.json();
+                
+                let url = '/php/api/payments.php?type=methods';
+                if (sessionData.ok && sessionData.user && sessionData.user.id) {
+                    url += `&id_usuario=${sessionData.user.id}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <div class="${data.ok ? 'success' : 'error'}">
+                        <strong>URL:</strong> ${url}<br>
+                        <strong>Estado:</strong> ${response.status}<br>
+                        <strong>Respuesta:</strong>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testCreateSale() {
+            const resultDiv = document.getElementById('sale-result');
+            
+            // Sample test data
+            const testSale = {
+                items: [
+                    {
+                        id_producto: 1,
+                        cantidad: 2,
+                        precio: 15.99
+                    },
+                    {
+                        id_producto: 2,
+                        cantidad: 1,
+                        precio: 25.50
+                    }
+                ],
+                metodo_pago_id: 'tarjeta'
+            };
+            
+            try {
+                const response = await fetch('/php/api/create_sale.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(testSale)
+                });
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    data = { error: 'Response is not JSON', response: text };
+                }
+                
+                resultDiv.innerHTML = `
+                    <div class="${response.ok ? 'success' : 'error'}">
+                        <strong>Estado:</strong> ${response.status}<br>
+                        <strong>Content-Type:</strong> ${contentType}<br>
+                        <strong>Test Data:</strong>
+                        <pre>${JSON.stringify(testSale, null, 2)}</pre>
+                        <strong>Respuesta:</strong>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-check session on load
+        window.addEventListener('load', checkSession);
+    </script>
+</body>
+</html>
