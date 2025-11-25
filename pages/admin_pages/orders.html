@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Órdenes de Venta — Panel Admin</title>
+    <link rel="icon" type="image/x-icon" href="../assets/img/logo.png">
+    <link rel="stylesheet" href="../styles/main.css" />
+</head>
+
+<body class="has-sidebar">
+    <div data-include="../components/sidebar.html"></div>
+
+    <main class="container">
+        <h1>Órdenes de Venta</h1>
+        <p class="muted">Gestiona y visualiza todas las órdenes de venta de la tienda.</p>
+
+        <!-- Filtros -->
+        <div class="filters-section">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="filter-date-from">Fecha desde:</label>
+                    <input type="date" id="filter-date-from" class="form-control">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-date-to">Fecha hasta:</label>
+                    <input type="date" id="filter-date-to" class="form-control">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-status">Estado:</label>
+                    <select id="filter-status" class="form-control">
+                        <option value="">Todos</option>
+                        <option value="pendiente">Pendiente</option>
+                        <option value="pagado">Pagado</option>
+                        <option value="cancelado">Cancelado</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button id="apply-filters" class="btn btn-primary">Aplicar Filtros</button>
+                    <button id="clear-filters" class="btn btn-secondary">Limpiar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen de estadísticas -->
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total de Ventas</h3>
+                    <p class="stat-value" id="total-sales">$0.00</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Órdenes Hoy</h3>
+                    <p class="stat-value" id="orders-today">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Promedio por Orden</h3>
+                    <p class="stat-value" id="average-order">$0.00</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Estado Pendiente</h3>
+                    <p class="stat-value" id="pending-orders">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de órdenes -->
+        <div class="orders-section">
+            <div class="section-header">
+                <h2>Lista de Órdenes</h2>
+                <div class="section-actions">
+                    <button id="refresh-orders" class="btn btn-outline">
+                        <span class="icon">🔄</span> Actualizar
+                    </button>
+                    <button id="export-orders" class="btn btn-outline">
+                        <span class="icon">📊</span> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>ID Venta</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th>Método de Pago</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-tbody">
+                        <tr class="loading-row">
+                            <td colspan="7" class="text-center">
+                                <div class="loading-spinner">Cargando órdenes...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination-section">
+                <div class="pagination-info">
+                    <span id="pagination-info">Mostrando 0 de 0 órdenes</span>
+                </div>
+                <div class="pagination-controls">
+                    <button id="prev-page" class="btn btn-outline" disabled>Anterior</button>
+                    <span id="page-info">Página 1 de 1</span>
+                    <button id="next-page" class="btn btn-outline" disabled>Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para detalles de la orden -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Detalles de la Orden #0</h2>
+                <button class="modal-close" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="order-info">
+                    <div class="info-section">
+                        <h3>Información General</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>ID Venta:</label>
+                                <span id="detail-id">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Cliente:</label>
+                                <span id="detail-customer">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Fecha:</label>
+                                <span id="detail-date">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Estado:</label>
+                                <span id="detail-status">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Método de Pago:</label>
+                                <span id="detail-payment">-</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Total:</label>
+                                <span id="detail-total" class="total-amount">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3>Productos Comprados</h3>
+                        <div class="products-list">
+                            <table class="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detail-products">
+                                    <tr>
+                                        <td colspan="4" class="text-center">Cargando productos...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modal-cancel">Cerrar</button>
+                <button class="btn btn-primary" id="update-status">Actualizar Estado</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/include.js"></script>
+    <script src="../js/navbar.js"></script>
+    <script src="../js/sidebar.js"></script>
+    <script src="../js/admin_orders.js"></script>
+</body>
+
+</html>
