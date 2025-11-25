@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /* Hidden template elements */
 .hidden-template {
   display: none;
@@ -1272,11 +1273,40 @@ body {
 
 /* Products grid and product card styles + price slider */
 .products-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  display: grid;
   gap: 16px;
-  align-items: flex-start;
+  align-items: start;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 480px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media (min-width: 1200px) {
+  .products-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+@media (min-width: 1440px) {
+  .products-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+@media (min-width: 1920px) {
+  .products-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
 }
 
 .product-card {
@@ -1286,7 +1316,8 @@ body {
   overflow: hidden;
   transition: transform 0.16s ease, box-shadow 0.16s ease;
   box-sizing: border-box;
-  flex: 0 0 200px;
+  width: 100%;
+  min-width: 0;
 }
 
 .product-card:hover {
@@ -1305,7 +1336,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 140px;
+  height: 100px;
+}
+@media (min-width: 480px) {
+  .product-media {
+    height: 120px;
+  }
+}
+@media (min-width: 768px) {
+  .product-media {
+    height: 140px;
+  }
+}
+@media (min-width: 1200px) {
+  .product-media {
+    height: 160px;
+  }
+}
+@media (min-width: 1440px) {
+  .product-media {
+    height: 180px;
+  }
 }
 
 .product-img {
@@ -1410,27 +1461,58 @@ body {
   z-index: 2;
 }
 
-/* Small responsive tweaks */
-@media (max-width: 600px) {
-  .products-grid {
-    justify-content: center;
-  }
-  .product-card {
-    flex: 0 0 150px;
-  }
-  .product-media {
-    height: 110px;
+/* Responsive typography and spacing */
+.product-title {
+  font-size: 0.85rem;
+}
+@media (min-width: 768px) {
+  .product-title {
+    font-size: 0.9rem;
   }
 }
+@media (min-width: 1200px) {
+  .product-title {
+    font-size: 1rem;
+  }
+}
+
+.product-body {
+  padding: 8px;
+}
+@media (min-width: 768px) {
+  .product-body {
+    padding: 10px;
+  }
+}
+@media (min-width: 1200px) {
+  .product-body {
+    padding: 12px;
+  }
+}
+
+.product-price {
+  font-size: 0.9rem;
+}
+@media (min-width: 768px) {
+  .product-price {
+    font-size: 1rem;
+  }
+}
+
 /* Layout for products page: filters on the left, product list on the right */
 .products-layout {
   display: flex;
   gap: 20px;
   align-items: flex-start;
 }
+@media (max-width: 767px) {
+  .products-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
 
 .products-filters {
-  flex: 0 0 300px;
   box-sizing: border-box;
   padding: 16px;
   background: #ffffff;
@@ -1438,10 +1520,32 @@ body {
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
+@media (max-width: 767px) {
+  .products-filters {
+    width: 100%;
+    order: -1;
+  }
+}
+@media (min-width: 768px) {
+  .products-filters {
+    flex: 0 0 280px;
+  }
+}
+@media (min-width: 1200px) {
+  .products-filters {
+    flex: 0 0 300px;
+  }
+}
 
 .products-filters h3 {
   margin-top: 0;
   color: #006414;
+  font-size: 1.1rem;
+}
+@media (min-width: 1200px) {
+  .products-filters h3 {
+    font-size: 1.2rem;
+  }
 }
 
 .products-filters label {
@@ -1450,13 +1554,16 @@ body {
 
 .products-list {
   flex: 1 1 auto;
+  min-width: 0;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1024px) {
   .products-filters {
     position: sticky;
     top: 88px;
     height: fit-content;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
   }
 }
 /* enhance range track and add fill element (JS will create .range-fill) */
@@ -1517,6 +1624,25 @@ body {
   transform: scale(1.12);
 }
 
+/* Hover effects para product cards */
+.product-card {
+  cursor: pointer;
+}
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+.product-img {
+  transition: transform 0.3s ease;
+}
+
+/* Mejoras para botones en cards pequeñas */
+@media (max-width: 767px) {
+  .product-actions .btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
 .container {
   max-width: 1100px;
   margin: 2.5rem auto;

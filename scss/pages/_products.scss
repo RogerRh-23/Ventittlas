@@ -31,12 +31,42 @@
 /* Products grid and product card styles + price slider */
 
 .products-grid {
-    // Use flex so items pack to the right and wrap downward when necessary
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end; // align items to the right
+    display: grid;
     gap: 16px;
-    align-items: flex-start;
+    align-items: start;
+    
+    // Mobile: 2 columns
+    grid-template-columns: repeat(2, 1fr);
+    
+    // Mobile large: 3 columns
+    @include breakpoint('mobile-lg') {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    // Tablet: 4 columns
+    @include breakpoint('tablet') {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    // Tablet large: 5 columns
+    @include breakpoint('tablet-lg') {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    
+    // Desktop: 6 columns
+    @include breakpoint('desktop') {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    // Desktop large: 7 columns
+    @include breakpoint('desktop-lg') {
+        grid-template-columns: repeat(7, 1fr);
+    }
+    
+    // Desktop XL: 8 columns
+    @include breakpoint('desktop-xl') {
+        grid-template-columns: repeat(8, 1fr);
+    }
 }
 
 .product-card {
@@ -46,8 +76,8 @@
     overflow: hidden;
     transition: transform .16s ease, box-shadow .16s ease;
     box-sizing: border-box;
-    // fixed base width so wrapping is predictable; adjust as needed
-    flex: 0 0 200px;
+    width: 100%;
+    min-width: 0; // Permite que las cards se contraigan
 }
 
 .product-card:hover {
@@ -66,7 +96,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 140px;
+    
+    // Alturas responsivas para las imágenes
+    height: 100px; // Mobile
+    
+    @include breakpoint('mobile-lg') {
+        height: 120px;
+    }
+    
+    @include breakpoint('tablet') {
+        height: 140px;
+    }
+    
+    @include breakpoint('desktop') {
+        height: 160px;
+    }
+    
+    @include breakpoint('desktop-lg') {
+        height: 180px;
+    }
 }
 
 .product-img {
@@ -171,18 +219,36 @@
     z-index: 2;
 }
 
-/* Small responsive tweaks */
-@media (max-width: 600px) {
-    .products-grid {
-        justify-content: center; // center items on small screens
+/* Responsive typography and spacing */
+.product-title {
+    font-size: 0.85rem;
+    
+    @include breakpoint('tablet') {
+        font-size: 0.9rem;
     }
-
-    .product-card {
-        flex: 0 0 150px;
+    
+    @include breakpoint('desktop') {
+        font-size: 1rem;
     }
+}
 
-    .product-media {
-        height: 110px;
+.product-body {
+    padding: 8px;
+    
+    @include breakpoint('tablet') {
+        padding: 10px;
+    }
+    
+    @include breakpoint('desktop') {
+        padding: 12px;
+    }
+}
+
+.product-price {
+    font-size: 0.9rem;
+    
+    @include breakpoint('tablet') {
+        font-size: 1rem;
     }
 }
 
@@ -191,21 +257,46 @@
     display: flex;
     gap: 20px;
     align-items: flex-start;
+    
+    // En móvil, stack verticalmente
+    @include breakpoint-max('tablet') {
+        flex-direction: column;
+        gap: 16px;
+    }
 }
 
 .products-filters {
-    flex: 0 0 300px;
     box-sizing: border-box;
     padding: 16px;
     background: #ffffff;
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    
+    // Móvil: ancho completo
+    @include breakpoint-max('tablet') {
+        width: 100%;
+        order: -1; // Poner filtros arriba en móvil
+    }
+    
+    // Tablet y escritorio: ancho fijo
+    @include breakpoint('tablet') {
+        flex: 0 0 280px;
+    }
+    
+    @include breakpoint('desktop') {
+        flex: 0 0 300px;
+    }
 }
 
 .products-filters h3 {
     margin-top: 0;
     color: $primary-color;
+    font-size: 1.1rem;
+    
+    @include breakpoint('desktop') {
+        font-size: 1.2rem;
+    }
 }
 
 .products-filters label {
@@ -214,13 +305,17 @@
 
 .products-list {
     flex: 1 1 auto;
+    min-width: 0; // Permite que se contraiga
 }
 
-@media (min-width: 900px) {
+// Sticky filters solo en tablets grandes y escritorio
+@include breakpoint('tablet-lg') {
     .products-filters {
         position: sticky;
         top: 88px;
         height: fit-content;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
     }
 }
 
@@ -280,4 +375,27 @@
 
 .range-input:active::-moz-range-thumb {
     transform: scale(1.12);
+}
+
+/* Hover effects para product cards */
+.product-card {
+    cursor: pointer;
+    
+    &:hover {
+        .product-img {
+            transform: scale(1.05);
+        }
+    }
+}
+
+.product-img {
+    transition: transform 0.3s ease;
+}
+
+/* Mejoras para botones en cards pequeñas */
+@include breakpoint-max('tablet') {
+    .product-actions .btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
 }

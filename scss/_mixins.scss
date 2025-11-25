@@ -1,0 +1,46 @@
+// Responsive breakpoints
+$breakpoints: (
+  'mobile': 320px,
+  'mobile-lg': 480px, 
+  'tablet': 768px,
+  'tablet-lg': 1024px,
+  'desktop': 1200px,
+  'desktop-lg': 1440px,
+  'desktop-xl': 1920px
+);
+
+// Mixin for media queries
+@mixin breakpoint($size) {
+  @if map-has-key($breakpoints, $size) {
+    @media (min-width: map-get($breakpoints, $size)) {
+      @content;
+    }
+  } @else {
+    @media (min-width: $size) {
+      @content;
+    }
+  }
+}
+
+// Mixin for max-width media queries  
+@mixin breakpoint-max($size) {
+  @if map-has-key($breakpoints, $size) {
+    @media (max-width: map-get($breakpoints, $size) - 1px) {
+      @content;
+    }
+  } @else {
+    @media (max-width: $size - 1px) {
+      @content;
+    }
+  }
+}
+
+// Mixin for range media queries
+@mixin breakpoint-between($min, $max) {
+  $min-width: map-get($breakpoints, $min);
+  $max-width: map-get($breakpoints, $max) - 1px;
+  
+  @media (min-width: $min-width) and (max-width: $max-width) {
+    @content;
+  }
+}
