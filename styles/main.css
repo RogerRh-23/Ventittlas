@@ -1308,6 +1308,16 @@ body {
     grid-template-columns: repeat(8, 1fr);
   }
 }
+@media (min-width: 2200px) {
+  .products-grid {
+    grid-template-columns: repeat(10, 1fr);
+  }
+}
+@media (min-width: 2800px) {
+  .products-grid {
+    grid-template-columns: repeat(12, 1fr);
+  }
+}
 
 .product-card {
   background: #fff;
@@ -1504,11 +1514,29 @@ body {
   display: flex;
   gap: 20px;
   align-items: flex-start;
+  max-width: none;
+  width: 100%;
 }
 @media (max-width: 767px) {
   .products-layout {
     flex-direction: column;
     gap: 16px;
+  }
+}
+@media (min-width: 1200px) {
+  .products-layout {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+@media (min-width: 1440px) {
+  .products-layout {
+    max-width: 1600px;
+  }
+}
+@media (min-width: 1920px) {
+  .products-layout {
+    max-width: 1800px;
   }
 }
 
@@ -1557,6 +1585,36 @@ body {
   min-width: 0;
 }
 
+.products-list section,
+section.products-list {
+  max-width: none;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .products-list section,
+  section.products-list {
+    max-width: 1200px;
+  }
+}
+@media (min-width: 1200px) {
+  .products-list section,
+  section.products-list {
+    max-width: 1400px;
+  }
+}
+@media (min-width: 1440px) {
+  .products-list section,
+  section.products-list {
+    max-width: 1600px;
+  }
+}
+@media (min-width: 1920px) {
+  .products-list section,
+  section.products-list {
+    max-width: 1800px;
+  }
+}
+
 @media (min-width: 1024px) {
   .products-filters {
     position: sticky;
@@ -1566,6 +1624,28 @@ body {
     overflow-y: auto;
   }
 }
+.site-main:has(.products-layout) {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+@media (min-width: 768px) {
+  .site-main:has(.products-layout) {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+.products-list h2 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+@media (min-width: 1200px) {
+  .products-list h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
 /* enhance range track and add fill element (JS will create .range-fill) */
 .range-wrap {
   position: relative;
