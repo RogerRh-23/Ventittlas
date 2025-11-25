@@ -63,7 +63,7 @@
         grid-template-columns: repeat(7, 1fr);
     }
     
-    // Desktop XL: 8-10 columns depending on available space
+    // Desktop XL: 8 columns
     @include breakpoint('desktop-xl') {
         grid-template-columns: repeat(8, 1fr);
     }
@@ -75,6 +75,26 @@
     
     // 4K screens: 12 columns
     @media (min-width: 2800px) {
+        grid-template-columns: repeat(12, 1fr);
+    }
+}
+
+// Grilla específica para la página principal con más productos por sección
+.featured-products .products-grid {
+    // En la página principal, mostrar más productos por defecto
+    @include breakpoint('desktop') {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    
+    @include breakpoint('desktop-lg') {
+        grid-template-columns: repeat(8, 1fr);
+    }
+    
+    @include breakpoint('desktop-xl') {
+        grid-template-columns: repeat(10, 1fr);
+    }
+    
+    @media (min-width: 2200px) {
         grid-template-columns: repeat(12, 1fr);
     }
 }
@@ -471,5 +491,21 @@ section.products-list {
     .product-actions .btn {
         padding: 6px 12px;
         font-size: 0.85rem;
+    }
+}
+
+// Botón "Ver todo" mejorado para secciones destacadas
+.featured-products .section-cta {
+    margin-top: 2rem;
+    
+    @include breakpoint('desktop') {
+        margin-top: 2.5rem;
+    }
+    
+    .btn {
+        @include breakpoint('desktop') {
+            padding: 14px 28px;
+            font-size: 1.1rem;
+        }
     }
 }

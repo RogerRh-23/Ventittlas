@@ -1,0 +1,76 @@
+// Estilos para la página principal (index.html)
+
+// Expandir secciones de productos destacados
+.featured-products {
+    // Override del ancho limitado del section genérico
+    max-width: none !important;
+    width: 100% !important;
+    
+    // Anchos responsivos progresivos
+    @include breakpoint('tablet') {
+        max-width: 1200px !important;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    @include breakpoint('desktop') {
+        max-width: 1400px !important;
+    }
+    
+    @include breakpoint('desktop-lg') {
+        max-width: 1600px !important;
+    }
+    
+    @include breakpoint('desktop-xl') {
+        max-width: 1800px !important;
+    }
+    
+    // Ultra wide screens
+    @media (min-width: 2200px) {
+        max-width: 2000px !important;
+    }
+}
+
+// Mejorar el espaciado del contenedor principal en index
+.site-header + .site-main {
+    padding-left: 10px;
+    padding-right: 10px;
+    
+    @include breakpoint('tablet') {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    @include breakpoint('desktop') {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+}
+
+// Títulos de sección más prominentes
+.featured-products h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    
+    @include breakpoint('desktop') {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+    }
+    
+    @include breakpoint('desktop-lg') {
+        font-size: 2rem;
+        margin-bottom: 2.5rem;
+    }
+}
+
+// Subtítulos de sección
+.featured-products .section-sub {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 2rem auto;
+    
+    @include breakpoint('desktop') {
+        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
+    }
+}

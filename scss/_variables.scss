@@ -39,6 +39,13 @@ $product-card-min-width: 140px;
 $product-card-max-width: 250px;
 $products-grid-gap: 16px;
 
+// Límites de productos para secciones destacadas
+$featured-products-mobile: 4;
+$featured-products-tablet: 6;
+$featured-products-desktop: 8;
+$featured-products-desktop-lg: 10;
+$featured-products-xl: 12;
+
 // Sidebar styles
 $app-sidebar-width: 72px;
 $app-sidebar-width-collapsed: 56px;
