@@ -19,11 +19,18 @@
 @import 'pages/register';
 @import 'pages/services';
 
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
 body {
     background-color: $background-color;
     overflow-x: hidden;
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
 }
 
 ::-webkit-scrollbar {
