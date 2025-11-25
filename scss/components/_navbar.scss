@@ -13,6 +13,7 @@
     /* ensure it's above the banner */
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
+    margin: 0;
     /* Smooth transitions for position and visual changes */
     transition: top 220ms cubic-bezier(0.22, 0.9, 0.32, 1), background-color 200ms ease, box-shadow 200ms ease, transform 220ms ease, opacity 180ms ease;
     will-change: top, background-color, transform;

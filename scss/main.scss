@@ -22,6 +22,8 @@
 body {
     background-color: $background-color;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 ::-webkit-scrollbar {
