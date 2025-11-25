@@ -33,6 +33,16 @@
     }
 
     function renderProduct(container, product, template) {
+        // Use discount rendering if available
+        if (window.renderProductWithDiscount) {
+            const node = window.renderProductWithDiscount(product, template);
+            if (node) {
+                container.appendChild(node);
+                return;
+            }
+        }
+
+        // Fallback rendering without discounts
         const node = template.content.cloneNode(true);
         const img = node.querySelector('.product-img');
         const title = node.querySelector('.product-title');
@@ -52,7 +62,7 @@
             };
         }
         if (title) title.textContent = product.title || '';
-    if (price) price.textContent = formatPrice(product.price || 0);
+        if (price) price.textContent = formatPrice(product.price || 0);
         if (link) link.href = product.url || `#/product/${product.id}`;
 
         // wire add-to-cart button if present
@@ -128,8 +138,15 @@
                     if (product[key] !== undefined) return !!product[key];
                 }
                 // fallback heuristics
-                if (f === 'on_sale' && product.sale_price !== undefined && product.price !== undefined) {
-                    return Number(product.sale_price) < Number(product.price);
+                if (f === 'on_sale') {
+                    // Check if product has discount percentage
+                    const descuento = parseFloat(product.porcentaje_descuento || product.descuento || 0);
+                    if (descuento > 0) return true;
+
+                    // Check sale_price vs regular price
+                    if (product.sale_price !== undefined && product.price !== undefined) {
+                        return Number(product.sale_price) < Number(product.price);
+                    }
                 }
             }
 
@@ -228,7 +245,7 @@
             // prefer explicit imagen_url / image fields, else try imagen or build from name heuristics
             // Normalize image path: DB may store either a full URL, a web path (/assets/...), or just a filename.
             // Ensure we return a proper web path so <img> requests don't become relative filenames (which caused 404s).
-            image: (function(){
+            image: (function () {
                 let img = p.imagen_url ?? p.imagen ?? p.image ?? null;
                 if (!img) return null;
                 img = String(img).trim();
@@ -245,6 +262,12 @@
             stock: (p.stock ?? p.cantidad ?? null) !== null ? Number(p.stock ?? p.cantidad) : null,
             // category (from joined Categorias.nombre or other sources)
             category: p.categoria ?? p.category ?? null,
+            // discount information
+            porcentaje_descuento: parseFloat(p.porcentaje_descuento || p.descuento || 0),
+            // pass through raw product data
+            nombre: p.nombre,
+            precio: p.precio,
+            imagen_url: p.imagen_url,
             raw: p
         };
     }

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Descuentos - Ventittlas</title>
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+
+<body>
+    <div data-include="../components/navbar.html"></div>
+
+    <main class="site-main container">
+        <h1>Prueba de Sistema de Descuentos</h1>
+
+        <section class="featured-products">
+            <h2>Productos en oferta</h2>
+            <div id="test-products" class="products-grid"></div>
+        </section>
+
+        <div id="debug-info" style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+            <h3>Debug Info</h3>
+            <pre id="debug-output"></pre>
+        </div>
+    </main>
+
+    <div data-include="../components/products.html" class="hidden-template"></div>
+    <div data-include="../components/footer.html"></div>
+
+    <script src="../js/include.js"></script>
+    <script src="../js/navbar.js"></script>
+    <script src="../js/products_discount.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const debugOutput = document.getElementById('debug-output');
+            const testContainer = document.getElementById('test-products');
+
+            try {
+                debugOutput.textContent = 'Cargando productos...';
+
+                // Obtener productos
+                const res = await fetch('/php/api/products.php');
+                const data = await res.json();
+
+                let products = [];
+                if (data && data.success && Array.isArray(data.productos)) {
+                    products = data.productos;
+                } else if (Array.isArray(data)) {
+                    products = data;
+                }
+
+                debugOutput.textContent = `Productos cargados: ${products.length}\n\n` +
+                    JSON.stringify(products.slice(0, 2), null, 2);
+
+                // Obtener template
+                const template = document.querySelector('template#product-card-template');
+                if (!template) {
+                    debugOutput.textContent += '\n\nERROR: Template no encontrado';
+                    return;
+                }
+
+                // Filtrar productos con descuento
+                const discountProducts = products.filter(p => {
+                    const descuento = parseFloat(p.porcentaje_descuento || 0);
+                    return descuento > 0;
+                });
+
+                debugOutput.textContent += `\n\nProductos con descuento: ${discountProducts.length}`;
+
+                if (discountProducts.length === 0) {
+                    testContainer.innerHTML = '<p>No hay productos con descuento configurados.</p>';
+                    return;
+                }
+
+                // Renderizar productos
+                discountProducts.forEach(product => {
+                    if (window.renderProductWithDiscount) {
+                        const node = window.renderProductWithDiscount(product, template);
+                        if (node) testContainer.appendChild(node);
+                    }
+                });
+
+            } catch (error) {
+                debugOutput.textContent = 'ERROR: ' + error.message;
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+
+</html>

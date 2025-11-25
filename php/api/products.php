@@ -8,7 +8,7 @@ ini_set('display_errors', 0);
 ob_start();
 try {
     // Devolver también la categoría (nombre) e id_categoria para que el frontend pueda poblar filtros
-    $sql = 'SELECT p.id_producto AS id, p.nombre, p.precio, p.stock AS cantidad, p.imagen_url, p.id_categoria, c.nombre AS categoria FROM Productos p LEFT JOIN Categorias c ON p.id_categoria = c.id_categoria';
+    $sql = 'SELECT p.id_producto AS id, p.nombre, p.precio, p.stock AS cantidad, p.imagen_url, p.id_categoria, p.porcentaje_descuento, c.nombre AS categoria FROM Productos p LEFT JOIN Categorias c ON p.id_categoria = c.id_categoria';
     $stmt = $pdo->query($sql);
     $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -29,6 +29,13 @@ try {
         // formatted price and currency
         $p['currency'] = '$';
         $p['precio_formateado'] = $p['currency'] . ' ' . number_format($p['precio'], 2, '.', ',');
+        
+        // normalize porcentaje_descuento
+        if (isset($p['porcentaje_descuento'])) {
+            $p['porcentaje_descuento'] = (float)$p['porcentaje_descuento'];
+        } else {
+            $p['porcentaje_descuento'] = 0.0;
+        }
 
         // normalize imagen_url: if empty -> null, if already absolute (/ or http) keep, else prefix assets path
         if (empty($p['imagen_url'])) {

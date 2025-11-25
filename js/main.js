@@ -60,7 +60,11 @@ document.addEventListener('DOMContentLoaded', function () {
         // Usar el template de producto si existe
         const template = document.querySelector('template#product-card-template');
         filtered.forEach(product => {
-            if (template) {
+            if (template && window.renderProductWithDiscount) {
+                const node = window.renderProductWithDiscount(product, template);
+                if (node) productsGrid.appendChild(node);
+            } else if (template) {
+                // Fallback sin descuentos
                 const node = template.content.cloneNode(true);
                 const img = node.querySelector('.product-img');
                 const title = node.querySelector('.product-title');
@@ -69,7 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (img) img.src = product.imagen_url || product.image || '/assets/img/products/placeholder.png';
                 if (img) img.alt = product.nombre || product.title;
                 if (title) title.textContent = product.nombre || product.title;
-                // format price using Intl for ARS (fallback to simple formatting)
                 const formatPrice = window.formatPrice || function (v) {
                     try {
                         const n = Number(v) || 0;

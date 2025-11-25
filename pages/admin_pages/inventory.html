@@ -40,7 +40,8 @@
     </div>
 
     <!-- Modal: Add Product (fixed overlay, click outside does NOT close) -->
-    <div id="add-product-modal" class="modal" role="dialog" aria-hidden="true" style="display:none;position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:10000;padding:20px;">
+    <div id="add-product-modal" class="modal" role="dialog" aria-hidden="true"
+        style="display:none;position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:10000;padding:20px;">
         <div class="modal-content" role="document"
             style="max-width:720px;width:100%;padding:20px;background:#fff;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.2);overflow:auto;max-height:calc(100vh - 80px);">
             <button id="close-add-product" class="modal-close" aria-label="Cerrar" style="float:right">✕</button>
@@ -77,7 +78,8 @@
                         <option value="">(Seleccionar)</option>
                     </select>
                     <div id="new-category-row" style="display:none;margin-top:8px">
-                        <input id="p-categoria-new" type="text" placeholder="Nombre nueva categoría" style="margin-right:8px" />
+                        <input id="p-categoria-new" type="text" placeholder="Nombre nueva categoría"
+                            style="margin-right:8px" />
                         <button type="button" id="p-categoria-create" class="btn">Crear categoría</button>
                     </div>
                 </div>
@@ -89,7 +91,9 @@
                 </div>
                 <div class="form-row">
                     <label for="p-descuento">Descuento (%)</label>
-                    <input id="p-descuento" name="porcentaje_descuento" type="number" step="0.01" min="0" max="100" value="0" />
+                    <input id="p-descuento" name="porcentaje_descuento" type="number" step="0.01" min="0" max="100"
+                        value="0" />
+                    <small class="muted">Precio con descuento: <span id="precio-final-preview">$0.00</span></small>
                 </div>
                 <input type="hidden" id="p-id" name="id" value="" />
                 <div id="add-product-error" style="color:#c00;margin-top:6px;display:none"></div>
@@ -185,8 +189,8 @@
                         document.getElementById('p-id').value = id ?? '';
                         document.getElementById('p-nombre').value = p.nombre ?? p.title ?? '';
                         document.getElementById('p-descripcion').value = p.descripcion ?? p.description ?? '';
-                        document.getElementById('p-precio').value = (p.precio ?? p.price ?? '') ;
-                        document.getElementById('p-stock').value = (p.stock ?? p.cantidad ?? '') ;
+                        document.getElementById('p-precio').value = (p.precio ?? p.price ?? '');
+                        document.getElementById('p-stock').value = (p.stock ?? p.cantidad ?? '');
                         const estadoEl = document.getElementById('p-estado');
                         if (estadoEl && (p.estado ?? null) !== null) estadoEl.value = p.estado;
                         const catEl = document.getElementById('p-categoria');
@@ -264,69 +268,106 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => { loadInventory(); loadCategories(); });
-            // handle create-new-category inline UI
-            const catSelect = document.getElementById('p-categoria');
-            const newRow = document.getElementById('new-category-row');
-            const newInput = document.getElementById('p-categoria-new');
-            const createBtn = document.getElementById('p-categoria-create');
+        document.addEventListener('DOMContentLoaded', () => { loadInventory(); loadCategories(); setupPriceCalculator(); });
 
-            if (catSelect) {
-                catSelect.addEventListener('change', () => {
-                    if (catSelect.value === '_new') {
-                        if (newRow) newRow.style.display = 'block';
-                        if (newInput) newInput.focus();
-                    } else {
-                        if (newRow) newRow.style.display = 'none';
-                    }
-                });
-            }
+        // Calculadora de precio final con descuento
+        function setupPriceCalculator() {
+            const precioInput = document.getElementById('p-precio');
+            const descuentoInput = document.getElementById('p-descuento');
+            const precioFinalSpan = document.getElementById('precio-final-preview');
 
-            if (createBtn) {
-                createBtn.addEventListener('click', async () => {
-                    if (!newInput) return;
-                    const name = newInput.value.trim();
-                    if (!name) {
-                        const errorBoxLocal = document.getElementById('add-product-error');
-                        if (errorBoxLocal) {
-                            errorBoxLocal.textContent = 'Introduce un nombre de categoría';
-                            errorBoxLocal.style.display = 'block';
-                        }
-                        return;
-                    }
-                    createBtn.disabled = true;
+            function calculateFinalPrice() {
+                const precio = parseFloat(precioInput.value) || 0;
+                const descuento = parseFloat(descuentoInput.value) || 0;
+                const precioFinal = precio * (1 - descuento / 100);
+
+                const formatPrice = window.formatPrice || function (v) {
                     try {
-                        const res = await fetch('/php/api/create_category.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ nombre: name, descripcion: '' })
-                        });
-                        const data = await res.json();
-                        if (!res.ok || !data || !data.ok) {
-                            throw new Error(data && data.error ? data.error : 'Error creando categoría');
-                        }
-                        // append new option and select it (use returned id when available)
-                        const opt = document.createElement('option');
-                        const newId = data.id_categoria ?? (data.categoria && (data.categoria.id_categoria ?? null));
-                        const catName = (data.categoria && (data.categoria.nombre ?? data.categoria)) || name;
-                        opt.value = newId !== null && newId !== undefined ? String(newId) : catName;
-                        opt.textContent = catName;
-                        opt.selected = true;
-                        if (catSelect) catSelect.appendChild(opt);
-                        if (newRow) newRow.style.display = 'none';
-                        newInput.value = '';
-                    } catch (err) {
-                        console.error(err);
-                        const errorBoxLocal = document.getElementById('add-product-error');
-                        if (errorBoxLocal) {
-                            errorBoxLocal.textContent = err.message || 'Error creando categoría';
-                            errorBoxLocal.style.display = 'block';
-                        }
-                    } finally {
-                        createBtn.disabled = false;
+                        return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', minimumFractionDigits: 2 }).format(Number(v) || 0);
+                    } catch (e) {
+                        return '$ ' + (Number(v) || 0).toFixed(2);
                     }
-                });
+                };
+
+                precioFinalSpan.textContent = formatPrice(precioFinal);
+
+                if (descuento > 0) {
+                    precioFinalSpan.style.color = '#e74c3c';
+                    precioFinalSpan.style.fontWeight = 'bold';
+                } else {
+                    precioFinalSpan.style.color = '';
+                    precioFinalSpan.style.fontWeight = '';
+                }
             }
+
+            if (precioInput) precioInput.addEventListener('input', calculateFinalPrice);
+            if (descuentoInput) descuentoInput.addEventListener('input', calculateFinalPrice);
+
+            // Calcular precio inicial
+            calculateFinalPrice();
+        }
+        // handle create-new-category inline UI
+        const catSelect = document.getElementById('p-categoria');
+        const newRow = document.getElementById('new-category-row');
+        const newInput = document.getElementById('p-categoria-new');
+        const createBtn = document.getElementById('p-categoria-create');
+
+        if (catSelect) {
+            catSelect.addEventListener('change', () => {
+                if (catSelect.value === '_new') {
+                    if (newRow) newRow.style.display = 'block';
+                    if (newInput) newInput.focus();
+                } else {
+                    if (newRow) newRow.style.display = 'none';
+                }
+            });
+        }
+
+        if (createBtn) {
+            createBtn.addEventListener('click', async () => {
+                if (!newInput) return;
+                const name = newInput.value.trim();
+                if (!name) {
+                    const errorBoxLocal = document.getElementById('add-product-error');
+                    if (errorBoxLocal) {
+                        errorBoxLocal.textContent = 'Introduce un nombre de categoría';
+                        errorBoxLocal.style.display = 'block';
+                    }
+                    return;
+                }
+                createBtn.disabled = true;
+                try {
+                    const res = await fetch('/php/api/create_category.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nombre: name, descripcion: '' })
+                    });
+                    const data = await res.json();
+                    if (!res.ok || !data || !data.ok) {
+                        throw new Error(data && data.error ? data.error : 'Error creando categoría');
+                    }
+                    // append new option and select it (use returned id when available)
+                    const opt = document.createElement('option');
+                    const newId = data.id_categoria ?? (data.categoria && (data.categoria.id_categoria ?? null));
+                    const catName = (data.categoria && (data.categoria.nombre ?? data.categoria)) || name;
+                    opt.value = newId !== null && newId !== undefined ? String(newId) : catName;
+                    opt.textContent = catName;
+                    opt.selected = true;
+                    if (catSelect) catSelect.appendChild(opt);
+                    if (newRow) newRow.style.display = 'none';
+                    newInput.value = '';
+                } catch (err) {
+                    console.error(err);
+                    const errorBoxLocal = document.getElementById('add-product-error');
+                    if (errorBoxLocal) {
+                        errorBoxLocal.textContent = err.message || 'Error creando categoría';
+                        errorBoxLocal.style.display = 'block';
+                    }
+                } finally {
+                    createBtn.disabled = false;
+                }
+            });
+        }
     </script>
     <script>
         // Modal and add-product form logic
@@ -420,21 +461,21 @@
                         imagen_nombre = file.name;
                     }
 
-                        const descuentoVal = document.getElementById('p-descuento') ? (document.getElementById('p-descuento').value) : 0;
-                        const payload = {
-                            nombre,
-                            descripcion,
-                            precio,
-                            stock: stock ? Number(stock) : 1,
-                            estado: estado || 'disponible',
-                            porcentaje_descuento: descuentoVal !== '' ? Number(descuentoVal) : 0,
-                        };
-                        // prefer sending id_categoria when an ID value is selected
-                        if (categoria && categoria !== '_new' && /^\d+$/.test(categoria)) {
-                            payload.id_categoria = Number(categoria);
-                        } else {
-                            payload.categoria = categoria || null;
-                        }
+                    const descuentoVal = document.getElementById('p-descuento') ? (document.getElementById('p-descuento').value) : 0;
+                    const payload = {
+                        nombre,
+                        descripcion,
+                        precio,
+                        stock: stock ? Number(stock) : 1,
+                        estado: estado || 'disponible',
+                        porcentaje_descuento: descuentoVal !== '' ? Number(descuentoVal) : 0,
+                    };
+                    // prefer sending id_categoria when an ID value is selected
+                    if (categoria && categoria !== '_new' && /^\d+$/.test(categoria)) {
+                        payload.id_categoria = Number(categoria);
+                    } else {
+                        payload.categoria = categoria || null;
+                    }
                     if (imagen_base64) {
                         payload.imagen_base64 = imagen_base64;
                         payload.imagen_nombre = imagen_nombre;
