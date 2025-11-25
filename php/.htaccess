@@ -1,0 +1,37 @@
+# Configuración para manejo de errores PHP
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_log /tmp/php_errors.log
+
+# Habilitar rewrite engine para URLs limpias
+RewriteEngine On
+
+# Headers de seguridad básicos
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+
+# CORS para APIs (ajustar según necesidades)
+<FilesMatch "\.(php)$">
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+</FilesMatch>
+
+# Manejo de OPTIONS para CORS preflight
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Redirigir errores 404 a una página personalizada (opcional)
+# ErrorDocument 404 /404.html
+
+# Proteger archivos sensibles
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order allow,deny
+    Deny from all
+</Files>

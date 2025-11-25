@@ -1,12 +1,18 @@
 <?php
-require_once __DIR__ . '/../conect.php';
 // Ensure JSON response and avoid accidental HTML/PHP warnings breaking the frontend
 header('Content-Type: application/json; charset=utf-8');
 ini_set('display_errors', 0);
+error_reporting(E_ALL);
 
 // Capture any unexpected output so we can log it and still return valid JSON
 ob_start();
+
 try {
+    require_once __DIR__ . '/../conect.php';
+    
+    if (!isset($pdo)) {
+        throw new Exception('Database connection not available');
+    }
     // Devolver también la categoría (nombre) e id_categoria para que el frontend pueda poblar filtros
     $sql = 'SELECT p.id_producto AS id, p.nombre, p.precio, p.stock AS cantidad, p.imagen_url, p.id_categoria, p.porcentaje_descuento, c.nombre AS categoria FROM Productos p LEFT JOIN Categorias c ON p.id_categoria = c.id_categoria';
     $stmt = $pdo->query($sql);
@@ -59,8 +65,14 @@ try {
 } catch (PDOException $e) {
     // Clean buffer and log error
     @ob_end_clean();
-    error_log('Fetch products error: ' . $e->getMessage());
+    error_log('Fetch products PDO error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Error fetching products']);
+    echo json_encode(['success' => false, 'error' => 'Database error while fetching products', 'details' => $e->getMessage()]);
+} catch (Exception $e) {
+    // Clean buffer and log error
+    @ob_end_clean();
+    error_log('Fetch products general error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Error fetching products', 'details' => $e->getMessage()]);
 }
 ?>

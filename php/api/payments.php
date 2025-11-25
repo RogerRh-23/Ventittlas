@@ -2,7 +2,21 @@
 // php/api/payments.php
 // Endpoint para: listar ventas (log) y gestionar métodos de pago de usuarios
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../conect.php';
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+try {
+    require_once __DIR__ . '/../conect.php';
+    
+    if (!isset($pdo)) {
+        throw new Exception('Database connection not available');
+    }
+} catch (Exception $e) {
+    error_log('payments.php connection error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'message' => 'Database connection failed', 'details' => $e->getMessage()]);
+    exit;
+}
 
 // Simple router por método + type
 $method = $_SERVER['REQUEST_METHOD'];
@@ -161,9 +175,14 @@ try {
     exit;
 
 } catch (PDOException $e) {
-    error_log('payments.php error: '. $e->getMessage());
+    error_log('payments.php PDO error: '. $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => 'Error interno en payments', 'detail' => $e->getMessage()]);
+    echo json_encode(['ok' => false, 'message' => 'Database error in payments', 'details' => $e->getMessage()]);
+    exit;
+} catch (Exception $e) {
+    error_log('payments.php general error: '. $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'message' => 'Error in payments', 'details' => $e->getMessage()]);
     exit;
 }
 

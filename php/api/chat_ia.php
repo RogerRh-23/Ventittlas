@@ -10,7 +10,7 @@ error_reporting(E_ALL);
 
 error_log('chat_ia.php invoked');
 
-require_once '../conect.php';
+require_once __DIR__ . '/../conect.php';
 
 // Load API key from environment (php/.env via conect.php)
 // Support both GEM_API_KEY (used in .env) and older GEN_API_KEY/GOOGLE_API_KEY names
