@@ -1,12 +1,15 @@
 <?php
+// Disable HTML error output to prevent JSON corruption
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// Capture any unexpected output
+ob_start();
+
 header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../conect.php';
 
 session_start();
-
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 $userId = 0;
 if (isset($_SESSION['user']['id_usuario'])) {
@@ -15,8 +18,18 @@ if (isset($_SESSION['user']['id_usuario'])) {
     $userId = intval($_SESSION['user']['id']);
 }
 
-// Use $conn instead of $pdo (from conect.php)
-$pdo = $conn;
+// Clean any output buffer
+$output = ob_get_clean();
+if (!empty($output)) {
+    error_log('Unexpected output in create_sale.php: ' . $output);
+}
+
+// Use $pdo from conect.php
+if (!isset($pdo)) {
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'message' => 'Error de conexión a base de datos']);
+    exit;
+}
 
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);

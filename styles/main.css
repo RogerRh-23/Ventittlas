@@ -208,6 +208,89 @@ h6 {
   font-weight: 900;
 }
 
+.btn, .debug-button, .add-to-cart, #confirm-cancel, #confirm-pay, .basket-checkout {
+  display: inline-block;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #5ab507;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  transition: background-color 0.2s ease;
+}
+.btn:hover, .debug-button:hover, .add-to-cart:hover, #confirm-cancel:hover, #confirm-pay:hover, .basket-checkout:hover {
+  background-color: #4a9506;
+}
+.btn:disabled, .debug-button:disabled, .add-to-cart:disabled, #confirm-cancel:disabled, #confirm-pay:disabled, .basket-checkout:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.btn-secondary, #confirm-cancel {
+  background-color: #6c757d;
+}
+.btn-secondary:hover, #confirm-cancel:hover {
+  background-color: #545b62;
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid #5ab507;
+  color: #5ab507;
+}
+.btn-outline:hover {
+  background-color: #5ab507;
+  color: white;
+}
+
+.basket-checkout {
+  background-color: #28a745;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+}
+.basket-checkout:hover {
+  background-color: #218838;
+}
+
+.payment-area .btn, .payment-area .debug-button, .payment-area .add-to-cart, .payment-area #confirm-cancel, .payment-area #confirm-pay, .payment-area .basket-checkout {
+  margin: 4px;
+}
+
+#confirm-pay {
+  background-color: #007bff;
+}
+#confirm-pay:hover {
+  background-color: #0056b3;
+}
+
+.add-to-cart {
+  background-color: #5ab507;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+.add-to-cart:hover {
+  background-color: #4a9506;
+}
+.add-to-cart:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.debug-button {
+  background-color: #17a2b8;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.debug-button:hover {
+  background-color: #117a8b;
+}
+
 .site-footer {
   background: #009929;
   color: #ffffff;
@@ -587,7 +670,7 @@ body.has-header .site-navbar {
   background: #fff;
 }
 
-.product-actions .btn.add-to-cart {
+.product-actions .btn.add-to-cart, .product-actions .add-to-cart#confirm-pay, .product-actions .add-to-cart#confirm-cancel, .product-actions .add-to-cart {
   background: linear-gradient(90deg, #006414, #009929);
   color: #ffffff;
   border: none;
@@ -597,7 +680,7 @@ body.has-header .site-navbar {
   font-weight: 700;
 }
 
-.product-actions .btn.add-to-cart:active {
+.product-actions .btn.add-to-cart:active, .product-actions .add-to-cart#confirm-pay:active, .product-actions .add-to-cart#confirm-cancel:active, .product-actions .add-to-cart:active {
   transform: translateY(1px);
 }
 
@@ -1285,7 +1368,8 @@ body {
   flex: 1;
 }
 #add-product-form .form-row[style*=flex] > div:first-child {
-  flex: 2; /* Price field gets more space */
+  flex: 2;
+  /* Price field gets more space */
 }
 #add-product-form .form-row[style*=flex] > div label {
   font-size: 0.9rem !important;
@@ -1319,7 +1403,7 @@ body {
   margin-right: 12px !important;
   flex: 1;
 }
-#add-product-form #new-category-row .btn {
+#add-product-form #new-category-row .btn, #add-product-form #new-category-row .basket-checkout, #add-product-form #new-category-row #confirm-pay, #add-product-form #new-category-row #confirm-cancel, #add-product-form #new-category-row .add-to-cart, #add-product-form #new-category-row .debug-button {
   background: #006414 !important;
   color: #ffffff !important;
   border: none !important;
@@ -1361,7 +1445,7 @@ body {
   padding-top: 20px;
   border-top: 1px solid rgb(241.75, 241.75, 241.75);
 }
-#add-product-form .form-row:last-child .btn {
+#add-product-form .form-row:last-child .btn, #add-product-form .form-row:last-child .basket-checkout, #add-product-form .form-row:last-child #confirm-pay, #add-product-form .form-row:last-child #confirm-cancel, #add-product-form .form-row:last-child .add-to-cart, #add-product-form .form-row:last-child .debug-button {
   padding: 14px 28px !important;
   font-size: 1rem !important;
   font-weight: 500 !important;
@@ -1369,22 +1453,22 @@ body {
   min-width: 120px;
   transition: all 0.3s ease !important;
 }
-#add-product-form .form-row:last-child .btn.primary {
+#add-product-form .form-row:last-child .btn.primary, #add-product-form .form-row:last-child .primary.basket-checkout, #add-product-form .form-row:last-child .primary#confirm-pay, #add-product-form .form-row:last-child .primary#confirm-cancel, #add-product-form .form-row:last-child .primary.add-to-cart, #add-product-form .form-row:last-child .primary.debug-button {
   background: #006414 !important;
   color: #ffffff !important;
   border: none !important;
 }
-#add-product-form .form-row:last-child .btn.primary:hover {
+#add-product-form .form-row:last-child .btn.primary:hover, #add-product-form .form-row:last-child .primary.basket-checkout:hover, #add-product-form .form-row:last-child .primary#confirm-pay:hover, #add-product-form .form-row:last-child .primary#confirm-cancel:hover, #add-product-form .form-row:last-child .primary.add-to-cart:hover, #add-product-form .form-row:last-child .primary.debug-button:hover {
   background: rgb(0, 49, 9.8) !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 100, 20, 0.3);
 }
-#add-product-form .form-row:last-child .btn:not(.primary) {
+#add-product-form .form-row:last-child .btn:not(.primary), #add-product-form .form-row:last-child .basket-checkout:not(.primary), #add-product-form .form-row:last-child #confirm-pay:not(.primary), #add-product-form .form-row:last-child #confirm-cancel:not(.primary), #add-product-form .form-row:last-child .add-to-cart:not(.primary), #add-product-form .form-row:last-child .debug-button:not(.primary) {
   background: transparent !important;
   color: #4c4c4c !important;
   border: 2px solid rgb(203.5, 203.5, 203.5) !important;
 }
-#add-product-form .form-row:last-child .btn:not(.primary):hover {
+#add-product-form .form-row:last-child .btn:not(.primary):hover, #add-product-form .form-row:last-child .basket-checkout:not(.primary):hover, #add-product-form .form-row:last-child #confirm-pay:not(.primary):hover, #add-product-form .form-row:last-child #confirm-cancel:not(.primary):hover, #add-product-form .form-row:last-child .add-to-cart:not(.primary):hover, #add-product-form .form-row:last-child .debug-button:not(.primary):hover {
   background: white !important;
   border-color: rgb(152.5, 152.5, 152.5) !important;
 }
@@ -1587,7 +1671,7 @@ body {
   /* multiple of 8 */
 }
 
-.section-cta .btn {
+.section-cta .btn, .section-cta .basket-checkout, .section-cta #confirm-pay, .section-cta #confirm-cancel, .section-cta .add-to-cart, .section-cta .debug-button {
   padding: 12px 24px;
   /* vertical 12px, horizontal 24px (12 is multiple of 4 but acceptable for visual balance) */
   border-radius: 12px;
@@ -2077,7 +2161,7 @@ section.products-list {
 
 /* Mejoras para botones en cards pequeñas */
 @media (max-width: 767px) {
-  .product-actions .btn {
+  .product-actions .btn, .product-actions .basket-checkout, .product-actions #confirm-pay, .product-actions #confirm-cancel, .product-actions .add-to-cart, .product-actions .debug-button {
     padding: 6px 12px;
     font-size: 0.85rem;
   }
@@ -2091,7 +2175,7 @@ section.products-list {
   }
 }
 @media (min-width: 1200px) {
-  .featured-products .section-cta .btn {
+  .featured-products .section-cta .btn, .featured-products .section-cta .basket-checkout, .featured-products .section-cta #confirm-pay, .featured-products .section-cta #confirm-cancel, .featured-products .section-cta .add-to-cart, .featured-products .section-cta .debug-button {
     padding: 14px 28px;
     font-size: 1.1rem;
   }
@@ -2354,7 +2438,7 @@ section p {
   display: flex;
   gap: 0.5rem;
 }
-.section-actions .btn {
+.section-actions .btn, .section-actions .basket-checkout, .section-actions #confirm-pay, .section-actions #confirm-cancel, .section-actions .add-to-cart, .section-actions .debug-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2466,11 +2550,11 @@ section p {
   align-items: center;
   gap: 1rem;
 }
-.pagination-controls .btn {
+.pagination-controls .btn, .pagination-controls .basket-checkout, .pagination-controls #confirm-pay, .pagination-controls #confirm-cancel, .pagination-controls .add-to-cart, .pagination-controls .debug-button {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
 }
-.pagination-controls .btn:disabled {
+.pagination-controls .btn:disabled, .pagination-controls .basket-checkout:disabled, .pagination-controls #confirm-pay:disabled, .pagination-controls #confirm-cancel:disabled, .pagination-controls .add-to-cart:disabled, .pagination-controls .debug-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -2694,17 +2778,4 @@ body {
   background-color: white;
 }
 
-/* Cart counter styles */
-.cart-counter {
-  background: #dc3545;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 12px;
-  font-weight: bold;
-  margin-left: 4px;
-  min-width: 18px;
-  text-align: center;
-  display: inline-block;
-  line-height: 1;
-}
+/*# sourceMappingURL=main.css.map */

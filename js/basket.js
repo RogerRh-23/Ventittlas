@@ -203,19 +203,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     body.id_usuario = userSession.id;
                     
-                    const r = await fetch('/php/api/payments.php?type=methods', {
+                    const res = await fetch('/php/api/payments.php?type=methods', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'same-origin',
                         body: JSON.stringify(body)
                     });
                     
-                    if (!r.ok) {
-                        const errorText = await r.text();
-                        throw new Error(`HTTP ${r.status}: ${errorText}`);
+                    console.log('Payment method creation response status:', res.status);
+                    
+                    if (!res.ok) {
+                        const errorText = await res.text();
+                        console.error('Payment method creation failed:', errorText);
+                        throw new Error(`HTTP ${res.status}: ${errorText}`);
                     }
                     
-                    const jr = await r.json();
+                    const responseText = await res.text();
+                    console.log('Payment method raw response:', responseText);
+                    
+                    let jr;
+                    try {
+                        jr = JSON.parse(responseText);
+                    } catch (e) {
+                        console.error('Invalid JSON response:', responseText);
+                        throw new Error('El servidor devolvió una respuesta inválida: ' + responseText.substring(0, 100));
+                    }
                     if (jr && jr.ok) {
                         // re-open payment UI to refresh methods
                         showPaymentUI();
@@ -297,13 +309,23 @@ document.addEventListener('DOMContentLoaded', () => {
                             body: JSON.stringify(payload)
                         });
                         
-                        if (!res.ok) {
-                            const errorText = await res.text();
-                            console.error('Sale creation failed:', res.status, errorText);
-                            throw new Error(`Error del servidor (${res.status}): ${errorText}`);
+                        console.log('Sale creation response status:', res.status);
+                        
+                        const responseText = await res.text();
+                        console.log('Sale creation raw response:', responseText);
+                        
+                        let jr;
+                        try {
+                            jr = JSON.parse(responseText);
+                        } catch (e) {
+                            console.error('Invalid JSON response from sale creation:', responseText);
+                            throw new Error('El servidor devolvió una respuesta inválida: ' + responseText.substring(0, 100));
                         }
                         
-                        const jr = await res.json();
+                        if (!res.ok) {
+                            console.error('Sale creation failed:', res.status, jr);
+                            throw new Error(`Error del servidor (${res.status}): ${jr.message || 'Error desconocido'}`);
+                        }
                         console.log('Sale creation response:', jr);
                         
                         if (!jr || !jr.ok) {

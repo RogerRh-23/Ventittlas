@@ -1,20 +1,29 @@
 <?php
+// Disable HTML error output to prevent JSON corruption
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-include '../conect.php';
+// Capture any unexpected output
+ob_start();
 
-// Enable error reporting for debugging
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+require_once __DIR__ . '/../conect.php';
 
 try {
     // Initialize response
     $response = ['ok' => false, 'message' => 'Error desconocido'];
     
     // Check connection
-    if (!$conn) {
+    if (!isset($pdo)) {
         throw new Exception('Error de conexión a base de datos');
+    }
+    
+    // Clean any output buffer
+    $output = ob_get_clean();
+    if (!empty($output)) {
+        error_log('Unexpected output in payments.php: ' . $output);
     }
     
     $type = $_GET['type'] ?? '';
@@ -44,28 +53,29 @@ try {
             
             // Check if table exists, create it if it doesn't
             $checkTable = "SHOW TABLES LIKE 'Metodos_Pago_Usuario'";
-            $tableExists = $conn->query($checkTable);
+            $tableExists = $pdo->query($checkTable);
             
             if (!$tableExists || $tableExists->rowCount() == 0) {
                 // Create table if it doesn't exist
                 $createTable = "
                 CREATE TABLE IF NOT EXISTS `Metodos_Pago_Usuario` (
-                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `id_metodo` int(11) NOT NULL AUTO_INCREMENT,
                     `id_usuario` int(11) NOT NULL,
-                    `tipo` varchar(50) NOT NULL DEFAULT 'tarjeta',
-                    `titular` varchar(255) NOT NULL,
-                    `numero_enmascarado` varchar(20) NOT NULL,
-                    `fecha_expiracion` varchar(10) DEFAULT NULL,
+                    `tipo_tarjeta` varchar(50) NOT NULL DEFAULT 'VISA',
+                    `nombre_titular` varchar(255) NOT NULL,
+                    `ultimos_cuatro` varchar(4) NOT NULL,
+                    `fecha_expiracion` varchar(7) DEFAULT NULL,
+                    `es_predeterminada` tinyint(1) DEFAULT 0,
                     `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (`id`),
+                    PRIMARY KEY (`id_metodo`),
                     KEY `id_usuario` (`id_usuario`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
                 
-                $conn->exec($createTable);
+                $pdo->exec($createTable);
             }
             
             // Get user payment methods
-            $stmt = $conn->prepare("SELECT id, tipo, titular, numero_enmascarado, fecha_expiracion FROM Metodos_Pago_Usuario WHERE id_usuario = ?");
+            $stmt = $pdo->prepare("SELECT id_metodo, tipo_tarjeta, nombre_titular, ultimos_cuatro, fecha_expiracion, es_predeterminada FROM Metodos_Pago_Usuario WHERE id_usuario = ?");
             $stmt->execute([$id_usuario]);
             $methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
@@ -84,47 +94,32 @@ try {
             }
             
             $id_usuario = $input['id_usuario'];
-            $tipo = $input['tipo'] ?? 'tarjeta';
-            $titular = $input['titular'] ?? '';
-            $numero = $input['numero'] ?? '';
+            $tipo_tarjeta = $input['tipo_tarjeta'] ?? 'VISA';
+            $nombre_titular = $input['nombre_titular'] ?? '';
+            $ultimos_cuatro = $input['ultimos_cuatro'] ?? '';
+            $fecha_expiracion = $input['fecha_expiracion'] ?? null;
+            $es_predeterminada = isset($input['es_predeterminada']) ? 1 : 0;
             
-            if (empty($titular) || empty($numero)) {
-                throw new Exception('Titular y número son requeridos');
+            if (empty($nombre_titular) || empty($ultimos_cuatro)) {
+                throw new Exception('Nombre del titular y últimos 4 dígitos son requeridos');
             }
             
-            // Mask card number (show only last 4 digits)
-            $numero_enmascarado = '**** **** **** ' . substr($numero, -4);
-            $fecha_expiracion = $input['fecha_expiracion'] ?? null;
+            if (strlen($ultimos_cuatro) !== 4) {
+                throw new Exception('Los últimos 4 dígitos deben ser exactamente 4 números');
+            }
             
-            // Check if table exists, create it if it doesn't
-            $checkTable = "SHOW TABLES LIKE 'Metodos_Pago_Usuario'";
-            $tableExists = $conn->query($checkTable);
-            
-            if (!$tableExists || $tableExists->rowCount() == 0) {
-                // Create table if it doesn't exist
-                $createTable = "
-                CREATE TABLE IF NOT EXISTS `Metodos_Pago_Usuario` (
-                    `id` int(11) NOT NULL AUTO_INCREMENT,
-                    `id_usuario` int(11) NOT NULL,
-                    `tipo` varchar(50) NOT NULL DEFAULT 'tarjeta',
-                    `titular` varchar(255) NOT NULL,
-                    `numero_enmascarado` varchar(20) NOT NULL,
-                    `fecha_expiracion` varchar(10) DEFAULT NULL,
-                    `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (`id`),
-                    KEY `id_usuario` (`id_usuario`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-                
-                $conn->exec($createTable);
+            // Si es predeterminado, desmarcar otros métodos
+            if ($es_predeterminada) {
+                $pdo->prepare("UPDATE Metodos_Pago_Usuario SET es_predeterminada = 0 WHERE id_usuario = ?")->execute([$id_usuario]);
             }
             
             // Insert new payment method
-            $stmt = $conn->prepare("INSERT INTO Metodos_Pago_Usuario (id_usuario, tipo, titular, numero_enmascarado, fecha_expiracion) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$id_usuario, $tipo, $titular, $numero_enmascarado, $fecha_expiracion]);
+            $stmt = $pdo->prepare("INSERT INTO Metodos_Pago_Usuario (id_usuario, tipo_tarjeta, nombre_titular, ultimos_cuatro, fecha_expiracion, es_predeterminada) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$id_usuario, $tipo_tarjeta, $nombre_titular, $ultimos_cuatro, $fecha_expiracion, $es_predeterminada]);
             
             $response = [
                 'ok' => true,
-                'id' => $conn->lastInsertId(),
+                'id' => $pdo->lastInsertId(),
                 'message' => 'Método de pago agregado correctamente'
             ];
         } else {
@@ -137,10 +132,10 @@ try {
             throw new Exception('Solo método GET permitido para sales');
         }
         
-        $stmt = $conn->prepare("
-            SELECT v.id_venta, v.fecha_venta, v.total, v.estado, u.usuario
+        $stmt = $pdo->prepare("
+            SELECT v.id_venta, v.fecha_venta, v.monto_total, v.estado_pago, u.correo
             FROM Ventas v 
-            LEFT JOIN Usuarios u ON v.id_usuario = u.id 
+            LEFT JOIN Usuarios u ON v.id_comprador = u.id_usuario 
             ORDER BY v.fecha_venta DESC 
             LIMIT 100
         ");
