@@ -15,8 +15,8 @@
                 // Ensure we use absolute path that works from any page location
                 const sessionUrl = window.location.origin + '/php/api/session.php';
                 console.log('Checking session from:', window.location.pathname, 'using URL:', sessionUrl);
-                
-                const res = await fetch(sessionUrl, { 
+
+                const res = await fetch(sessionUrl, {
                     credentials: 'include',
                     method: 'GET',
                     headers: {
@@ -24,31 +24,31 @@
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 console.log('Session response status:', res.status);
-                
+
                 if (!res.ok) {
                     console.warn('Session API returned non-OK status:', res.status);
                     return;
                 }
-                
+
                 const j = await res.json().catch((err) => {
                     console.error('Error parsing session JSON:', err);
                     return null;
                 });
-                
+
                 console.log('Session data:', j);
-                
+
                 if (j && j.ok && j.user) {
                     const user = j.user;
                     const navItem = document.getElementById('nav-login-item');
                     const navLink = document.getElementById('nav-login-link');
                     const navLabel = document.getElementById('nav-login-label');
-                    
+
                     if (navItem && navLink && navLabel) {
                         console.log('Updating navbar for user:', user.nombre || user.correo, 'Role:', user.rol);
                         navLabel.textContent = user.nombre || user.correo || 'Usuario';
-                        
+
                         // set destination based on role
                         if (user.rol === 'administrador' || user.rol === 'vendedor') {
                             navLink.setAttribute('href', '/pages/admin.html');
@@ -60,7 +60,7 @@
                     } else {
                         console.warn('Could not find navbar elements:', {
                             navItem: !!navItem,
-                            navLink: !!navLink, 
+                            navLink: !!navLink,
                             navLabel: !!navLabel
                         });
                     }
