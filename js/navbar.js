@@ -42,11 +42,11 @@
                 }
 
                 var bannerRect = headerImg.getBoundingClientRect();
-                
+
                 // Always keep navbar at the top of the viewport
                 navbar.style.top = '0px';
                 document.body.style.paddingTop = '0px'; // No padding needed on index
-                
+
                 // Check if banner has scrolled past the navbar to change styling
                 if (bannerRect.bottom <= navHeight) {
                     // Banner scrolled past navbar: make navbar solid
