@@ -1208,6 +1208,39 @@ body {
   }
 }
 
+.hero-video {
+  width: 100%;
+  padding: 18px 10px 32px 10px;
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .hero-video {
+    padding: 28px 20px 40px 20px;
+  }
+}
+.hero-video .video-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  /* 16:9 ratio */
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  background-color: #000; /* fallback while loading */
+}
+.hero-video .video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
 #inventory-container {
   font-family: "Roboto Condensed", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
   color: #191919;
