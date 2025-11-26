@@ -1,3 +1,9 @@
+/* Ensure content doesn't get hidden behind fixed navbar */
+.site-main {
+    padding-top: 140px;
+    /* Space for fixed navbar (128px + extra margin) */
+}
+
 /* Section CTA (Ver todo) and small section helpers */
 .section-cta {
     display: flex;
@@ -34,45 +40,45 @@
     display: grid;
     gap: 16px;
     align-items: start;
-    
+
     // Mobile: 2 columns
     grid-template-columns: repeat(2, 1fr);
-    
+
     // Mobile large: 3 columns
     @include breakpoint('mobile-lg') {
         grid-template-columns: repeat(3, 1fr);
     }
-    
+
     // Tablet: 4 columns
     @include breakpoint('tablet') {
         grid-template-columns: repeat(4, 1fr);
     }
-    
+
     // Tablet large: 5 columns
     @include breakpoint('tablet-lg') {
         grid-template-columns: repeat(5, 1fr);
     }
-    
+
     // Desktop: 6 columns
     @include breakpoint('desktop') {
         grid-template-columns: repeat(6, 1fr);
     }
-    
+
     // Desktop large: 7 columns
     @include breakpoint('desktop-lg') {
         grid-template-columns: repeat(7, 1fr);
     }
-    
+
     // Desktop XL: 8 columns
     @include breakpoint('desktop-xl') {
         grid-template-columns: repeat(8, 1fr);
     }
-    
+
     // Ultra wide screens: 10 columns
     @media (min-width: 2200px) {
         grid-template-columns: repeat(10, 1fr);
     }
-    
+
     // 4K screens: 12 columns
     @media (min-width: 2800px) {
         grid-template-columns: repeat(12, 1fr);
@@ -81,19 +87,20 @@
 
 // Grilla específica para la página principal con más productos por sección
 .featured-products .products-grid {
+
     // En la página principal, mostrar más productos por defecto
     @include breakpoint('desktop') {
         grid-template-columns: repeat(6, 1fr);
     }
-    
+
     @include breakpoint('desktop-lg') {
         grid-template-columns: repeat(8, 1fr);
     }
-    
+
     @include breakpoint('desktop-xl') {
         grid-template-columns: repeat(10, 1fr);
     }
-    
+
     @media (min-width: 2200px) {
         grid-template-columns: repeat(12, 1fr);
     }
@@ -126,22 +133,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     // Alturas responsivas para las imágenes
     height: 100px; // Mobile
-    
+
     @include breakpoint('mobile-lg') {
         height: 120px;
     }
-    
+
     @include breakpoint('tablet') {
         height: 140px;
     }
-    
+
     @include breakpoint('desktop') {
         height: 160px;
     }
-    
+
     @include breakpoint('desktop-lg') {
         height: 180px;
     }
@@ -252,11 +259,11 @@
 /* Responsive typography and spacing */
 .product-title {
     font-size: 0.85rem;
-    
+
     @include breakpoint('tablet') {
         font-size: 0.9rem;
     }
-    
+
     @include breakpoint('desktop') {
         font-size: 1rem;
     }
@@ -264,11 +271,11 @@
 
 .product-body {
     padding: 8px;
-    
+
     @include breakpoint('tablet') {
         padding: 10px;
     }
-    
+
     @include breakpoint('desktop') {
         padding: 12px;
     }
@@ -276,7 +283,7 @@
 
 .product-price {
     font-size: 0.9rem;
-    
+
     @include breakpoint('tablet') {
         font-size: 1rem;
     }
@@ -289,23 +296,23 @@
     align-items: flex-start;
     max-width: none;
     width: 100%;
-    
+
     // En móvil, stack verticalmente
     @include breakpoint-max('tablet') {
         flex-direction: column;
         gap: 16px;
     }
-    
+
     // Asegurar que use todo el ancho disponible
     @include breakpoint('desktop') {
         max-width: 1400px;
         margin: 0 auto;
     }
-    
+
     @include breakpoint('desktop-lg') {
         max-width: 1600px;
     }
-    
+
     @include breakpoint('desktop-xl') {
         max-width: 1800px;
     }
@@ -318,18 +325,18 @@
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-    
+
     // Móvil: ancho completo
     @include breakpoint-max('tablet') {
         width: 100%;
         order: -1; // Poner filtros arriba en móvil
     }
-    
+
     // Tablet y escritorio: ancho fijo
     @include breakpoint('tablet') {
         flex: 0 0 280px;
     }
-    
+
     @include breakpoint('desktop') {
         flex: 0 0 300px;
     }
@@ -339,7 +346,7 @@
     margin-top: 0;
     color: $primary-color;
     font-size: 1.1rem;
-    
+
     @include breakpoint('desktop') {
         font-size: 1.2rem;
     }
@@ -359,19 +366,19 @@
 section.products-list {
     max-width: none;
     width: 100%;
-    
+
     @include breakpoint('tablet') {
         max-width: 1200px;
     }
-    
+
     @include breakpoint('desktop') {
         max-width: 1400px;
     }
-    
+
     @include breakpoint('desktop-lg') {
         max-width: 1600px;
     }
-    
+
     @include breakpoint('desktop-xl') {
         max-width: 1800px;
     }
@@ -390,11 +397,12 @@ section.products-list {
 
 // Estilos específicos para la página de productos
 .site-main {
+
     // En la página de productos, usar más ancho
     &:has(.products-layout) {
         padding-left: 10px;
         padding-right: 10px;
-        
+
         @include breakpoint('tablet') {
             padding-left: 20px;
             padding-right: 20px;
@@ -406,7 +414,7 @@ section.products-list {
 .products-list h2 {
     margin-bottom: 1.5rem;
     text-align: center;
-    
+
     @include breakpoint('desktop') {
         font-size: 1.5rem;
         margin-bottom: 2rem;
@@ -474,7 +482,7 @@ section.products-list {
 /* Hover effects para product cards */
 .product-card {
     cursor: pointer;
-    
+
     &:hover {
         .product-img {
             transform: scale(1.05);
@@ -497,11 +505,11 @@ section.products-list {
 // Botón "Ver todo" mejorado para secciones destacadas
 .featured-products .section-cta {
     margin-top: 2rem;
-    
+
     @include breakpoint('desktop') {
         margin-top: 2.5rem;
     }
-    
+
     .btn {
         @include breakpoint('desktop') {
             padding: 14px 28px;

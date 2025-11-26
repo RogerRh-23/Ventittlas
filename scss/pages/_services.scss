@@ -1,0 +1,34 @@
+/* Ensure content doesn't get hidden behind fixed navbar */
+.site-main {
+    padding-top: 140px;
+    /* Space for fixed navbar (128px + extra margin) */
+}
+
+/* Services page specific styles */
+.site-main {
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+}
+
+/* Service sections styling */
+section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    h2 {
+        color: #009929;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    p {
+        color: #555;
+        line-height: 1.6;
+    }
+}

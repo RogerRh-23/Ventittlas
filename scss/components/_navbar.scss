@@ -9,8 +9,8 @@
     /* translucent background + blur when over the header image */
     background-color: rgba(255, 255, 255, 0.06);
     padding: 16px 0;
-    z-index: 10050;
-    /* ensure it's above the banner */
+    z-index: 10100;
+    /* ensure it's above everything including header text */
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
     margin: 0 !important;
@@ -144,6 +144,7 @@ body:not(.has-header) .site-navbar {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     z-index: 11000;
+    /* Highest z-index for other pages */
 }
 
 body:not(.has-header) .site-navbar .nav-links li a {
@@ -162,6 +163,7 @@ body.has-solid-navbar .site-navbar {
     left: 0;
     width: 100%;
     z-index: 11000;
+    /* Highest z-index when solid */
 }
 
 body.has-solid-navbar .site-navbar .nav-links li a {
@@ -176,7 +178,8 @@ body.has-header .site-navbar {
     /* Will be overridden by JS */
     left: 0;
     width: 100%;
-    z-index: 10060;
+    z-index: 10080;
+    /* Above header text (10070) */
 }
 
 /* When navbar becomes solid (scrolled past banner), ensure proper styling */
