@@ -155,7 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             html.push('<div class="methods-list">');
             methods.forEach(m => {
-                html.push(`<label style="display:block;margin-bottom:8px"><input type="radio" name="pay-method" value="${m.id_metodo}"> ${m.tipo_tarjeta || 'Tarjeta'} •••• ${m.ultimos_cuatro} ${m.es_predeterminada ? '(predeterminado)' : ''}</label>`);
+                const cardName = m.tipo_tarjeta === 'MC' ? 'Mastercard' : m.tipo_tarjeta || 'Tarjeta';
+                const defaultText = m.es_predeterminada ? ' (predeterminado)' : '';
+                html.push(`<label style="display:block;margin-bottom:8px;padding:8px;border:1px solid #ddd;border-radius:4px;cursor:pointer"><input type="radio" name="pay-method" value="${m.id_metodo}" style="margin-right:8px"> ${cardName} •••• ${m.ultimos_cuatro}${defaultText}</label>`);
             });
             html.push('</div>');
         }
@@ -164,9 +166,9 @@ document.addEventListener('DOMContentLoaded', () => {
         html.push('<h4>Agregar método de pago</h4>');
         html.push('<form id="new-method-form">');
         html.push('<label>Nombre en la tarjeta<input name="nombre_titular" required></label>');
-        html.push('<label>Tipo (VISA/MC/AMEX)<input name="tipo_tarjeta" required></label>');
-        html.push('<label>Últimos 4 dígitos<input name="ultimos_cuatro" maxlength="4" required></label>');
-        html.push('<label>Expiración (YYYY-MM)<input name="fecha_expiracion" placeholder="2026-08" required></label>');
+        html.push('<label>Tipo de tarjeta<select name="tipo_tarjeta" required><option value="">Seleccionar...</option><option value="VISA">VISA</option><option value="MC">Mastercard</option></select></label>');
+        html.push('<label>Últimos 4 dígitos<input name="ultimos_cuatro" type="number" min="0" max="9999" placeholder="1234" required></label>');
+        html.push('<label>Fecha de expiración<input name="fecha_expiracion" type="month" min="' + new Date().toISOString().slice(0,7) + '" required></label>');
         html.push('<label><input type="checkbox" name="es_predeterminada"> Usar como predeterminada</label>');
         html.push('<div style="margin-top:12px"><button type="submit" class="btn">Guardar método</button></div>');
         html.push('</form>');
@@ -195,6 +197,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     else body.id_usuario = 0;
                 } catch (e) { body.id_usuario = 0; }
 
+                // Validar campos antes de enviar
+                if (!body.nombre_titular || body.nombre_titular.trim() === '') {
+                    throw new Error('El nombre del titular es requerido');
+                }
+                if (!body.tipo_tarjeta || body.tipo_tarjeta === '') {
+                    throw new Error('Debe seleccionar un tipo de tarjeta');
+                }
+                if (!body.ultimos_cuatro || body.ultimos_cuatro.length !== 4) {
+                    throw new Error('Debe ingresar exactamente 4 dígitos');
+                }
+                if (!body.fecha_expiracion) {
+                    throw new Error('La fecha de expiración es requerida');
+                }
+
                 // POST to payments API
                 try {
                     if (!userSession || !userSession.id) {
@@ -202,6 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     body.id_usuario = userSession.id;
+                    // Asegurar que ultimos_cuatro sea string de 4 dígitos
+                    body.ultimos_cuatro = String(body.ultimos_cuatro).padStart(4, '0');
                     
                     const res = await fetch('/php/api/payments.php?type=methods', {
                         method: 'POST',
@@ -252,6 +270,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const totalDisplay = (window.formatPrice || (v => { try { return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:2}).format(Number(v)||0);}catch(e){return '$'+(Number(v)||0).toFixed(2);} }))(total);
 
                 // Build confirmation modal
+                // Encontrar información del método seleccionado
+                let methodText = 'Sin método seleccionado';
+                if (methodId) {
+                    const selectedMethodLabel = paymentArea.querySelector(`input[value="${methodId}"]`)?.parentElement;
+                    if (selectedMethodLabel) {
+                        methodText = selectedMethodLabel.textContent.trim().replace(/^[\s\S]*?\s/, ''); // Remove radio button text
+                    } else {
+                        methodText = `Método ID: ${methodId}`;
+                    }
+                }
+
                 const modal = document.createElement('div');
                 modal.className = 'confirm-overlay';
                 modal.style = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:11000;padding:20px;';
@@ -259,10 +288,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="background:#fff;padding:20px;border-radius:8px;max-width:420px;width:100%">
                         <h3>Confirmar pago</h3>
                         <p>Total a pagar: <strong>${totalDisplay}</strong></p>
-                        <p>Método: <strong>${methodId ? 'ID ' + methodId : 'Sin método seleccionado'}</strong></p>
+                        <p>Método de pago: <strong>${methodText}</strong></p>
                         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-                            <button id="confirm-cancel" class="btn">Cancelar</button>
-                            <button id="confirm-ok" class="btn primary">Confirmar y pagar</button>
+                            <button id="confirm-cancel" class="btn btn-secondary">Cancelar</button>
+                            <button id="confirm-ok" class="btn">Confirmar y pagar</button>
                         </div>
                         <div id="confirm-msg" style="margin-top:12px"></div>
                     </div>
@@ -285,16 +314,38 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (!productId) {
                                 throw new Error('ID de producto no encontrado en el carrito');
                             }
+                            
+                            // Validar que los valores sean números válidos
+                            const id = parseInt(productId);
+                            const cantidad = parseInt(item.cantidad);
+                            const precio = parseFloat(item.precio);
+                            
+                            if (isNaN(id) || id <= 0) {
+                                throw new Error('ID de producto inválido: ' + productId);
+                            }
+                            if (isNaN(cantidad) || cantidad <= 0) {
+                                throw new Error('Cantidad inválida para producto ' + id);
+                            }
+                            if (isNaN(precio) || precio <= 0) {
+                                throw new Error('Precio inválido para producto ' + id);
+                            }
+                            
                             return {
-                                id_producto: parseInt(productId),
-                                cantidad: parseInt(item.cantidad),
-                                precio: parseFloat(item.precio)
+                                id_producto: id,
+                                cantidad: cantidad,
+                                precio: precio
                             };
                         });
                         
+                        // Validar método de pago
+                        let metodoPago = methodId || 'efectivo';
+                        if (typeof metodoPago === 'string' && metodoPago.length > 10) {
+                            metodoPago = metodoPago.substring(0, 10);
+                        }
+                        
                         const payload = {
                             items: items,
-                            metodo_pago_id: methodId || 'tarjeta'
+                            metodo_pago_id: metodoPago
                         };
                         
                         console.log('Sending payment payload:', payload);
@@ -324,7 +375,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         if (!res.ok) {
                             console.error('Sale creation failed:', res.status, jr);
-                            throw new Error(`Error del servidor (${res.status}): ${jr.message || 'Error desconocido'}`);
+                            let errorMessage = jr.message || 'Error desconocido';
+                            
+                            // Proporcionar mensajes más amigables para errores comunes
+                            if (jr.debug && jr.debug.includes('Data truncated')) {
+                                errorMessage = 'Error en el formato de los datos. Por favor, inténtelo nuevamente.';
+                            } else if (jr.debug && jr.debug.includes('estado_pago')) {
+                                errorMessage = 'Error de configuración de la base de datos. Contacte al administrador.';
+                            }
+                            
+                            throw new Error(`Error del servidor (${res.status}): ${errorMessage}`);
                         }
                         console.log('Sale creation response:', jr);
                         

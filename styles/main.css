@@ -2778,4 +2778,55 @@ body {
   background-color: white;
 }
 
+/* Payment form styles */
+.payment-panel {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.payment-panel h3, .payment-panel h4 {
+  color: #191919 !important;
+  margin-bottom: 15px;
+}
+
+.payment-panel form {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.payment-panel label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+  color: #191919 !important;
+}
+
+.payment-panel input, .payment-panel select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-top: 5px;
+  box-sizing: border-box;
+}
+
+.payment-panel input:focus, .payment-panel select:focus {
+  border-color: #5ab507;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(90, 181, 7, 0.25);
+}
+
+.methods-list label:hover {
+  background-color: #f8f9fa !important;
+}
+
+.methods-list input[type="radio"]:checked {
+  accent-color: #5ab507;
+}
+
 /*# sourceMappingURL=main.css.map */

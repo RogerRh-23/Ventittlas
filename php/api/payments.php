@@ -94,18 +94,38 @@ try {
             }
             
             $id_usuario = $input['id_usuario'];
-            $tipo_tarjeta = $input['tipo_tarjeta'] ?? 'VISA';
+            $tipo_tarjeta = $input['tipo_tarjeta'] ?? '';
             $nombre_titular = $input['nombre_titular'] ?? '';
             $ultimos_cuatro = $input['ultimos_cuatro'] ?? '';
             $fecha_expiracion = $input['fecha_expiracion'] ?? null;
             $es_predeterminada = isset($input['es_predeterminada']) ? 1 : 0;
             
+            // Validar campos requeridos
             if (empty($nombre_titular) || empty($ultimos_cuatro)) {
                 throw new Exception('Nombre del titular y últimos 4 dígitos son requeridos');
             }
             
-            if (strlen($ultimos_cuatro) !== 4) {
+            // Validar tipo de tarjeta permitido
+            $tipos_permitidos = ['VISA', 'MC'];
+            if (!in_array($tipo_tarjeta, $tipos_permitidos)) {
+                throw new Exception('Tipo de tarjeta no válido. Solo se permiten VISA y MC');
+            }
+            
+            // Validar últimos 4 dígitos
+            if (strlen($ultimos_cuatro) !== 4 || !ctype_digit($ultimos_cuatro)) {
                 throw new Exception('Los últimos 4 dígitos deben ser exactamente 4 números');
+            }
+            
+            // Validar fecha de expiración
+            if (empty($fecha_expiracion)) {
+                throw new Exception('La fecha de expiración es requerida');
+            }
+            
+            // Verificar que la fecha no esté vencida
+            $fechaExp = DateTime::createFromFormat('Y-m', $fecha_expiracion);
+            $fechaActual = new DateTime();
+            if (!$fechaExp || $fechaExp < $fechaActual) {
+                throw new Exception('La fecha de expiración debe ser futura');
             }
             
             // Si es predeterminado, desmarcar otros métodos

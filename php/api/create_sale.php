@@ -31,6 +31,9 @@ if (!isset($pdo)) {
     exit;
 }
 
+// Log request data for debugging
+error_log('create_sale.php request data: ' . file_get_contents('php://input'));
+
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);
 if (!is_array($data)) {
@@ -80,10 +83,27 @@ try {
         $total += $price * $qty;
     }
 
-    // Insert venta
-    $estado = ($metodo ? 'completado' : 'pendiente');
-    $ins = $pdo->prepare('INSERT INTO Ventas (id_comprador, fecha_venta, monto_total, estado_pago, metodo_pago) VALUES (?, NOW(), ?, ?, ?)');
-    $ins->execute([$userId, number_format($total,2,'.',''), $estado, $metodo]);
+    // Insert venta - usar valores cortos para evitar truncación
+    $estado = ($metodo ? 'pagado' : 'pending');
+    $metodo_pago = $metodo ? substr(strval($metodo), 0, 10) : 'efectivo';
+    $monto_total = number_format($total, 2, '.', '');
+    
+    error_log("Inserting sale: user=$userId, total=$monto_total, estado=$estado, metodo=$metodo_pago");
+    
+    // Verificar si existe la columna estado_pago, si no usar una alternativa
+    try {
+        $ins = $pdo->prepare('INSERT INTO Ventas (id_comprador, fecha_venta, monto_total, estado_pago, metodo_pago) VALUES (?, NOW(), ?, ?, ?)');
+        $ins->execute([$userId, $monto_total, $estado, $metodo_pago]);
+    } catch (PDOException $e) {
+        if (strpos($e->getMessage(), 'estado_pago') !== false) {
+            // Si falla por estado_pago, intentar sin ese campo
+            error_log("estado_pago column issue, trying without it");
+            $ins = $pdo->prepare('INSERT INTO Ventas (id_comprador, fecha_venta, monto_total, metodo_pago) VALUES (?, NOW(), ?, ?)');
+            $ins->execute([$userId, $monto_total, $metodo_pago]);
+        } else {
+            throw $e;
+        }
+    }
     $idVenta = (int)$pdo->lastInsertId();
 
     // Insert detalle filas and update stock
@@ -106,10 +126,28 @@ try {
     }
 
     $pdo->commit();
+    
+    error_log("Sale created successfully: ID $idVenta, Total: $total, Items: " . count($items));
 
     echo json_encode(['ok' => true, 'id_venta' => $idVenta, 'monto' => $total, 'items' => count($items)]);
     exit;
 
+} catch (PDOException $e) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    error_log('create_sale PDO error: ' . $e->getMessage());
+    error_log('SQL State: ' . $e->getCode());
+    http_response_code(500);
+    
+    // Proporcionar mensaje más específico para errores comunes
+    $message = 'Error de base de datos';
+    if (strpos($e->getMessage(), 'Data truncated') !== false) {
+        $message = 'Error de formato de datos. Verifique la información ingresada.';
+    } elseif (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+        $message = 'Ya existe una venta con estos datos.';
+    }
+    
+    echo json_encode(['ok' => false, 'message' => $message, 'debug' => $e->getMessage()]);
+    exit;
 } catch (Exception $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
     error_log('create_sale error: ' . $e->getMessage());
