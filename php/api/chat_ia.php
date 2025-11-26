@@ -15,7 +15,6 @@ require_once __DIR__ . '/../conect.php';
 // Load API key from environment (php/.env via conect.php)
 // Support both GEM_API_KEY (used in .env) and older GEN_API_KEY/GOOGLE_API_KEY names
 $apiKey = getenv('GEM_API_KEY') ?: getenv('GEN_API_KEY') ?: getenv('GOOGLE_API_KEY') ?: getenv('API_KEY');
-error_log('chat_ia: GEM_API_KEY present: ' . ($apiKey ? 'YES' : 'NO'));
 if (!$apiKey) {
     http_response_code(500);
     $msg = 'Server configuration error: missing GEM_API_KEY';
@@ -54,17 +53,27 @@ try {
     // default to empty array so response always contains the key
     $productosEncontrados = [];
     
-    $sql = "SELECT nombre, descripcion, precio, stock FROM Productos WHERE estado = 'disponible'";
+    $sql = "SELECT nombre, descripcion, precio, stock, porcentaje_descuento FROM Productos WHERE estado = 'disponible'";
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
     $todosLosProductos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    
     $contextoProductos = "INVENTARIO ACTUAL DE LA TIENDA:\n";
     if (count($todosLosProductos) > 0) {
         foreach ($todosLosProductos as $p) {
             $stockMsg = ($p['stock'] > 0) ? "En stock ({$p['stock']} unid.)" : "Agotado";
-            $contextoProductos .= "- Producto: {$p['nombre']} | Precio: $ {$p['precio']} | Info: {$p['descripcion']} | Estado: $stockMsg\n";
+            
+            
+            $infoPrecio = "| Precio: $ {$p['precio']}";
+            
+            
+            if (isset($p['porcentaje_descuento']) && $p['porcentaje_descuento'] > 0) {
+                $precioFinal = $p['precio'] - ($p['precio'] * ($p['porcentaje_descuento'] / 100));
+                
+                $infoPrecio = "| PRECIO OFERTA: $ " . number_format($precioFinal, 2) . " (Antes: $ {$p['precio']} - Descuento del {$p['porcentaje_descuento']}%)";
+            }
+
+            $contextoProductos .= "- Producto: {$p['nombre']} {$infoPrecio} | Info: {$p['descripcion']} | Estado: $stockMsg\n";
         }
     } else {
         $contextoProductos .= "No hay productos registrados en el sistema actualmente.\n";
@@ -94,7 +103,6 @@ try {
     18. Si un usario pregunta por el precio de un producto con descuento, buscalo en la lista de productos, verifica si tiene descuento y responde el precio original y el precio con descuento.
     19. Si un usario pregunta el articulo mas caro que tenga descuento, buscalo en la lista de productos, verifica si tiene descuento y responde el precio original y el precio con descuento.
     20. Si se pide algun descuento, buscalo en la tabla de Productos como porcentaje_descuento y responde el precio original y el precio con descuento.
-    escuento.
     
     " . $contextoProductos . "
     
