@@ -87,9 +87,7 @@
                 }
             }
 
-            container.appendChild(node);
-
-            // wire add-to-cart button
+            // wire add-to-cart button BEFORE appending to DOM
             const addBtn = node.querySelector('.btn.add-to-cart');
             if (addBtn) {
                 addBtn.addEventListener('click', (ev) => {
@@ -135,6 +133,9 @@
             } else {
                 console.warn('Add to cart button not found for product:', product.title);
             }
+            
+            // Add node to DOM AFTER wiring events
+            container.appendChild(node);
         });
     }
 

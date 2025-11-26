@@ -2,9 +2,14 @@
 // Renderiza los productos agregados al carrito y permite eliminar o modificar cantidades
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Basket page loaded');
     const basketContainer = document.getElementById('basket-items');
     const totalContainer = document.getElementById('basket-total');
     let basket = JSON.parse(localStorage.getItem('basket') || '[]');
+    
+    console.log('Initial basket content:', basket);
+    console.log('Basket container found:', !!basketContainer);
+    console.log('Total container found:', !!totalContainer);
 
     function renderBasket() {
         basketContainer.innerHTML = '';

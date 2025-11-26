@@ -65,6 +65,27 @@
     <script src="../js/products_discount.js"></script>
     <script src="../js/products_list.js"></script>
     <script src="../js/products_page.js"></script>
+    
+    <script>
+        // Debug helper - press Ctrl+Shift+D to show debug info
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                console.log('=== DEBUG INFO ===');
+                console.log('Current basket:', JSON.parse(localStorage.getItem('basket') || '[]'));
+                console.log('Products loaded:', document.querySelectorAll('.product-card').length);
+                console.log('Add buttons found:', document.querySelectorAll('.add-to-cart').length);
+                
+                // Test adding a dummy product
+                const dummyProduct = { id: 999, title: 'Test Product', price: 100 };
+                if (window.debugProducts && window.debugProducts.testAddToCart) {
+                    console.log('Testing add to cart...');
+                    window.debugProducts.testAddToCart(999);
+                }
+                
+                alert('Debug info logged to console. Check developer tools.');
+            }
+        });
+    </script>
 </body>
 
 </html>

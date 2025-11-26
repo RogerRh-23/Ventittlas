@@ -149,6 +149,37 @@
 
         // Initial placement
         positionNavbar();
+
+        // Cart counter functionality
+        function updateCartCounter() {
+            try {
+                const cartCounter = document.getElementById('cart-counter');
+                if (cartCounter) {
+                    const basket = JSON.parse(localStorage.getItem('basket') || '[]');
+                    const totalItems = basket.reduce((sum, item) => sum + (Number(item.cantidad) || 0), 0);
+                    
+                    if (totalItems > 0) {
+                        cartCounter.textContent = totalItems;
+                        cartCounter.style.display = 'inline';
+                    } else {
+                        cartCounter.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.warn('Error updating cart counter:', e);
+            }
+        }
+
+        // Update counter on page load
+        updateCartCounter();
+
+        // Listen for cart updates
+        window.addEventListener('basket:updated', updateCartCounter);
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'basket') {
+                updateCartCounter();
+            }
+        });
     }
 
     if (document.readyState === 'loading') {
