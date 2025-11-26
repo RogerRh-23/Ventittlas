@@ -28,8 +28,8 @@
             document.body.classList.remove('has-solid-navbar');
         } catch (e) { }
 
-        // Position the navbar over the banner on index page
-        // Initially position navbar over the banner, then fix to top when banner scrolls away
+        // Position navbar at top of screen over the banner
+        // Always keep navbar at top of viewport, change style when banner scrolls past
         function positionNavbar() {
             try {
                 var navHeight = navbar.getBoundingClientRect().height || navbar.offsetHeight || 0;
@@ -42,22 +42,17 @@
                 }
 
                 var bannerRect = headerImg.getBoundingClientRect();
-                // Position navbar over the banner (not at its bottom)
-                // Calculate position to overlay the banner at a specific point
-                var bannerHeight = bannerRect.height;
-                var desiredTop = Math.round(bannerRect.bottom - navHeight); // Position at banner bottom minus navbar height
-
+                
+                // Always keep navbar at the top of the viewport
+                navbar.style.top = '0px';
+                document.body.style.paddingTop = '0px'; // No padding needed on index
+                
+                // Check if banner has scrolled past the navbar to change styling
                 if (bannerRect.bottom <= navHeight) {
-                    // Banner scrolled past viewport: fix navbar to top
-                    navbar.style.top = '0px';
-                    document.body.style.paddingTop = '0px'; // No padding needed on index
-                    document.body.classList.add('has-solid-navbar');
+                    // Banner scrolled past navbar: make navbar solid
                     navbar.classList.add('site-navbar--solid');
                 } else {
-                    // Position navbar over the banner
-                    navbar.style.top = Math.max(0, desiredTop) + 'px';
-                    document.body.style.paddingTop = '0px'; // Never add padding on index
-                    document.body.classList.remove('has-solid-navbar');
+                    // Banner still visible behind navbar: keep transparent
                     navbar.classList.remove('site-navbar--solid');
                 }
             } catch (e) { /* ignore */ }
