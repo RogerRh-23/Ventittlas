@@ -1,48 +1,50 @@
 // homepage_carousel.js
-// Maneja la navegación por flechas en las secciones de productos del homepage
+// Agrega navegación por flechas a las secciones de productos del homepage
+// Funciona después de que products_list.js haya cargado los productos
 
 (function () {
     'use strict';
     
-    // Configuración de secciones con sus datos de productos (basado en la tabla de categorías)
-    const sectionsConfig = {
-        ofertas: { 
-            container: 'ofertas-grid', 
-            filter: 'on_sale', 
-            itemsPerPage: 5,
-            currentPage: 0 
-        },
-        nuevas: { 
-            container: 'nuevas-grid', 
-            filter: 'new', 
-            itemsPerPage: 5,
-            currentPage: 0 
-        },
-        hogar: { 
-            container: 'hogar-grid', 
-            category: 'Ropa', // ID 11 en la tabla
-            itemsPerPage: 5,
-            currentPage: 0 
-        },
-        cuidado: { 
-            container: 'cuidado-grid', 
-            category: 'Cuidado Personal', // ID 18 en la tabla
-            itemsPerPage: 5,
-            currentPage: 0 
-        },
-        electronica: { 
-            container: 'electronica-grid', 
-            category: 'Electronica', // ID 8 en la tabla
-            itemsPerPage: 5,
-            currentPage: 0 
-        },
-        vehiculos: { 
-            container: 'vehiculos-grid', 
-            category: 'Vehiculos Personales', // ID 14 en la tabla
-            itemsPerPage: 5,
-            currentPage: 0 
+    let initialized = false;
+
+    function initializeCarousel() {
+        if (initialized) return;
+        
+        // Verificar que products_list.js ya haya procesado los productos
+        const productGrids = document.querySelectorAll('.products-grid[data-products]');
+        let hasProducts = false;
+        
+        productGrids.forEach(grid => {
+            if (grid.children.length > 0) {
+                hasProducts = true;
+            }
+        });
+        
+        if (!hasProducts) {
+            // Intentar de nuevo en 500ms
+            setTimeout(initializeCarousel, 500);
+            return;
         }
-    };
+        
+        console.log('Initializing carousel navigation...');
+        setupCarouselNavigation();
+        initialized = true;
+    }
+
+    function setupCarouselNavigation() {
+        const sections = [
+            { gridId: 'ofertas-grid', sectionKey: 'ofertas' },
+            { gridId: 'nuevas-grid', sectionKey: 'nuevas' },
+            { gridId: 'hogar-grid', sectionKey: 'hogar' },
+            { gridId: 'cuidado-grid', sectionKey: 'cuidado' },
+            { gridId: 'electronica-grid', sectionKey: 'electronica' },
+            { gridId: 'vehiculos-grid', sectionKey: 'vehiculos' }
+        ];
+
+        sections.forEach(({ gridId, sectionKey }) => {
+            setupSectionCarousel(gridId, sectionKey);
+        });
+    }
 
     let allProducts = [];
     let filteredProductsBySection = {};
