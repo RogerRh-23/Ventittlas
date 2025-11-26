@@ -8,6 +8,89 @@
         var navbar = document.querySelector('.site-navbar');
         if (!navbar) return;
 
+        // ---- User session handling: replace login link with user name if logged ----
+        // This should run on ALL pages, not just index
+        (async function updateUserLink() {
+            try {
+                // Ensure we use absolute path that works from any page location
+                const sessionUrl = window.location.origin + '/php/api/session.php';
+                console.log('Checking session from:', window.location.pathname, 'using URL:', sessionUrl);
+                
+                const res = await fetch(sessionUrl, { 
+                    credentials: 'include',
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Session response status:', res.status);
+                
+                if (!res.ok) {
+                    console.warn('Session API returned non-OK status:', res.status);
+                    return;
+                }
+                
+                const j = await res.json().catch((err) => {
+                    console.error('Error parsing session JSON:', err);
+                    return null;
+                });
+                
+                console.log('Session data:', j);
+                
+                if (j && j.ok && j.user) {
+                    const user = j.user;
+                    const navItem = document.getElementById('nav-login-item');
+                    const navLink = document.getElementById('nav-login-link');
+                    const navLabel = document.getElementById('nav-login-label');
+                    
+                    if (navItem && navLink && navLabel) {
+                        console.log('Updating navbar for user:', user.nombre || user.correo, 'Role:', user.rol);
+                        navLabel.textContent = user.nombre || user.correo || 'Usuario';
+                        
+                        // set destination based on role
+                        if (user.rol === 'administrador' || user.rol === 'vendedor') {
+                            navLink.setAttribute('href', '/pages/admin.html');
+                            console.log('Set admin link for user with role:', user.rol);
+                        } else {
+                            navLink.setAttribute('href', '/index.html');
+                            console.log('Set regular user link');
+                        }
+                    } else {
+                        console.warn('Could not find navbar elements:', {
+                            navItem: !!navItem,
+                            navLink: !!navLink, 
+                            navLabel: !!navLabel
+                        });
+                    }
+                } else {
+                    console.log('No active session or invalid session response');
+                }
+            } catch (e) {
+                console.error('Error updating user link:', e);
+            }
+        })();
+
+        // Intercept navbar search form and redirect to products page with query param
+        // This should also work on all pages
+        try {
+            const searchForm = document.querySelector('.nav-search');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function (ev) {
+                    ev.preventDefault();
+                    const input = searchForm.querySelector('input[name="q"]') || searchForm.querySelector('input[type="search"]');
+                    if (!input) return;
+                    const q = (input.value || '').trim();
+                    if (!q) return;
+                    // Redirect to products page with query param 'q'
+                    window.location.href = '/pages/products.html?q=' + encodeURIComponent(q);
+                });
+            }
+        } catch (e) {
+            // ignore
+        }
+
         var headerImg = document.querySelector('.header-img');
         var isIndexPage = document.querySelector('.site-header'); // Check if we're on index page
 
@@ -66,50 +149,6 @@
 
         // Initial placement
         positionNavbar();
-
-        // ---- User session handling: replace login link with user name if logged ----
-        (async function updateUserLink() {
-            try {
-                // use 'include' to ensure cookies are sent even if some pages differ in origin handling
-                const res = await fetch('/php/api/session.php', { credentials: 'include' });
-                const j = await res.json().catch(() => null);
-                if (j && j.ok && j.user) {
-                    const user = j.user;
-                    const navItem = document.getElementById('nav-login-item');
-                    const navLink = document.getElementById('nav-login-link');
-                    const navLabel = document.getElementById('nav-login-label');
-                    if (navItem && navLink && navLabel) {
-                        navLabel.textContent = user.nombre || user.correo || 'Usuario';
-                        // set destination based on role
-                        if (user.rol === 'administrador' || user.rol === 'vendedor') {
-                            navLink.setAttribute('href', '/pages/admin.html');
-                        } else {
-                            navLink.setAttribute('href', '/index.html');
-                        }
-                    }
-                }
-            } catch (e) {
-                // ignore
-            }
-        })();
-
-        // Intercept navbar search form and redirect to products page with query param
-        try {
-            const searchForm = document.querySelector('.nav-search');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function (ev) {
-                    ev.preventDefault();
-                    const input = searchForm.querySelector('input[name="q"]') || searchForm.querySelector('input[type="search"]');
-                    if (!input) return;
-                    const q = (input.value || '').trim();
-                    if (!q) return;
-                    // Redirect to products page with query param 'q'
-                    window.location.href = '/pages/products.html?q=' + encodeURIComponent(q);
-                });
-            }
-        } catch (e) {
-            // ignore
-        }
     }
 
     if (document.readyState === 'loading') {

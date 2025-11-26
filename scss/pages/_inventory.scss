@@ -65,88 +65,110 @@
 }
 
 /* Product form modal */
-.modal {
-    position: fixed;
+#add-product-modal.modal {
+    position: fixed !important;
     inset: 0;
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.5);
     z-index: 10000;
     padding: 20px;
+    font-family: $font-family-base;
 
     &[aria-hidden="false"] {
-        display: flex;
+        display: flex !important;
     }
 }
 
-.modal-content {
-    max-width: 760px;
+#add-product-modal .modal-content {
+    max-width: 800px;
     width: 100%;
-    padding: 24px;
-    background: $white;
-    border-radius: 8px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    padding: 32px;
+    background: $white !important;
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
     overflow: auto;
-    max-height: calc(100vh - 60px);
+    max-height: calc(100vh - 40px);
+    position: relative;
 
     h2 {
         margin-top: 0;
-        margin-bottom: 24px;
-        color: $black;
-        font-size: 1.5rem;
+        margin-bottom: 32px;
+        color: $black !important;
+        font-size: 1.75rem;
+        font-weight: $font-weight-bold;
+        border-bottom: 2px solid lighten($primary-color, 40%);
+        padding-bottom: 12px;
     }
 }
 
-.modal-close {
-    float: right;
+#add-product-modal .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     background: transparent;
     border: none;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: lighten($black, 30%);
+    transition: all 0.2s ease;
 
     &:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: rgba(0, 0, 0, 0.1);
+        color: $black;
+        transform: scale(1.1);
     }
 }
 
 /* Form styles */
-.form-row {
-    margin-bottom: 16px;
+#add-product-form .form-row {
+    margin-bottom: 20px;
 
     label {
         display: block;
         font-weight: $font-weight-medium;
-        margin-bottom: 6px;
-        color: $black;
+        margin-bottom: 8px;
+        color: $black !important;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
     }
 
     input,
     select,
     textarea {
-        width: 100%;
-        padding: 12px 16px;
-        border: 1px solid lighten($black, 70%);
-        border-radius: 4px;
-        font-size: 1rem;
-        font-family: $font-family-base;
-        color: $black;
-        background: $white;
-        box-sizing: border-box;
-        min-height: 44px;
-        /* Better touch target */
+        width: 100% !important;
+        padding: 16px 20px !important;
+        border: 2px solid lighten($black, 75%) !important;
+        border-radius: 8px !important;
+        font-size: 1.1rem !important;
+        font-family: $font-family-base !important;
+        color: $black !important;
+        background: $white !important;
+        box-sizing: border-box !important;
+        min-height: 52px !important;
+        transition: all 0.3s ease !important;
 
         &:focus {
-            outline: none;
-            border-color: $primary-color;
-            box-shadow: 0 0 0 3px rgba($primary-color, 0.15);
+            outline: none !important;
+            border-color: $primary-color !important;
+            box-shadow: 0 0 0 4px rgba($primary-color, 0.2) !important;
+            transform: translateY(-1px);
         }
 
         &::placeholder {
-            color: lighten($black, 50%);
-            opacity: 1;
+            color: lighten($black, 50%) !important;
+            opacity: 1 !important;
+            font-style: italic;
         }
     }
 
@@ -179,43 +201,129 @@
 }
 
 /* Flex row for price, stock, and status fields */
-.form-row[style*="flex"] {
-    display: flex;
-    gap: 12px;
+#add-product-form .form-row[style*="flex"] {
+    display: flex !important;
+    gap: 16px !important;
+    align-items: flex-end;
 
     >div {
         display: flex;
         flex-direction: column;
+        flex: 1;
+
+        &:first-child {
+            flex: 2;
+            /* Price field gets more space */
+        }
 
         label {
-            font-size: 0.9rem;
-            margin-bottom: 8px;
+            font-size: 0.9rem !important;
+            margin-bottom: 8px !important;
+            color: $black !important;
         }
 
         input,
         select {
             min-width: 0;
+            width: 100% !important;
             /* Allow shrinking */
         }
     }
+
+    /* Special styling for price input */
+    input[name="precio"] {
+        font-size: 1.2rem !important;
+        font-weight: $font-weight-bold !important;
+        color: $primary-color !important;
+    }
+}
+
+/* Category selection and new category input */
+#add-product-form #new-category-row {
+    margin-top: 12px;
+    padding: 16px;
+    background: lighten($primary-color, 45%);
+    border-radius: 8px;
+    border-left: 4px solid $primary-color;
+
+    input {
+        margin-right: 12px !important;
+        flex: 1;
+    }
+
+    .btn {
+        background: $primary-color !important;
+        color: $white !important;
+        border: none !important;
+        padding: 12px 20px !important;
+        border-radius: 6px !important;
+        white-space: nowrap;
+    }
+}
+
+/* Error message styling */
+#add-product-error {
+    background: lighten(#e74c3c, 40%) !important;
+    color: #c0392b !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    border-left: 4px solid #e74c3c !important;
+    font-weight: $font-weight-medium !important;
+    margin-top: 16px !important;
 }
 
 /* Price calculator preview */
 #precio-final-preview {
-    font-weight: $font-weight-bold;
-    color: $primary-color;
-    transition: color 0.2s ease;
-    font-size: 1.1rem;
-    margin-top: 8px;
+    font-weight: $font-weight-bold !important;
+    color: $primary-color !important;
+    transition: color 0.3s ease;
+    font-size: 1.2rem !important;
+    margin-top: 12px !important;
+    padding: 8px 12px;
+    background: lighten($primary-color, 45%);
+    border-radius: 6px;
+    display: inline-block;
 }
 
 /* Form buttons */
-.form-row {
-    &:last-child {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-end;
-        margin-top: 12px;
+#add-product-form .form-row:last-child {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid lighten($black, 85%);
+
+    .btn {
+        padding: 14px 28px !important;
+        font-size: 1rem !important;
+        font-weight: $font-weight-medium !important;
+        border-radius: 8px !important;
+        min-width: 120px;
+        transition: all 0.3s ease !important;
+
+        &.primary {
+            background: $primary-color !important;
+            color: $white !important;
+            border: none !important;
+
+            &:hover {
+                background: darken($primary-color, 10%) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba($primary-color, 0.3);
+            }
+        }
+
+        &:not(.primary) {
+            background: transparent !important;
+            color: lighten($black, 20%) !important;
+            border: 2px solid lighten($black, 70%) !important;
+
+            &:hover {
+                background: lighten($black, 95%) !important;
+                border-color: lighten($black, 50%) !important;
+            }
+        }
     }
 }
 
@@ -257,12 +365,29 @@
         }
     }
 
-    .form-row input,
-    .form-row select,
-    .form-row textarea {
-        font-size: 16px;
+    #add-product-form .form-row input,
+    #add-product-form .form-row select,
+    #add-product-form .form-row textarea {
+        font-size: 16px !important;
         /* Prevent zoom on iOS */
-        padding: 14px 16px;
-        min-height: 48px;
+        padding: 16px 20px !important;
+        min-height: 52px !important;
+    }
+
+    #add-product-form .form-row[style*="flex"] {
+        flex-direction: column !important;
+        gap: 20px !important;
+
+        >div {
+            width: 100% !important;
+            flex: none !important;
+        }
+    }
+
+    #add-product-modal .modal-content {
+        padding: 24px !important;
+        margin: 5px !important;
+        max-height: calc(100vh - 20px) !important;
+        border-radius: 8px !important;
     }
 }
