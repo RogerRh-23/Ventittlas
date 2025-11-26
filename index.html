@@ -21,39 +21,86 @@
 
     <main class="site-main">
         <section class="featured-products">
-            <h2>Ofertas</h2>
+            <div class="section-header">
+                <h2>Ofertas</h2>
+                <div class="section-nav">
+                    <button class="nav-btn nav-prev" data-section="ofertas">‹</button>
+                    <button class="nav-btn nav-next" data-section="ofertas">›</button>
+                </div>
+            </div>
             <p class="section-sub">Ofertas y descuentos por tiempo limitado</p>
-            <div class="products-grid" data-products data-filter="on_sale" data-limit="16"></div>
+            <div class="products-container">
+                <div class="products-grid" id="ofertas-grid" data-products data-filter="on_sale" data-limit="10"></div>
+            </div>
         </section>
 
         <section class="featured-products">
-            <h2>Nuevas llegadas</h2>
+            <div class="section-header">
+                <h2>Nuevas llegadas</h2>
+                <div class="section-nav">
+                    <button class="nav-btn nav-prev" data-section="nuevas">‹</button>
+                    <button class="nav-btn nav-next" data-section="nuevas">›</button>
+                </div>
+            </div>
             <p class="section-sub">Productos recién añadidos a la tienda</p>
-            <div class="products-grid" data-products data-filter="new" data-limit="12"></div>
+            <div class="products-container">
+                <div class="products-grid" id="nuevas-grid" data-products data-filter="new" data-limit="10"></div>
+            </div>
         </section>
 
         <section class="featured-products">
-            <h2>Para el hogar</h2>
-            <div class="products-grid" data-products data-department="hogar" data-limit="10"></div>
+            <div class="section-header">
+                <h2>Para el hogar</h2>
+                <div class="section-nav">
+                    <button class="nav-btn nav-prev" data-section="hogar">‹</button>
+                    <button class="nav-btn nav-next" data-section="hogar">›</button>
+                </div>
+            </div>
+            <div class="products-container">
+                <div class="products-grid" id="hogar-grid" data-products data-category="Ropa" data-limit="10"></div>
+            </div>
         </section>
 
         <section class="featured-products">
-            <h2>Higiene personal</h2>
-            <p class="section-sub">Productos seleccionados para el higiene personal</p>
-            <div class="products-grid" data-products data-department="higiene" data-limit="10"></div>
+            <div class="section-header">
+                <h2>Cuidado Personal</h2>
+                <div class="section-nav">
+                    <button class="nav-btn nav-prev" data-section="cuidado">‹</button>
+                    <button class="nav-btn nav-next" data-section="cuidado">›</button>
+                </div>
+            </div>
+            <p class="section-sub">Productos para el cuidado personal</p>
+            <div class="products-container">
+                <div class="products-grid" id="cuidado-grid" data-products data-category="Cuidado Personal" data-limit="10"></div>
+            </div>
         </section>
 
         <section class="featured-products">
-            <h2>Lo más vendido en tecnología</h2>
-            <p class="section-sub">Gadgets y accesorios más populares</p>
-            <div class="products-grid" data-products data-department="electronica" data-filter="best_seller"
-                data-limit="12"></div>
+            <div class="section-header">
+                <h2>Electrónicos</h2>
+                <div class="section-nav">
+                    <button class="nav-btn nav-prev" data-section="electronica">‹</button>
+                    <button class="nav-btn nav-next" data-section="electronica">›</button>
+                </div>
+            </div>
+            <p class="section-sub">Tecnología y dispositivos electrónicos</p>
+            <div class="products-container">
+                <div class="products-grid" id="electronica-grid" data-products data-category="Electronica" data-limit="10"></div>
+            </div>
         </section>
 
         <section class="featured-products">
-            <h2>Vehiculos</h2>
-            <p class="section-sub">Los vehículos más populares y confiables</p>
-            <div class="products-grid" data-products data-filter="vehiculos" data-limit="12"></div>
+            <div class="section-header">
+                <h2>Vehículos</h2>
+                <div class="section-nav">
+                    <button class="nav-btn nav-prev" data-section="vehiculos">‹</button>
+                    <button class="nav-btn nav-next" data-section="vehiculos">›</button>
+                </div>
+            </div>
+            <p class="section-sub">Vehículos personales y de transporte</p>
+            <div class="products-container">
+                <div class="products-grid" id="vehiculos-grid" data-products data-category="Vehiculos Personales" data-limit="10"></div>
+            </div>
         </section>
     </main>
     <!-- include product card template so JS can clone it on the homepage -->
@@ -63,7 +110,7 @@
     <script src="js/include.js"></script>
     <script src="js/navbar.js"></script>
     <script src="js/products_discount.js"></script>
-    <script src="js/products_list.js"></script>
+    <script src="js/homepage_carousel.js"></script>
     <script src="js/main.js"></script>
 </body>
 
