@@ -15,15 +15,15 @@
         if (!headerImg || !isIndexPage) {
             navbar.classList.add('site-navbar--solid');
             // add a body class so we can add top padding to avoid covering content
-            try { 
-                document.body.classList.add('has-solid-navbar'); 
+            try {
+                document.body.classList.add('has-solid-navbar');
                 document.body.classList.remove('has-header');
             } catch (e) { }
             return;
         }
 
         // Mark that we have a header (for CSS targeting)
-        try { 
+        try {
             document.body.classList.add('has-header');
             document.body.classList.remove('has-solid-navbar');
         } catch (e) { }
@@ -46,7 +46,7 @@
                 // Calculate position to overlay the banner at a specific point
                 var bannerHeight = bannerRect.height;
                 var desiredTop = Math.round(bannerRect.bottom - navHeight); // Position at banner bottom minus navbar height
-                
+
                 if (bannerRect.bottom <= navHeight) {
                     // Banner scrolled past viewport: fix navbar to top
                     navbar.style.top = '0px';
@@ -73,10 +73,10 @@
         positionNavbar();
 
         // ---- User session handling: replace login link with user name if logged ----
-    (async function updateUserLink() {
+        (async function updateUserLink() {
             try {
-        // use 'include' to ensure cookies are sent even if some pages differ in origin handling
-        const res = await fetch('/php/api/session.php', { credentials: 'include' });
+                // use 'include' to ensure cookies are sent even if some pages differ in origin handling
+                const res = await fetch('/php/api/session.php', { credentials: 'include' });
                 const j = await res.json().catch(() => null);
                 if (j && j.ok && j.user) {
                     const user = j.user;

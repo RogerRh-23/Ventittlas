@@ -6,12 +6,22 @@ body {
 }
 
 /* Ensure headings are visible */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #191919 !important;
 }
 
 /* Ensure paragraphs and text are visible */
-p, span, div, td, th, label {
+p,
+span,
+div,
+td,
+th,
+label {
   color: inherit;
 }
 
@@ -493,7 +503,8 @@ h6 {
 
 /* Pages without header (products, services, etc) - fixed navbar that pushes content */
 body:not(.has-header) {
-  padding-top: 128px; /* Reserve space for fixed navbar */
+  padding-top: 128px;
+  /* Reserve space for fixed navbar */
 }
 
 body:not(.has-header) .site-navbar {
@@ -514,7 +525,8 @@ body:not(.has-header) .site-navbar .nav-links li a {
 
 /* When navbar becomes solid on index page (after scrolling past banner) */
 body.has-solid-navbar {
-  padding-top: 128px; /* Reserve space when navbar becomes fixed */
+  padding-top: 128px;
+  /* Reserve space when navbar becomes fixed */
 }
 
 body.has-solid-navbar .site-navbar {
@@ -531,8 +543,10 @@ body.has-solid-navbar .site-navbar .nav-links li a {
 
 /* Index page: navbar inside header - positioned by JavaScript over banner */
 body.has-header .site-navbar {
-  position: fixed; /* Always fixed on index page for JS positioning */
-  top: 0; /* Will be overridden by JS */
+  position: fixed;
+  /* Always fixed on index page for JS positioning */
+  top: 0;
+  /* Will be overridden by JS */
   left: 0;
   width: 100%;
   z-index: 10060;
@@ -2231,7 +2245,9 @@ button[type=submit]:hover {
   font-weight: 500;
 }
 
-.loading-row td, .empty-row td, .error-row td {
+.loading-row td,
+.empty-row td,
+.error-row td {
   padding: 2rem;
   text-align: center;
   font-style: italic;
