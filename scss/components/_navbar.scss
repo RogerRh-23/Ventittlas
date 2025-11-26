@@ -1,7 +1,7 @@
 // Navbar component styles
 
 .site-navbar {
-    /* Default: sticky position for header pages */
+    /* Default base styles for navbar */
     position: sticky;
     top: 0;
     left: 0;
@@ -17,6 +17,7 @@
     /* Smooth transitions for position and visual changes */
     transition: top 220ms cubic-bezier(0.22, 0.9, 0.32, 1), background-color 200ms ease, box-shadow 200ms ease, transform 220ms ease, opacity 180ms ease;
     will-change: top, background-color, transform;
+    visibility: visible;
 
     .container {
         display: flex;
@@ -127,34 +128,16 @@
     /* keep search white */
 }
 
-/* When the body has this class we reserve space equal to the navbar height
-   so fixed navbar doesn't cover page content on pages without banner. */
-body.has-solid-navbar,
+/* Pages without header (products, services, etc) - fixed navbar that pushes content */
 body:not(.has-header) {
-    padding-top: 128px;
-    /* approximate navbar height (logo 96px + 16px padding top/bottom) */
+    padding-top: 128px; /* Reserve space for fixed navbar */
 }
 
-/* Ensure main content on non-header pages starts below navbar */
-body:not(.has-header) .site-main,
-body.has-solid-navbar .site-main {
-    margin-top: 0;
-    padding-top: 128px;
-}
-
-/* On pages where body.has-solid-navbar is set, fix the navbar and keep layout spacing */
-body.has-solid-navbar .site-navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-}
-
-/* When navbar is NOT inside header (other pages), make it fixed and solid */
-body:not(.has-header) .site-navbar,
-body.has-solid-navbar .site-navbar {
+body:not(.has-header) .site-navbar {
     position: fixed !important;
     top: 0 !important;
     left: 0;
+    width: 100%;
     background-color: $secondary-color !important;
     color: $white;
     -webkit-backdrop-filter: none;
@@ -162,31 +145,40 @@ body.has-solid-navbar .site-navbar {
     z-index: 11000;
 }
 
-/* Text color for navbar on non-header pages */
-body:not(.has-header) .site-navbar .nav-links li a,
-body.has-solid-navbar .site-navbar .nav-links li a {
+body:not(.has-header) .site-navbar .nav-links li a {
     color: $white !important;
 }
 
-/* When the navbar is placed inside the header (index page), make it sticky */
-.site-header .site-navbar {
-    position: sticky;
-    top: 0;
-    left: 0;
-    z-index: 10060;
+/* When navbar becomes solid on index page (after scrolling past banner) */
+body.has-solid-navbar {
+    padding-top: 128px; /* Reserve space when navbar becomes fixed */
 }
 
-/* Ensure that when the navbar becomes 'solid' it stays fixed to the top
-   so the UX is consistent: it overlays content and remains visible while scrolling. */
-.site-navbar--solid {
-    position: fixed;
-    top: 0;
+body.has-solid-navbar .site-navbar {
+    position: fixed !important;
+    top: 0 !important;
     left: 0;
     width: 100%;
     z-index: 11000;
 }
 
-/* Defensive: ensure navbar is visible by default */
-.site-navbar {
-    visibility: visible;
+body.has-solid-navbar .site-navbar .nav-links li a {
+    color: $white !important;
+}
+
+/* Index page: navbar inside header - positioned by JavaScript over banner */
+body.has-header .site-navbar {
+    position: fixed; /* Always fixed on index page for JS positioning */
+    top: 0; /* Will be overridden by JS */
+    left: 0;
+    width: 100%;
+    z-index: 10060;
+}
+
+/* When navbar becomes solid (scrolled past banner), ensure proper styling */
+.site-navbar--solid {
+    background-color: $secondary-color !important;
+    color: $white;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }

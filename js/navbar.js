@@ -28,11 +28,8 @@
             document.body.classList.remove('has-solid-navbar');
         } catch (e) { }
 
-        // Position the fixed navbar so it sits above the banner at the banner's
-        // bottom edge initially. As the user scrolls and the banner moves out of
-        // view, the navbar will be clamped to `top: 0` and act like a classic
-        // sticky header. Also set body padding only when navbar is at the top so
-        // it doesn't cover page content.
+        // Position the navbar over the banner on index page
+        // Initially position navbar over the banner, then fix to top when banner scrolls away
         function positionNavbar() {
             try {
                 var navHeight = navbar.getBoundingClientRect().height || navbar.offsetHeight || 0;
@@ -45,19 +42,22 @@
                 }
 
                 var bannerRect = headerImg.getBoundingClientRect();
-                // compute desired top: place navbar at the top edge of the banner
-                // so the navbar appears at the top of the image rather than at its bottom
-                var desiredTop = Math.round(bannerRect.top);
-                if (desiredTop <= 0) {
-                    // banner scrolled out enough: keep navbar at viewport top
+                // Position navbar over the banner (not at its bottom)
+                // Calculate position to overlay the banner at a specific point
+                var bannerHeight = bannerRect.height;
+                var desiredTop = Math.round(bannerRect.bottom - navHeight); // Position at banner bottom minus navbar height
+                
+                if (bannerRect.bottom <= navHeight) {
+                    // Banner scrolled past viewport: fix navbar to top
                     navbar.style.top = '0px';
-                    document.body.style.paddingTop = navHeight + 'px';
+                    document.body.style.paddingTop = '0px'; // No padding needed on index
+                    document.body.classList.add('has-solid-navbar');
                     navbar.classList.add('site-navbar--solid');
                 } else {
-                    // position navbar overlapping the bottom of the banner
-                    // place the navbar at the banner's top position
-                    navbar.style.top = desiredTop + 'px';
-                    document.body.style.paddingTop = '0px';
+                    // Position navbar over the banner
+                    navbar.style.top = Math.max(0, desiredTop) + 'px';
+                    document.body.style.paddingTop = '0px'; // Never add padding on index
+                    document.body.classList.remove('has-solid-navbar');
                     navbar.classList.remove('site-navbar--solid');
                 }
             } catch (e) { /* ignore */ }

@@ -1,4 +1,27 @@
 @charset "UTF-8";
+/* Base text styles */
+body {
+  color: #191919;
+  font-family: "Roboto Condensed", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+}
+
+/* Ensure headings are visible */
+h1, h2, h3, h4, h5, h6 {
+  color: #191919 !important;
+}
+
+/* Ensure paragraphs and text are visible */
+p, span, div, td, th, label {
+  color: inherit;
+}
+
+/* Container styles */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 /* Hidden template elements */
 .hidden-template {
   display: none;
@@ -15,6 +38,33 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Text utilities */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-muted {
+  color: #666 !important;
+}
+
+.font-weight-bold {
+  font-weight: 700;
+}
+
+/* Spacing utilities */
+.muted {
+  color: #666 !important;
+  font-size: 0.9rem;
 }
 
 * {
@@ -321,7 +371,7 @@ h6 {
 }
 
 .site-navbar {
-  /* Default: sticky position for header pages */
+  /* Default base styles for navbar */
   position: sticky;
   top: 0;
   left: 0;
@@ -337,6 +387,7 @@ h6 {
   /* Smooth transitions for position and visual changes */
   transition: top 220ms cubic-bezier(0.22, 0.9, 0.32, 1), background-color 200ms ease, box-shadow 200ms ease, transform 220ms ease, opacity 180ms ease;
   will-change: top, background-color, transform;
+  visibility: visible;
 }
 .site-navbar .container {
   display: flex;
@@ -440,34 +491,16 @@ h6 {
   /* keep search white */
 }
 
-/* When the body has this class we reserve space equal to the navbar height
-   so fixed navbar doesn't cover page content on pages without banner. */
-body.has-solid-navbar,
+/* Pages without header (products, services, etc) - fixed navbar that pushes content */
 body:not(.has-header) {
-  padding-top: 128px;
-  /* approximate navbar height (logo 96px + 16px padding top/bottom) */
+  padding-top: 128px; /* Reserve space for fixed navbar */
 }
 
-/* Ensure main content on non-header pages starts below navbar */
-body:not(.has-header) .site-main,
-body.has-solid-navbar .site-main {
-  margin-top: 0;
-  padding-top: 128px;
-}
-
-/* On pages where body.has-solid-navbar is set, fix the navbar and keep layout spacing */
-body.has-solid-navbar .site-navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-}
-
-/* When navbar is NOT inside header (other pages), make it fixed and solid */
-body:not(.has-header) .site-navbar,
-body.has-solid-navbar .site-navbar {
+body:not(.has-header) .site-navbar {
   position: fixed !important;
   top: 0 !important;
   left: 0;
+  width: 100%;
   background-color: #009929 !important;
   color: #ffffff;
   -webkit-backdrop-filter: none;
@@ -475,33 +508,42 @@ body.has-solid-navbar .site-navbar {
   z-index: 11000;
 }
 
-/* Text color for navbar on non-header pages */
-body:not(.has-header) .site-navbar .nav-links li a,
-body.has-solid-navbar .site-navbar .nav-links li a {
+body:not(.has-header) .site-navbar .nav-links li a {
   color: #ffffff !important;
 }
 
-/* When the navbar is placed inside the header (index page), make it sticky */
-.site-header .site-navbar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 10060;
+/* When navbar becomes solid on index page (after scrolling past banner) */
+body.has-solid-navbar {
+  padding-top: 128px; /* Reserve space when navbar becomes fixed */
 }
 
-/* Ensure that when the navbar becomes 'solid' it stays fixed to the top
-   so the UX is consistent: it overlays content and remains visible while scrolling. */
-.site-navbar--solid {
-  position: fixed;
-  top: 0;
+body.has-solid-navbar .site-navbar {
+  position: fixed !important;
+  top: 0 !important;
   left: 0;
   width: 100%;
   z-index: 11000;
 }
 
-/* Defensive: ensure navbar is visible by default */
-.site-navbar {
-  visibility: visible;
+body.has-solid-navbar .site-navbar .nav-links li a {
+  color: #ffffff !important;
+}
+
+/* Index page: navbar inside header - positioned by JavaScript over banner */
+body.has-header .site-navbar {
+  position: fixed; /* Always fixed on index page for JS positioning */
+  top: 0; /* Will be overridden by JS */
+  left: 0;
+  width: 100%;
+  z-index: 10060;
+}
+
+/* When navbar becomes solid (scrolled past banner), ensure proper styling */
+.site-navbar--solid {
+  background-color: #009929 !important;
+  color: #ffffff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .product-title {
@@ -1975,7 +2017,7 @@ button[type=submit]:hover {
 }
 .filter-group label {
   font-weight: 500;
-  color: #191919;
+  color: #191919 !important;
   font-size: 0.9rem;
 }
 .filter-group .form-control {
@@ -1983,6 +2025,8 @@ button[type=submit]:hover {
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   font-size: 0.9rem;
+  background: #ffffff;
+  color: #191919 !important;
 }
 .filter-group .form-control:focus {
   outline: none;
@@ -2021,14 +2065,14 @@ button[type=submit]:hover {
 .stat-card h3 {
   margin: 0 0 0.5rem 0;
   font-size: 0.9rem;
-  color: #4c4c4c;
+  color: #666 !important;
   font-weight: 500;
 }
 .stat-card .stat-value {
   margin: 0;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #006414;
+  color: #006414 !important;
 }
 
 .orders-section {
@@ -2053,7 +2097,7 @@ button[type=submit]:hover {
 }
 .section-header h2 {
   margin: 0;
-  color: #191919;
+  color: #191919 !important;
   font-size: 1.3rem;
 }
 
@@ -2081,13 +2125,14 @@ button[type=submit]:hover {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  background: #ffffff;
 }
 .orders-table th {
-  background: white;
+  background: #f8f9fa;
   padding: 1rem 0.75rem;
   text-align: left;
   font-weight: 700;
-  color: #191919;
+  color: #191919 !important;
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
   white-space: nowrap;
 }
@@ -2095,25 +2140,29 @@ button[type=submit]:hover {
   padding: 0.75rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   vertical-align: middle;
+  color: #191919 !important;
+  background: #ffffff;
 }
 .orders-table .order-row:hover {
-  background: white;
+  background: #f8f9fa !important;
 }
 .orders-table .order-id {
   font-weight: 700;
-  color: #006414;
+  color: #006414 !important;
 }
 .orders-table .customer-info .customer-name {
   font-weight: 500;
   margin-bottom: 0.25rem;
+  color: #191919 !important;
 }
 .orders-table .customer-info .customer-email {
   font-size: 0.8rem;
-  color: rgb(101.5, 101.5, 101.5);
+  color: #666 !important;
 }
 .orders-table .order-total {
   font-weight: 700;
   text-align: right;
+  color: #191919 !important;
 }
 
 .status-badge {
@@ -2210,6 +2259,9 @@ button[type=submit]:hover {
   justify-content: center;
   padding: 1rem;
 }
+.modal.show {
+  display: flex !important;
+}
 
 .modal-content {
   background: #ffffff;
@@ -2227,17 +2279,18 @@ button[type=submit]:hover {
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: #ffffff;
 }
 .modal-header h2 {
   margin: 0;
-  color: #191919;
+  color: #191919 !important;
   font-size: 1.4rem;
 }
 .modal-header .modal-close {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #7f7f7f;
+  color: #666 !important;
   cursor: pointer;
   padding: 0;
   width: 30px;
@@ -2247,11 +2300,13 @@ button[type=submit]:hover {
   justify-content: center;
 }
 .modal-header .modal-close:hover {
-  color: #191919;
+  color: #191919 !important;
 }
 
 .modal-body {
   padding: 1.5rem;
+  background: #ffffff;
+  color: #191919 !important;
 }
 
 .modal-footer {
@@ -2275,7 +2330,7 @@ button[type=submit]:hover {
 }
 .info-section h3 {
   margin: 0 0 1rem 0;
-  color: #006414;
+  color: #006414 !important;
   font-size: 1.1rem;
   border-bottom: 2px solid #006414;
   padding-bottom: 0.5rem;
@@ -2299,45 +2354,50 @@ button[type=submit]:hover {
 }
 .info-item label {
   font-weight: 700;
-  color: #4c4c4c;
+  color: #666 !important;
   font-size: 0.8rem;
   text-transform: uppercase;
 }
 .info-item span {
-  color: #191919;
+  color: #191919 !important;
   font-size: 0.95rem;
 }
 .info-item .total-amount {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #006414;
+  color: #006414 !important;
 }
 
 .products-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 1rem;
+  background: #ffffff;
 }
 .products-table th {
-  background: white;
+  background: #f8f9fa;
   padding: 0.75rem;
   text-align: left;
   font-weight: 700;
   font-size: 0.85rem;
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  color: #191919 !important;
 }
 .products-table td {
   padding: 0.75rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   font-size: 0.9rem;
+  color: #191919 !important;
+  background: #ffffff;
 }
 .products-table .product-info .product-name {
   font-weight: 500;
   margin-bottom: 0.25rem;
+  color: #191919 !important;
 }
 .products-table .product-info .product-desc {
   font-size: 0.8rem;
-  color: rgb(101.5, 101.5, 101.5);
+  color: #666 !important;
 }
 .products-table .text-center {
   text-align: center;

@@ -14,7 +14,7 @@
     align-items: end;
     flex-wrap: wrap;
 
-    @include breakpoint-max('tablet') {
+    @media (max-width: 767px) {
         flex-direction: column;
         align-items: stretch;
     }
@@ -27,7 +27,7 @@
     
     label {
         font-weight: $font-weight-medium;
-        color: $black;
+        color: $black !important;
         font-size: 0.9rem;
     }
     
@@ -36,6 +36,8 @@
         border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 6px;
         font-size: 0.9rem;
+        background: $white;
+        color: $black !important;
         
         &:focus {
             outline: none;
@@ -44,7 +46,7 @@
         }
     }
     
-    @include breakpoint-max('tablet') {
+    @media (max-width: 767px) {
         width: 100%;
     }
 }
@@ -59,7 +61,7 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     
-    @include breakpoint('tablet') {
+    @media (min-width: 768px) {
         grid-template-columns: repeat(4, 1fr);
     }
 }
@@ -75,7 +77,7 @@
     h3 {
         margin: 0 0 0.5rem 0;
         font-size: 0.9rem;
-        color: lighten($black, 20%);
+        color: #666 !important;
         font-weight: $font-weight-medium;
     }
     
@@ -83,7 +85,7 @@
         margin: 0;
         font-size: 1.8rem;
         font-weight: $font-weight-bold;
-        color: $primary-color;
+        color: $primary-color !important;
     }
 }
 
@@ -101,7 +103,7 @@
     align-items: center;
     margin-bottom: 1.5rem;
     
-    @include breakpoint-max('tablet') {
+    @media (max-width: 767px) {
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
@@ -109,7 +111,7 @@
     
     h2 {
         margin: 0;
-        color: $black;
+        color: $black !important;
         font-size: 1.3rem;
     }
 }
@@ -141,13 +143,14 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 0.9rem;
+    background: $white;
     
     th {
-        background: lighten($background-color, 5%);
+        background: #f8f9fa;
         padding: 1rem 0.75rem;
         text-align: left;
         font-weight: $font-weight-bold;
-        color: $black;
+        color: $black !important;
         border-bottom: 2px solid rgba(0, 0, 0, 0.1);
         white-space: nowrap;
     }
@@ -156,34 +159,38 @@
         padding: 0.75rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         vertical-align: middle;
+        color: $black !important;
+        background: $white;
     }
     
     .order-row {
         &:hover {
-            background: lighten($background-color, 8%);
+            background: #f8f9fa !important;
         }
     }
     
     .order-id {
         font-weight: $font-weight-bold;
-        color: $primary-color;
+        color: $primary-color !important;
     }
     
     .customer-info {
         .customer-name {
             font-weight: $font-weight-medium;
             margin-bottom: 0.25rem;
+            color: $black !important;
         }
         
         .customer-email {
             font-size: 0.8rem;
-            color: lighten($black, 30%);
+            color: #666 !important;
         }
     }
     
     .order-total {
         font-weight: $font-weight-bold;
         text-align: right;
+        color: $black !important;
     }
 }
 
@@ -292,6 +299,10 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    
+    &.show {
+        display: flex !important;
+    }
 }
 
 .modal-content {
@@ -310,10 +321,11 @@
     align-items: center;
     padding: 1.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: $white;
     
     h2 {
         margin: 0;
-        color: $black;
+        color: $black !important;
         font-size: 1.4rem;
     }
     
@@ -321,7 +333,7 @@
         background: none;
         border: none;
         font-size: 1.5rem;
-        color: lighten($black, 40%);
+        color: #666 !important;
         cursor: pointer;
         padding: 0;
         width: 30px;
@@ -331,13 +343,15 @@
         justify-content: center;
         
         &:hover {
-            color: $black;
+            color: $black !important;
         }
     }
 }
 
 .modal-body {
     padding: 1.5rem;
+    background: $white;
+    color: $black !important;
 }
 
 .modal-footer {
@@ -362,7 +376,7 @@
     
     h3 {
         margin: 0 0 1rem 0;
-        color: $primary-color;
+        color: $primary-color !important;
         font-size: 1.1rem;
         border-bottom: 2px solid $primary-color;
         padding-bottom: 0.5rem;
@@ -374,7 +388,7 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
     
-    @include breakpoint-max('tablet') {
+    @media (max-width: 767px) {
         grid-template-columns: 1fr;
     }
 }
@@ -386,20 +400,20 @@
     
     label {
         font-weight: $font-weight-bold;
-        color: lighten($black, 20%);
+        color: #666 !important;
         font-size: 0.8rem;
         text-transform: uppercase;
     }
     
     span {
-        color: $black;
+        color: $black !important;
         font-size: 0.95rem;
     }
     
     .total-amount {
         font-size: 1.2rem;
         font-weight: $font-weight-bold;
-        color: $primary-color;
+        color: $primary-color !important;
     }
 }
 
@@ -408,31 +422,36 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 1rem;
+    background: $white;
     
     th {
-        background: lighten($background-color, 5%);
+        background: #f8f9fa;
         padding: 0.75rem;
         text-align: left;
         font-weight: $font-weight-bold;
         font-size: 0.85rem;
         border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        color: $black !important;
     }
     
     td {
         padding: 0.75rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         font-size: 0.9rem;
+        color: $black !important;
+        background: $white;
     }
     
     .product-info {
         .product-name {
             font-weight: $font-weight-medium;
             margin-bottom: 0.25rem;
+            color: $black !important;
         }
         
         .product-desc {
             font-size: 0.8rem;
-            color: lighten($black, 30%);
+            color: #666 !important;
         }
     }
     

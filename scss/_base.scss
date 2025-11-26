@@ -1,5 +1,28 @@
 // Base styles and utilities
 
+/* Base text styles */
+body {
+    color: $black;
+    font-family: $font-family-base;
+}
+
+/* Ensure headings are visible */
+h1, h2, h3, h4, h5, h6 {
+    color: $black !important;
+}
+
+/* Ensure paragraphs and text are visible */
+p, span, div, td, th, label {
+    color: inherit;
+}
+
+/* Container styles */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
 /* Hidden template elements */
 .hidden-template {
     display: none;
@@ -16,4 +39,31 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* Text utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-muted {
+    color: #666 !important;
+}
+
+.font-weight-bold {
+    font-weight: $font-weight-bold;
+}
+
+/* Spacing utilities */
+.muted {
+    color: #666 !important;
+    font-size: 0.9rem;
 }

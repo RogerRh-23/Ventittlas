@@ -93,6 +93,7 @@ try {
     18. Si un usario pregunta por el precio de un producto con descuento, buscalo en la lista de productos, verifica si tiene descuento y responde el precio original y el precio con descuento.
     19. Si un usario pregunta el articulo mas caro que tenga descuento, buscalo en la lista de productos, verifica si tiene descuento y responde el precio original y el precio con descuento.
     20. Si se pide algun descuento, buscalo en la tabla de Productos como porcentaje_descuento y responde el precio original y el precio con descuento.
+    escuento.
     
     " . $contextoProductos . "
     
