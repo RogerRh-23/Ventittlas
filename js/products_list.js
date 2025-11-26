@@ -186,15 +186,20 @@
         
         if (attrs.category) {
             const productCat = (product.categoria || product.category || '').toLowerCase();
-            const targetCat = attrs.category.toLowerCase();
             
-            // Exact match first
-            if (productCat === targetCat) return true;
+            // Dividir las categorías del filtro por comas (para múltiples categorías)
+            const targetCategories = attrs.category.split(',').map(cat => cat.trim().toLowerCase());
             
-            // Partial matches
-            if (productCat.includes(targetCat) || targetCat.includes(productCat)) return true;
-            
-            return false;
+            // Verificar si el producto coincide con alguna de las categorías
+            return targetCategories.some(targetCat => {
+                // Exact match first
+                if (productCat === targetCat) return true;
+                
+                // Partial matches
+                if (productCat.includes(targetCat) || targetCat.includes(productCat)) return true;
+                
+                return false;
+            });
         }
         
         return true;

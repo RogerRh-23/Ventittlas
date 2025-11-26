@@ -37,6 +37,45 @@
 	transform: translateY(1px);
 }
 
+// Products grid layout improvements
+.products-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 20px;
+	justify-content: center;
+	
+	@include breakpoint('mobile') {
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 15px;
+	}
+	
+	@include breakpoint('tablet') {
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 25px;
+	}
+	
+	@include breakpoint('desktop') {
+		grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+		gap: 30px;
+	}
+	
+	// Ensure proper spacing and centering
+	.product-card {
+		width: 100%;
+		max-width: 400px;
+		margin: 0 auto;
+	}
+}
+
+// Products container spacing
+.products-container {
+	margin-bottom: 3rem;
+	
+	@include breakpoint('desktop') {
+		margin-bottom: 4rem;
+	}
+}
+
 // Product discount badges and pricing
 .product-badges {
 	margin-bottom: 8px;
