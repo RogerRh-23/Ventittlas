@@ -143,27 +143,33 @@
         // attrs may have data-filter="best_seller" or data-department / data-category
         if (attrs.filter) {
             const f = attrs.filter;
-            // common boolean flags mapping (try several possible property names)
+            
+            if (f === 'on_sale') {
+                // Check if product has discount percentage
+                const descuento = parseFloat(product.porcentaje_descuento || product.descuento || 0);
+                if (descuento > 0) return true;
+                
+                // Check sale_price vs regular price
+                if (product.sale_price !== undefined && product.price !== undefined) {
+                    return Number(product.sale_price) < Number(product.price);
+                }
+                return false;
+            }
+            
+            if (f === 'new') {
+                // For "new" products, check if it's among the most recent (highest IDs)
+                return true; // Will be handled by sorting in the calling function
+            }
+            
+            // Check for other boolean flags
             const boolMap = {
                 best_seller: ['best_seller', 'bestSeller', 'best_seller_flag'],
-                on_sale: ['on_sale', 'onSale', 'is_on_sale', 'onSaleFlag'],
-                new: ['is_new', 'isNew', 'new', 'latest']
+                featured: ['featured', 'destacado']
             };
 
             if (boolMap[f]) {
                 for (const key of boolMap[f]) {
                     if (product[key] !== undefined) return !!product[key];
-                }
-                // fallback heuristics
-                if (f === 'on_sale') {
-                    // Check if product has discount percentage
-                    const descuento = parseFloat(product.porcentaje_descuento || product.descuento || 0);
-                    if (descuento > 0) return true;
-
-                    // Check sale_price vs regular price
-                    if (product.sale_price !== undefined && product.price !== undefined) {
-                        return Number(product.sale_price) < Number(product.price);
-                    }
                 }
             }
 
@@ -171,12 +177,26 @@
             if (product[f] !== undefined) return !!product[f];
             return false;
         }
+        
         if (attrs.department) {
-            return product.department === attrs.department;
+            const productDept = (product.department || product.categoria || '').toLowerCase();
+            const targetDept = attrs.department.toLowerCase();
+            return productDept === targetDept || productDept.includes(targetDept);
         }
+        
         if (attrs.category) {
-            return product.category === attrs.category;
+            const productCat = (product.categoria || product.category || '').toLowerCase();
+            const targetCat = attrs.category.toLowerCase();
+            
+            // Exact match first
+            if (productCat === targetCat) return true;
+            
+            // Partial matches
+            if (productCat.includes(targetCat) || targetCat.includes(productCat)) return true;
+            
+            return false;
         }
+        
         return true;
     }
 
@@ -259,26 +279,24 @@
             id: p.id_producto ?? p.id ?? null,
             title: p.nombre ?? p.title ?? p.name ?? '',
             price: (p.precio ?? p.price ?? 0),
-            // prefer explicit imagen_url / image fields, else try imagen or build from name heuristics
-            // Normalize image path: DB may store either a full URL, a web path (/assets/...), or just a filename.
-            // Ensure we return a proper web path so <img> requests don't become relative filenames (which caused 404s).
+            // Normalize image path
             image: (function () {
                 let img = p.imagen_url ?? p.imagen ?? p.image ?? null;
                 if (!img) return null;
                 img = String(img).trim();
                 if (img === '') return null;
                 // If it's already an absolute URL or starts with a slash, leave as-is
-                if (/^https?:\/\//i.test(img) || img.startsWith('/')) return img;
+                if (/^https?:\/\//.test(img) || img.startsWith('/')) return img;
                 // If it starts with 'assets/' (missing leading slash), add it
                 if (img.startsWith('assets/')) return '/' + img;
                 // Otherwise assume it's a filename stored in the DB and prepend the products folder
                 return '/assets/img/products/' + img;
             })(),
             url: p.url ?? null,
-            // some APIs use 'stock', others 'cantidad'
             stock: (p.stock ?? p.cantidad ?? null) !== null ? Number(p.stock ?? p.cantidad) : null,
-            // category (from joined Categorias.nombre or other sources)
+            // category handling - use 'categoria' from DB as primary
             category: p.categoria ?? p.category ?? null,
+            categoria: p.categoria ?? p.category ?? null, // Keep both for compatibility
             // discount information
             porcentaje_descuento: parseFloat(p.porcentaje_descuento || p.descuento || 0),
             // pass through raw product data
