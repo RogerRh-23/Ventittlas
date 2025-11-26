@@ -10,7 +10,7 @@ error_reporting(E_ALL);
 
 error_log('chat_ia.php invoked');
 
-require_once '../conect.php';
+require_once __DIR__ . '/../conect.php';
 
 // Load API key from environment (php/.env via conect.php)
 // Support both GEM_API_KEY (used in .env) and older GEN_API_KEY/GOOGLE_API_KEY names
@@ -89,6 +89,10 @@ try {
     14. Si el usuario pregunta por descuentos o promociones, revísalo en la lista de productos y responde acorde.
     15. Si el usuario pregunta por métodos de pago, responde 'Aceptamos tarjetas de crédito, débito, pagos en efectivo y transferencias'.
     16. Si el usuario quiere comprar varios productos, haz un resumen final con los precios y el total a pagar.
+    17. Si se pide algun descuento, buscalo en la tabla de Productos como porcentaje_descuento en la lista de productos y responde el precio original y el precio con descuento.
+    18. Si un usario pregunta por el precio de un producto con descuento, buscalo en la lista de productos, verifica si tiene descuento y responde el precio original y el precio con descuento.
+    19. Si un usario pregunta el articulo mas caro que tenga descuento, buscalo en la lista de productos, verifica si tiene descuento y responde el precio original y el precio con descuento.
+    20. Si se pide algun descuento, buscalo en la tabla de Productos como porcentaje_descuento y responde el precio original y el precio con descuento.
     
     " . $contextoProductos . "
     

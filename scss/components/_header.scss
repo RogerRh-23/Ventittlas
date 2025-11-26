@@ -1,5 +1,10 @@
 .site-header {
     position: relative;
+    margin: 0 !important;
+    padding: 0 !important;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 
 .header-img {
@@ -7,7 +12,12 @@
     height: auto;
     display: block;
     object-fit: cover;
-    margin: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
+    top: 0;
+    left: 0;
+    z-index: 1;
 }
 
 .header-container {
@@ -21,16 +31,24 @@
     text-align: center;
     color: $font-color;
     pointer-events: none;
+    z-index: 10070;
 }
 
 .header-container h1 {
     font-size: 3.5rem;
     margin: 0 0 8px 0;
     pointer-events: auto;
+    color: $font-color;
 }
 
 .header-container p {
     font-size: 2.5rem;
     margin: 0;
     pointer-events: auto;
+}
+
+.site-main {
+    position: relative;
+    z-index: 3;
+    background-color: $background-color;
 }

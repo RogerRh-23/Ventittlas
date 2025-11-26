@@ -1,8 +1,21 @@
 <?php
+// Disable error display but enable error logging
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
 function load_dotenv($path)
 {
-    if (!file_exists($path)) return;
+    if (!file_exists($path)) {
+        error_log("Environment file not found: $path");
+        return false;
+    }
+    
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) {
+        error_log("Could not read environment file: $path");
+        return false;
+    }
+    
     foreach ($lines as $line) {
         $line = trim($line);
         if ($line === '' || $line[0] === '#') continue;
@@ -16,10 +29,15 @@ function load_dotenv($path)
         putenv("$key=$val");
         $_ENV[$key] = $val;
     }
+    return true;
 }
 
 $envPath = __DIR__ . DIRECTORY_SEPARATOR . '.env';
-load_dotenv($envPath);
+$envLoaded = load_dotenv($envPath);
+
+if (!$envLoaded) {
+    error_log("Warning: Could not load .env file from $envPath");
+}
 
 $dbHost = getenv('DB_HOST') ?: '10.12.220.169';
 $dbName = getenv('DB_NAME') ?: 'Tienda';

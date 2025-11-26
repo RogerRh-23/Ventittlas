@@ -18,10 +18,20 @@
 @import 'pages/products';
 @import 'pages/register';
 @import 'pages/services';
+@import 'pages/admin_orders';
+
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
 
 body {
     background-color: $background-color;
     overflow-x: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
 }
 
 ::-webkit-scrollbar {

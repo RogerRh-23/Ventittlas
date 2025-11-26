@@ -1,7 +1,21 @@
 <?php
 // php/api/login.php
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../conect.php';
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+try {
+    require_once __DIR__ . '/../conect.php';
+    
+    if (!isset($pdo)) {
+        throw new Exception('Database connection not available');
+    }
+} catch (Exception $e) {
+    error_log('login.php connection error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'message' => 'Database connection failed', 'details' => $e->getMessage()]);
+    exit;
+}
 
 // allow CORS if necessary (optional)
 // header('Access-Control-Allow-Origin: *');
@@ -59,9 +73,13 @@ try {
 
     echo json_encode(['ok' => true, 'message' => 'Autenticado', 'rol' => $user['rol'], 'redirect' => $redirect]);
 } catch (PDOException $e) {
-    error_log('login error: ' . $e->getMessage());
+    error_log('login PDO error: ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => 'Error interno al autenticar']);
+    echo json_encode(['ok' => false, 'message' => 'Database error during authentication', 'details' => $e->getMessage()]);
+} catch (Exception $e) {
+    error_log('login general error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['ok' => false, 'message' => 'Error during authentication', 'details' => $e->getMessage()]);
 }
 
 ?>

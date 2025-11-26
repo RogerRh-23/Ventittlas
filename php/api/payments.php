@@ -1,170 +1,177 @@
 <?php
-// php/api/payments.php
-// Endpoint para: listar ventas (log) y gestionar métodos de pago de usuarios
+session_start();
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../conect.php';
 
-// Simple router por método + type
-$method = $_SERVER['REQUEST_METHOD'];
-$type = isset($_GET['type']) ? $_GET['type'] : (isset($_POST['type']) ? $_POST['type'] : 'sales');
+include '../conect.php';
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 try {
-    if ($method === 'GET') {
-        if ($type === 'sales') {
-            // Listar ventas (log) con datos del comprador
-            $sql = "SELECT v.id_venta, v.id_comprador, u.nombre AS comprador_nombre, v.fecha_venta, v.monto_total, v.estado_pago, v.metodo_pago
-                    FROM Ventas v
-                    LEFT JOIN Usuarios u ON u.id_usuario = v.id_comprador
-                    ORDER BY v.fecha_venta DESC";
-
-            // filtros opcionales: date_from, date_to, estado, limit
-            $conds = [];
-            $params = [];
-            if (!empty($_GET['date_from'])) { $conds[] = 'v.fecha_venta >= ?'; $params[] = $_GET['date_from']; }
-            if (!empty($_GET['date_to'])) { $conds[] = 'v.fecha_venta <= ?'; $params[] = $_GET['date_to']; }
-            if (!empty($_GET['estado'])) { $conds[] = 'v.estado_pago = ?'; $params[] = $_GET['estado']; }
-            if (count($conds) > 0) {
-                $sql = "SELECT v.id_venta, v.id_comprador, u.nombre AS comprador_nombre, v.fecha_venta, v.monto_total, v.estado_pago, v.metodo_pago
-                        FROM Ventas v
-                        LEFT JOIN Usuarios u ON u.id_usuario = v.id_comprador
-                        WHERE " . implode(' AND ', $conds) . " ORDER BY v.fecha_venta DESC";
-            }
-
-            if (!empty($_GET['limit']) && intval($_GET['limit']) > 0) {
-                $limit = intval($_GET['limit']);
-                $sql .= " LIMIT $limit";
-            }
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode(['ok' => true, 'data' => $rows]);
-            exit;
-        }
-
-        if ($type === 'methods') {
-            // Listar métodos de pago de usuarios
-            // opcional: id_usuario filter
-            $sql = "SELECT m.id_metodo, m.id_usuario, u.nombre AS usuario_nombre, u.correo_electronico, m.tipo_tarjeta, m.ultimos_cuatro, m.fecha_expiracion, m.nombre_titular, m.es_predeterminada
-                    FROM Metodos_Pago_Usuario m
-                    LEFT JOIN Usuarios u ON u.id_usuario = m.id_usuario
-                    ORDER BY m.es_predeterminada DESC, m.id_metodo DESC";
-            $params = [];
-            if (!empty($_GET['id_usuario'])) {
-                $sql = "SELECT m.id_metodo, m.id_usuario, u.nombre AS usuario_nombre, u.correo_electronico, m.tipo_tarjeta, m.ultimos_cuatro, m.fecha_expiracion, m.nombre_titular, m.es_predeterminada
-                        FROM Metodos_Pago_Usuario m
-                        LEFT JOIN Usuarios u ON u.id_usuario = m.id_usuario
-                        WHERE m.id_usuario = ? ORDER BY m.es_predeterminada DESC, m.id_metodo DESC";
-                $params[] = intval($_GET['id_usuario']);
-            }
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode(['ok' => true, 'data' => $rows]);
-            exit;
-        }
+    // Initialize response
+    $response = ['ok' => false, 'message' => 'Error desconocido'];
+    
+    // Check connection
+    if (!$conn) {
+        throw new Exception('Error de conexión a base de datos');
     }
-
-    // Crear nuevo método de pago (POST)
-    if ($method === 'POST' && ($type === 'methods' || isset($_GET['type']) && $_GET['type']==='methods')) {
-        $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true);
-        if (!is_array($data)) $data = $_POST;
-
-        $required = ['id_usuario','tipo_tarjeta','ultimos_cuatro','fecha_expiracion','nombre_titular'];
-        foreach ($required as $f) {
-            if (empty($data[$f]) && $data[$f] !== '0') {
-                http_response_code(400);
-                echo json_encode(['ok' => false, 'message' => "Campo requerido: $f"]);
+    
+    $type = $_GET['type'] ?? '';
+    $method = $_SERVER['REQUEST_METHOD'];
+    
+    // Validate type parameter
+    if (empty($type)) {
+        throw new Exception('Parámetro type requerido');
+    }
+    
+    // Handle payment methods
+    if ($type === 'methods') {
+        if ($method === 'GET') {
+            // Get user payment methods
+            $id_usuario = $_GET['id_usuario'] ?? null;
+            
+            if (!$id_usuario) {
+                // Return empty methods list if no user
+                $response = [
+                    'ok' => true,
+                    'data' => [],
+                    'message' => 'Sin métodos de pago disponibles'
+                ];
+                echo json_encode($response);
                 exit;
             }
-        }
-
-        $id_usuario = intval($data['id_usuario']);
-        $tipo = substr(trim($data['tipo_tarjeta']),0,50);
-        $ult4 = substr(trim($data['ultimos_cuatro']),0,4);
-        $exp = substr(trim($data['fecha_expiracion']),0,7);
-        $titular = substr(trim($data['nombre_titular']),0,255);
-        $pred = !empty($data['es_predeterminada']) ? 1 : 0;
-
-        // If setting as predeterminada, clear others
-        if ($pred) {
-            $pdo->prepare('UPDATE Metodos_Pago_Usuario SET es_predeterminada = 0 WHERE id_usuario = ?')->execute([$id_usuario]);
-        }
-
-        $sql = "INSERT INTO Metodos_Pago_Usuario (id_usuario, tipo_tarjeta, ultimos_cuatro, fecha_expiracion, nombre_titular, es_predeterminada)
-                VALUES (:uid, :tipo, :ult4, :exp, :tit, :pred)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':uid' => $id_usuario,
-            ':tipo' => $tipo,
-            ':ult4' => $ult4,
-            ':exp' => $exp,
-            ':tit' => $titular,
-            ':pred' => $pred
-        ]);
-        $id = $pdo->lastInsertId();
-        echo json_encode(['ok' => true, 'id_metodo' => $id, 'message' => 'Método de pago creado']);
-        exit;
-    }
-
-    // Eliminar método (DELETE) - recibir id_metodo en query
-    if ($method === 'DELETE' && isset($_GET['id_metodo'])) {
-        $id = intval($_GET['id_metodo']);
-        $stmt = $pdo->prepare('DELETE FROM Metodos_Pago_Usuario WHERE id_metodo = ?');
-        $stmt->execute([$id]);
-        echo json_encode(['ok' => true, 'deleted' => $stmt->rowCount()]);
-        exit;
-    }
-
-    // Actualizar método (PUT) - accept JSON body with id_metodo + fields
-    if ($method === 'PUT') {
-        $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true);
-        if (!is_array($data) || empty($data['id_metodo'])) {
-            http_response_code(400);
-            echo json_encode(['ok' => false, 'message' => 'id_metodo requerido en body']);
-            exit;
-        }
-        $id = intval($data['id_metodo']);
-        $fields = [];
-        $params = [];
-        $allowed = ['tipo_tarjeta','ultimos_cuatro','fecha_expiracion','nombre_titular','es_predeterminada'];
-        foreach ($allowed as $f) {
-            if (isset($data[$f])) { $fields[] = "$f = ?"; $params[] = $data[$f]; }
-        }
-        if (empty($fields)) {
-            echo json_encode(['ok' => false, 'message' => 'Nada que actualizar']);
-            exit;
-        }
-        // handle es_predeterminada specially
-        if (isset($data['es_predeterminada']) && $data['es_predeterminada']) {
-            // find id_usuario for this method
-            $q = $pdo->prepare('SELECT id_usuario FROM Metodos_Pago_Usuario WHERE id_metodo = ?');
-            $q->execute([$id]);
-            $r = $q->fetch(PDO::FETCH_ASSOC);
-            if ($r) {
-                $pdo->prepare('UPDATE Metodos_Pago_Usuario SET es_predeterminada = 0 WHERE id_usuario = ?')->execute([$r['id_usuario']]);
+            
+            // Check if table exists, create it if it doesn't
+            $checkTable = "SHOW TABLES LIKE 'Metodos_Pago_Usuario'";
+            $tableExists = $conn->query($checkTable);
+            
+            if (!$tableExists || $tableExists->rowCount() == 0) {
+                // Create table if it doesn't exist
+                $createTable = "
+                CREATE TABLE IF NOT EXISTS `Metodos_Pago_Usuario` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `id_usuario` int(11) NOT NULL,
+                    `tipo` varchar(50) NOT NULL DEFAULT 'tarjeta',
+                    `titular` varchar(255) NOT NULL,
+                    `numero_enmascarado` varchar(20) NOT NULL,
+                    `fecha_expiracion` varchar(10) DEFAULT NULL,
+                    `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (`id`),
+                    KEY `id_usuario` (`id_usuario`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+                
+                $conn->exec($createTable);
             }
+            
+            // Get user payment methods
+            $stmt = $conn->prepare("SELECT id, tipo, titular, numero_enmascarado, fecha_expiracion FROM Metodos_Pago_Usuario WHERE id_usuario = ?");
+            $stmt->execute([$id_usuario]);
+            $methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            $response = [
+                'ok' => true,
+                'data' => $methods,
+                'message' => 'Métodos de pago obtenidos correctamente'
+            ];
+            
+        } else if ($method === 'POST') {
+            // Add new payment method
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if (!$input || !isset($input['id_usuario'])) {
+                throw new Exception('Datos de usuario requeridos');
+            }
+            
+            $id_usuario = $input['id_usuario'];
+            $tipo = $input['tipo'] ?? 'tarjeta';
+            $titular = $input['titular'] ?? '';
+            $numero = $input['numero'] ?? '';
+            
+            if (empty($titular) || empty($numero)) {
+                throw new Exception('Titular y número son requeridos');
+            }
+            
+            // Mask card number (show only last 4 digits)
+            $numero_enmascarado = '**** **** **** ' . substr($numero, -4);
+            $fecha_expiracion = $input['fecha_expiracion'] ?? null;
+            
+            // Check if table exists, create it if it doesn't
+            $checkTable = "SHOW TABLES LIKE 'Metodos_Pago_Usuario'";
+            $tableExists = $conn->query($checkTable);
+            
+            if (!$tableExists || $tableExists->rowCount() == 0) {
+                // Create table if it doesn't exist
+                $createTable = "
+                CREATE TABLE IF NOT EXISTS `Metodos_Pago_Usuario` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `id_usuario` int(11) NOT NULL,
+                    `tipo` varchar(50) NOT NULL DEFAULT 'tarjeta',
+                    `titular` varchar(255) NOT NULL,
+                    `numero_enmascarado` varchar(20) NOT NULL,
+                    `fecha_expiracion` varchar(10) DEFAULT NULL,
+                    `fecha_creacion` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (`id`),
+                    KEY `id_usuario` (`id_usuario`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+                
+                $conn->exec($createTable);
+            }
+            
+            // Insert new payment method
+            $stmt = $conn->prepare("INSERT INTO Metodos_Pago_Usuario (id_usuario, tipo, titular, numero_enmascarado, fecha_expiracion) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$id_usuario, $tipo, $titular, $numero_enmascarado, $fecha_expiracion]);
+            
+            $response = [
+                'ok' => true,
+                'id' => $conn->lastInsertId(),
+                'message' => 'Método de pago agregado correctamente'
+            ];
+        } else {
+            throw new Exception('Método HTTP no permitido');
         }
-        $params[] = $id;
-        $sql = 'UPDATE Metodos_Pago_Usuario SET ' . implode(', ', $fields) . ' WHERE id_metodo = ?';
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        echo json_encode(['ok' => true, 'updated' => $stmt->rowCount()]);
-        exit;
+        
+    } else if ($type === 'sales') {
+        // Get sales data (for admin)
+        if ($method !== 'GET') {
+            throw new Exception('Solo método GET permitido para sales');
+        }
+        
+        $stmt = $conn->prepare("
+            SELECT v.id_venta, v.fecha_venta, v.total, v.estado, u.usuario
+            FROM Ventas v 
+            LEFT JOIN Usuarios u ON v.id_usuario = u.id 
+            ORDER BY v.fecha_venta DESC 
+            LIMIT 100
+        ");
+        $stmt->execute();
+        $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $response = [
+            'ok' => true,
+            'data' => $sales,
+            'message' => 'Ventas obtenidas correctamente'
+        ];
+        
+    } else {
+        throw new Exception('Tipo de operación no válido: ' . $type);
     }
-
-    // Si no coincide nada
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'message' => 'Parámetros inválidos. Usa GET?type=sales|methods, POST?type=methods']);
-    exit;
-
+    
 } catch (PDOException $e) {
-    error_log('payments.php error: '. $e->getMessage());
-    http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => 'Error interno en payments', 'detail' => $e->getMessage()]);
-    exit;
+    error_log('Database error in payments.php: ' . $e->getMessage());
+    $response = [
+        'ok' => false,
+        'message' => 'Error de base de datos: ' . $e->getMessage(),
+        'error_type' => 'database'
+    ];
+} catch (Exception $e) {
+    error_log('Error in payments.php: ' . $e->getMessage());
+    $response = [
+        'ok' => false,
+        'message' => $e->getMessage(),
+        'error_type' => 'general'
+    ];
 }
 
+echo json_encode($response, JSON_UNESCAPED_UNICODE);
 ?>

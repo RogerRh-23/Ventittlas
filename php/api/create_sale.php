@@ -3,7 +3,20 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../conect.php';
 
 session_start();
-$userId = isset($_SESSION['user']['id_usuario']) ? intval($_SESSION['user']['id_usuario']) : 0;
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+$userId = 0;
+if (isset($_SESSION['user']['id_usuario'])) {
+    $userId = intval($_SESSION['user']['id_usuario']);
+} else if (isset($_SESSION['user']['id'])) {
+    $userId = intval($_SESSION['user']['id']);
+}
+
+// Use $conn instead of $pdo (from conect.php)
+$pdo = $conn;
 
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true);

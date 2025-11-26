@@ -21,38 +21,39 @@
 
     <main class="site-main">
         <section class="featured-products">
-            <h2>Lo más vendido</h2>
-            <div class="products-grid" data-products data-filter="best_seller" data-limit="6"></div>
+            <h2>Ofertas</h2>
+            <p class="section-sub">Ofertas y descuentos por tiempo limitado</p>
+            <div class="products-grid" data-products data-filter="on_sale" data-limit="16"></div>
+        </section>
+
+        <section class="featured-products">
+            <h2>Nuevas llegadas</h2>
+            <p class="section-sub">Productos recién añadidos a la tienda</p>
+            <div class="products-grid" data-products data-filter="new" data-limit="12"></div>
         </section>
 
         <section class="featured-products">
             <h2>Para el hogar</h2>
-            <div class="products-grid" data-products data-department="hogar" data-limit="6"></div>
+            <div class="products-grid" data-products data-department="hogar" data-limit="10"></div>
         </section>
 
         <section class="featured-products">
-            <h2>Ofertas</h2>
-            <p class="section-sub">Ofertas y descuentos por tiempo limitado</p>
-            <div class="products-grid" data-products data-filter="on_sale" data-limit="8"></div>
-        </section>
-
-        <section class="featured-products">
-            <h2>Cuidado de la piel</h2>
-            <p class="section-sub">Productos seleccionados para el cuidado diario de la piel</p>
-            <div class="products-grid" data-products data-department="cuidado_piel" data-limit="6"></div>
+            <h2>Higiene personal</h2>
+            <p class="section-sub">Productos seleccionados para el higiene personal</p>
+            <div class="products-grid" data-products data-department="higiene" data-limit="10"></div>
         </section>
 
         <section class="featured-products">
             <h2>Lo más vendido en tecnología</h2>
             <p class="section-sub">Gadgets y accesorios más populares</p>
             <div class="products-grid" data-products data-department="electronica" data-filter="best_seller"
-                data-limit="6"></div>
+                data-limit="12"></div>
         </section>
 
         <section class="featured-products">
-            <h2>Nuevas llegadas</h2>
-            <p class="section-sub">Productos recién añadidos a la tienda</p>
-            <div class="products-grid" data-products data-filter="new" data-limit="6"></div>
+            <h2>Vehiculos</h2>
+            <p class="section-sub">Los vehículos más populares y confiables</p>
+            <div class="products-grid" data-products data-filter="vehiculos" data-limit="12"></div>
         </section>
     </main>
     <!-- include product card template so JS can clone it on the homepage -->

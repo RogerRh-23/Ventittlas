@@ -1,0 +1,42 @@
+// Layout and reset styles
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: $font-family-base;
+    font-size: $font-size-base;
+    line-height: $line-height-base;
+    color: $black;
+}
+
+// Ensure no default margins on common elements
+h1, h2, h3, h4, h5, h6, p, ul, ol, dl, dd {
+    margin: 0;
+    padding: 0;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}

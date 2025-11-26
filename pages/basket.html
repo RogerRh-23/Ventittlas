@@ -19,9 +19,11 @@
                 <span>Total:</span>
                 <span id="basket-total">$0.00</span>
             </div>
-            <!-- Payment area will be injected here by JS when user clicks Finalizar compra -->
-            <div id="payment-area" class="payment-area"></div>
-            <button class="basket-checkout">Finalizar compra</button>
+            <div class="basket-actions">
+                <button id="checkout-btn" class="basket-checkout">Finalizar compra</button>
+            </div>
+            <!-- Payment area will be injected here by JS -->
+            <div id="payment-area" class="payment-area" style="display:none;"></div>
         </section>
     </main>
 
