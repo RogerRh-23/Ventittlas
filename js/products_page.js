@@ -13,19 +13,36 @@
     };
     const urlParams = new URLSearchParams(window.location.search);
     function fetchProducts() {
-        return fetch('/php/api/products.php')
-            .then(r => {
-                if (!r.ok) throw new Error(r.status);
-                return r.json();
-            })
-            .then(data => {
-                // support { success:true, productos: [...] } or direct array
-                if (data && data.success && Array.isArray(data.productos)) return data.productos;
-                if (Array.isArray(data)) return data;
-                console.error('products.php returned unexpected format', data);
+        // Try multiple possible URLs for the API
+        const urls = [
+            '/php/api/products.php',
+            '../php/api/products.php',
+            './php/api/products.php'
+        ];
+        
+        async function tryFetch(url) {
+            const r = await fetch(url);
+            if (!r.ok) throw new Error(`HTTP ${r.status} from ${url}`);
+            return r.json();
+        }
+        
+        return Promise.allSettled(urls.map(tryFetch))
+            .then(results => {
+                for (const result of results) {
+                    if (result.status === 'fulfilled') {
+                        const data = result.value;
+                        // support { success:true, productos: [...] } or direct array
+                        if (data && data.success && Array.isArray(data.productos)) return data.productos;
+                        if (Array.isArray(data)) return data;
+                    }
+                }
+                console.error('All product API URLs failed or returned unexpected format');
                 return [];
             })
-            .catch(err => { console.error('Error fetching products.json', err); return []; });
+            .catch(err => { 
+                console.error('Error fetching products', err); 
+                return []; 
+            });
     }
 
     function uniqueValues(arr, key) {
@@ -77,26 +94,46 @@
             if (addBtn) {
                 addBtn.addEventListener('click', (ev) => {
                     ev.preventDefault();
+                    ev.stopPropagation();
+                    console.log('Add to cart clicked for product:', product);
+                    
                     addBtn.disabled = true;
                     const item = {
-                        id_producto: product.id ?? null,
-                        nombre: product.title || product.raw?.nombre || '',
-                        precio: Number(product.price || 0),
+                        id_producto: product.id ?? product.id_producto ?? null,
+                        nombre: product.title || product.nombre || product.raw?.nombre || '',
+                        precio: Number(product.price || product.precio || 0),
                         cantidad: 1
                     };
+                    
+                    console.log('Adding item to cart:', item);
+                    
                     try {
                         const key = 'basket';
                         const arr = JSON.parse(localStorage.getItem(key) || '[]');
                         const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
-                        if (exist) exist.cantidad = (Number(exist.cantidad)||0) + 1; else arr.push(item);
+                        if (exist) {
+                            exist.cantidad = (Number(exist.cantidad)||0) + 1;
+                            console.log('Updated existing item quantity:', exist);
+                        } else {
+                            arr.push(item);
+                            console.log('Added new item to cart');
+                        }
                         localStorage.setItem(key, JSON.stringify(arr));
-                        try { window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); } catch (e) {}
+                        try { 
+                            window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } })); 
+                        } catch (e) {
+                            console.warn('Could not dispatch basket update event:', e);
+                        }
                         addBtn.textContent = '✓ Agregado';
+                        console.log('Cart updated successfully. Total items:', arr.length);
                     } catch (e) {
+                        console.error('Error adding to cart:', e);
                         addBtn.textContent = 'Error';
                     }
                     setTimeout(() => { addBtn.disabled = false; addBtn.textContent = 'Agregar'; }, 900);
                 });
+            } else {
+                console.warn('Add to cart button not found for product:', product.title);
             }
         });
     }
@@ -285,6 +322,9 @@
         // initial render
         updateRangeFill();
         doRender();
+        
+        // Debug: Log initialization
+        console.log('Products page initialized with', products.length, 'products');
     }
 
     function afterIncludes(fn) {
@@ -305,12 +345,69 @@
             id: p.id_producto ?? p.id ?? null,
             title: p.nombre ?? p.title ?? p.name ?? '',
             price: (p.precio ?? p.price ?? 0),
-            image: p.imagen_url ?? p.imagen ?? p.image ?? null,
+            image: (function () {
+                let img = p.imagen_url ?? p.imagen ?? p.image ?? null;
+                if (!img) return null;
+                img = String(img).trim();
+                if (img === '') return null;
+                // If it's already an absolute URL or starts with a slash, leave as-is
+                if (/^https?:\/\//i.test(img) || img.startsWith('/')) return img;
+                // If it starts with 'assets/' (missing leading slash), add it
+                if (img.startsWith('assets/')) return '/' + img;
+                // Otherwise assume it's a filename stored in the DB and prepend the products folder
+                return '/assets/img/products/' + img;
+            })(),
             url: p.url ?? null,
             stock: (p.stock ?? p.cantidad ?? null) !== null ? Number(p.stock ?? p.cantidad) : null,
             // category field coming from products API (categoria) or other sources
             category: p.categoria ?? p.category ?? null,
+            // pass through original properties for compatibility
+            id_producto: p.id_producto,
+            nombre: p.nombre,
+            precio: p.precio,
+            imagen_url: p.imagen_url,
             raw: p
+        };
+    }
+
+    // Debugging helper - expose functions for console testing
+    if (typeof window !== 'undefined') {
+        window.debugProducts = {
+            fetchProducts: fetchProducts,
+            normalizeProduct: normalizeProduct,
+            testAddToCart: function(productId) {
+                const mockProduct = {
+                    id: productId,
+                    id_producto: productId,
+                    title: 'Test Product',
+                    nombre: 'Test Product',
+                    price: 100,
+                    precio: 100
+                };
+                
+                const item = {
+                    id_producto: mockProduct.id ?? mockProduct.id_producto ?? null,
+                    nombre: mockProduct.title || mockProduct.nombre || '',
+                    precio: Number(mockProduct.price || mockProduct.precio || 0),
+                    cantidad: 1
+                };
+                
+                try {
+                    const key = 'basket';
+                    const arr = JSON.parse(localStorage.getItem(key) || '[]');
+                    const exist = arr.find(i => (i.id_producto ?? i.id) === item.id_producto);
+                    if (exist) exist.cantidad = (Number(exist.cantidad)||0) + 1; 
+                    else arr.push(item);
+                    localStorage.setItem(key, JSON.stringify(arr));
+                    window.dispatchEvent(new CustomEvent('basket:updated', { detail: { basket: arr } }));
+                    console.log('Added to cart:', item);
+                    console.log('Current cart:', arr);
+                    return true;
+                } catch (e) {
+                    console.error('Error adding to cart:', e);
+                    return false;
+                }
+            }
         };
     }
 })();
