@@ -448,14 +448,14 @@ h6 {
   font-size: 3.5rem;
   margin: 0 0 8px 0;
   pointer-events: auto;
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .header-container p {
   font-size: 2.5rem;
   margin: 0;
   pointer-events: auto;
-  color: #sss !important;
+  color: #ffffff !important;
   /* subtle shadow to ensure contrast against busy background images */
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
@@ -472,13 +472,13 @@ h6 {
   top: 0;
   left: 0;
   width: 100%;
-  /* force white background */
-  background-color: rgba(255, 255, 255, 0.95);
+  /* transparent background with blur effect */
+  background-color: rgba(0, 0, 0, 0.1);
   padding: 16px 0;
   z-index: 10100;
   /* ensure it's above everything including header text */
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   margin: 0 !important;
   /* Smooth transitions for position and visual changes */
   transition: top 220ms cubic-bezier(0.22, 0.9, 0.32, 1), background-color 200ms ease, box-shadow 200ms ease, transform 220ms ease, opacity 180ms ease;
@@ -510,14 +510,16 @@ h6 {
 }
 .site-navbar .nav-links li {
   margin-left: 32px;
+  position: relative;
 }
 .site-navbar .nav-links li a {
   font-weight: 700;
-  color: #191919;
+  color: #ffffff;
   text-decoration: none;
   font-size: 1.5rem;
   display: inline-flex;
   align-items: center;
+  position: relative;
 }
 .site-navbar .nav-links li a:hover {
   text-decoration: underline;
@@ -526,11 +528,12 @@ h6 {
 .nav-search {
   display: inline-flex;
   align-items: center;
-  background: #ffffff;
-  /* must remain white in all states */
+  background: rgba(255, 255, 255, 0.9);
+  /* semi-transparent white for better visibility */
   padding: 8px 16px;
   border-radius: 24px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(1px);
 }
 
 .nav-search input {
@@ -571,16 +574,16 @@ h6 {
 
 /* solid state: used when banner scrolled past or on pages without banner */
 .site-navbar--solid {
-  background-color: #ffffff;
-  /* force white instead of green */
-  color: #191919;
+  background-color: #009929 !important;
+  /* force secondary color background */
+  color: #ffffff;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .site-navbar--solid .nav-links li a {
-  color: #191919;
+  color: #ffffff !important;
 }
 
 .site-navbar--solid .nav-search {
@@ -590,7 +593,7 @@ h6 {
 
 /* Pages without header (products, services, etc) - fixed navbar that pushes content */
 body:not(.has-header) {
-  padding-top: 128px;
+  padding-top: 120px;
   /* Reserve space for fixed navbar */
 }
 
@@ -603,8 +606,8 @@ body:not(.has-header) .site-navbar {
   color: #ffffff;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
-  z-index: 11000;
-  /* Highest z-index for other pages */
+  z-index: 10100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 body:not(.has-header) .site-navbar .nav-links li a {
@@ -613,8 +616,8 @@ body:not(.has-header) .site-navbar .nav-links li a {
 
 /* When navbar becomes solid on index page (after scrolling past banner) */
 body.has-solid-navbar {
-  padding-top: 128px;
-  /* Reserve space when navbar becomes fixed */
+  padding-top: 0;
+  /* No extra padding needed on index page */
 }
 
 body.has-solid-navbar .site-navbar {
@@ -622,8 +625,7 @@ body.has-solid-navbar .site-navbar {
   top: 0 !important;
   left: 0;
   width: 100%;
-  z-index: 11000;
-  /* Highest z-index when solid */
+  z-index: 10100;
 }
 
 body.has-solid-navbar .site-navbar .nav-links li a {
@@ -640,14 +642,28 @@ body.has-header .site-navbar {
   width: 100%;
   z-index: 10080;
   /* Above header text (10070) */
+  background-color: rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+body.has-header .site-navbar .nav-links li a {
+  color: #ffffff !important;
 }
 
-/* When navbar becomes solid (scrolled past banner), ensure proper styling */
-.site-navbar--solid {
-  background-color: #009929 !important;
+/* Cart counter styles */
+.cart-counter {
+  background-color: #006414;
   color: #ffffff;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .product-title {
@@ -1130,6 +1146,18 @@ body {
   padding: 32px 0;
 }
 
+.site-header .header-container h1 {
+  color: #ffffff !important;
+  font-size: 3.5rem;
+  margin: 0 0 8px 0;
+  pointer-events: auto;
+}
+.site-header .header-container p {
+  color: #ffffff !important;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
 .featured-products {
   max-width: none !important;
   width: 100% !important;
@@ -1179,6 +1207,20 @@ body {
   }
 }
 
+.featured-products:first-of-type {
+  margin-top: 2rem;
+}
+@media (min-width: 768px) {
+  .featured-products:first-of-type {
+    margin-top: 3rem;
+  }
+}
+@media (min-width: 1200px) {
+  .featured-products:first-of-type {
+    margin-top: 4rem;
+  }
+}
+
 .featured-products h2 {
   text-align: center;
   margin-bottom: 1.5rem;
@@ -1210,28 +1252,79 @@ body {
 
 .hero-video {
   width: 100%;
-  padding: 18px 10px 32px 10px;
+  padding: 20px 15px 40px 15px;
   box-sizing: border-box;
+  margin-bottom: 4rem;
 }
 @media (min-width: 768px) {
   .hero-video {
-    padding: 28px 20px 40px 20px;
+    margin-bottom: 5rem;
+  }
+}
+@media (min-width: 1200px) {
+  .hero-video {
+    margin-bottom: 6rem;
+  }
+}
+.hero-video .video-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #191919;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+@media (min-width: 768px) {
+  .hero-video .video-title {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+}
+@media (min-width: 1200px) {
+  .hero-video .video-title {
+    font-size: 2rem;
+  }
+}
+@media (min-width: 768px) {
+  .hero-video {
+    padding: 30px 25px 50px 25px;
+  }
+}
+@media (min-width: 1200px) {
+  .hero-video {
+    padding: 40px 30px 60px 30px;
   }
 }
 .hero-video .video-wrapper {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   position: relative;
-  /* 16:9 ratio */
+  /* 16:9 ratio para video responsivo */
   padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-  background-color: #000; /* fallback while loading */
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  background-color: #000;
+  /* fallback while loading */
+  transition: box-shadow 0.3s ease;
 }
-.hero-video .video-wrapper iframe {
+.hero-video .video-wrapper:hover {
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.25);
+}
+@media (min-width: 768px) {
+  .hero-video .video-wrapper {
+    max-width: 1200px;
+    border-radius: 20px;
+  }
+}
+@media (min-width: 1200px) {
+  .hero-video .video-wrapper {
+    max-width: 1400px;
+  }
+}
+.hero-video .video-wrapper iframe,
+.hero-video .video-wrapper video {
   position: absolute;
   top: 0;
   left: 0;
@@ -1239,6 +1332,29 @@ body {
   height: 100%;
   border: 0;
   display: block;
+  object-fit: cover;
+  /* Asegura que el video llene el contenedor manteniendo proporción */
+  border-radius: inherit;
+  background-color: #000;
+  /* Mejoras específicas para video HTML5 */
+}
+.hero-video .video-wrapper iframe:focus,
+.hero-video .video-wrapper video:focus {
+  outline: 2px solid #006414;
+  outline-offset: 2px;
+}
+.hero-video .video-wrapper iframe,
+.hero-video .video-wrapper video {
+  /* Controles del video más elegantes */
+}
+.hero-video .video-wrapper iframe::-webkit-media-controls-panel,
+.hero-video .video-wrapper video::-webkit-media-controls-panel {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+.hero-video .video-wrapper iframe::-webkit-media-controls-current-time-display, .hero-video .video-wrapper iframe::-webkit-media-controls-time-remaining-display,
+.hero-video .video-wrapper video::-webkit-media-controls-current-time-display,
+.hero-video .video-wrapper video::-webkit-media-controls-time-remaining-display {
+  color: #ffffff;
 }
 
 #inventory-container {
@@ -2853,5 +2969,3 @@ body {
   /* track uses a subtle background derived from page background */
   background-color: white;
 }
-
-/*# sourceMappingURL=main.css.map */

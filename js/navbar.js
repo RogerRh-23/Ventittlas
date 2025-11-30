@@ -111,34 +111,33 @@
             document.body.classList.remove('has-solid-navbar');
         } catch (e) { }
 
-        // Position navbar at top of screen over the banner
-        // Always keep navbar at top of viewport, change style when banner scrolls past
+        // Position navbar and handle scroll behavior
         function positionNavbar() {
             try {
-                var navHeight = navbar.getBoundingClientRect().height || navbar.offsetHeight || 0;
+                var navHeight = navbar.offsetHeight || 80;
+
                 if (!headerImg) {
-                    // No banner: stick to top and reserve space
-                    navbar.style.top = '0px';
-                    document.body.style.paddingTop = navHeight + 'px';
+                    // No banner: make navbar solid and fixed
                     navbar.classList.add('site-navbar--solid');
+                    navbar.style.top = '0px';
                     return;
                 }
 
-                var bannerRect = headerImg.getBoundingClientRect();
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                var bannerHeight = headerImg.offsetHeight || 0;
 
-                // Always keep navbar at the top of the viewport
+                // Always position navbar at top
                 navbar.style.top = '0px';
-                document.body.style.paddingTop = '0px'; // No padding needed on index
 
-                // Check if banner has scrolled past the navbar to change styling
-                if (bannerRect.bottom <= navHeight) {
-                    // Banner scrolled past navbar: make navbar solid
+                // Check if we've scrolled past the banner
+                if (scrollTop > (bannerHeight - navHeight)) {
                     navbar.classList.add('site-navbar--solid');
                 } else {
-                    // Banner still visible behind navbar: keep transparent
                     navbar.classList.remove('site-navbar--solid');
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                console.warn('Error positioning navbar:', e);
+            }
         }
 
         // Run on scroll and on resize (banner dims may change)
@@ -157,7 +156,7 @@
                 if (cartCounter) {
                     const basket = JSON.parse(localStorage.getItem('basket') || '[]');
                     const totalItems = basket.reduce((sum, item) => sum + (Number(item.cantidad) || 0), 0);
-                    
+
                     if (totalItems > 0) {
                         cartCounter.textContent = totalItems;
                         cartCounter.style.display = 'inline';

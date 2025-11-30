@@ -6,13 +6,13 @@
     top: 0;
     left: 0;
     width: 100%;
-    /* force white background */
-    background-color: rgba(255, 255, 255, 0.95);
+    /* transparent background with blur effect */
+    background-color: rgba(0, 0, 0, 0.1);
     padding: 16px 0;
     z-index: 10100;
     /* ensure it's above everything including header text */
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     margin: 0 !important;
     /* Smooth transitions for position and visual changes */
     transition: top 220ms cubic-bezier(0.22, 0.9, 0.32, 1), background-color 200ms ease, box-shadow 200ms ease, transform 220ms ease, opacity 180ms ease;
@@ -46,14 +46,16 @@
 
         li {
             margin-left: 32px;
+            position: relative;
 
             a {
                 font-weight: $font-weight-bold;
-                color: $black;
+                color: $white;
                 text-decoration: none;
                 font-size: 1.5rem;
                 display: inline-flex;
                 align-items: center;
+                position: relative;
 
                 &:hover {
                     text-decoration: underline;
@@ -66,11 +68,12 @@
 .nav-search {
     display: inline-flex;
     align-items: center;
-    background: $white;
-    /* must remain white in all states */
+    background: rgba(255, 255, 255, 0.9);
+    /* semi-transparent white for better visibility */
     padding: 8px 16px;
     border-radius: 24px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(1px);
 }
 
 .nav-search input {
@@ -112,16 +115,16 @@
 
 /* solid state: used when banner scrolled past or on pages without banner */
 .site-navbar--solid {
-    background-color: $white;
-    /* force white instead of green */
-    color: $black;
+    background-color: $secondary-color !important;
+    /* force secondary color background */
+    color: $white;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .site-navbar--solid .nav-links li a {
-    color: $black;
+    color: $white !important;
 }
 
 .site-navbar--solid .nav-search {
@@ -131,7 +134,7 @@
 
 /* Pages without header (products, services, etc) - fixed navbar that pushes content */
 body:not(.has-header) {
-    padding-top: 128px;
+    padding-top: 120px;
     /* Reserve space for fixed navbar */
 }
 
@@ -144,8 +147,8 @@ body:not(.has-header) .site-navbar {
     color: $white;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    z-index: 11000;
-    /* Highest z-index for other pages */
+    z-index: 10100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 body:not(.has-header) .site-navbar .nav-links li a {
@@ -154,8 +157,8 @@ body:not(.has-header) .site-navbar .nav-links li a {
 
 /* When navbar becomes solid on index page (after scrolling past banner) */
 body.has-solid-navbar {
-    padding-top: 128px;
-    /* Reserve space when navbar becomes fixed */
+    padding-top: 0;
+    /* No extra padding needed on index page */
 }
 
 body.has-solid-navbar .site-navbar {
@@ -163,8 +166,7 @@ body.has-solid-navbar .site-navbar {
     top: 0 !important;
     left: 0;
     width: 100%;
-    z-index: 11000;
-    /* Highest z-index when solid */
+    z-index: 10100;
 }
 
 body.has-solid-navbar .site-navbar .nav-links li a {
@@ -181,12 +183,27 @@ body.has-header .site-navbar {
     width: 100%;
     z-index: 10080;
     /* Above header text (10070) */
+    background-color: rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    .nav-links li a {
+        color: $white !important;
+    }
 }
 
-/* When navbar becomes solid (scrolled past banner), ensure proper styling */
-.site-navbar--solid {
-    background-color: $secondary-color !important;
+/* Cart counter styles */
+.cart-counter {
+    background-color: $primary-color;
     color: $white;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    min-width: 18px;
+    text-align: center;
+    line-height: 1.2;
 }
